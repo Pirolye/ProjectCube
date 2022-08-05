@@ -22,7 +22,7 @@ static const int screenHeight = 450;
 static Camera3D camera = { 0 };
 static Model mainCube;
 static Vector2 mousePosChange;
-static Vector2 cubeRot;
+static Vector3 cubeRot;
 
 static void UpdateDrawFrame(void);          // Update and draw one frame
 
@@ -84,9 +84,37 @@ static void UpdateDrawFrame(void)
 		HideCursor();
 
 		Vector2 delta = GetMouseDelta();
+		Vector2 mousePos = GetMousePosition();
+		SetMousePosition(mousePos.x - delta.x, mousePos.y - delta.y);
 
-		cubeRot.x = cubeRot.x + (delta.x / 10.0f);
-		cubeRot.y = cubeRot.y + (delta.y / 10.0f);
+		if (cubeRot.x == 360.0f) cubeRot.x = 0.0f;
+		if (cubeRot.y == 360.0f) cubeRot.y = 0.0f;
+		if (cubeRot.z == 360.0f) cubeRot.z = 0.0f;
+
+		cubeRot.x += (delta.x * 0.2f);
+		cubeRot.y += (delta.y * 0.2f);
+		
+		
+		if ( abs(delta.x) > 0.5f && abs(delta.y) > 0.5f)
+		{
+			float xs = (delta.x * delta.x) * 1.0f;
+			float ys = (delta.y * delta.y) * 1.0f;
+
+			float zs = xs + ys;
+
+			float z = sqrt(zs);
+
+			cubeRot.z += z * 0.2f;
+		}
+		
+
+		mainCube.transform = MatrixRotateXYZ((Vector3) {DEG2RAD*cubeRot.x, DEG2RAD*cubeRot.y, DEG2RAD*cubeRot.z});
+
+		
+	}
+	else
+	{
+		ShowCursor();
 	}
 
     BeginDrawing();
@@ -95,16 +123,13 @@ static void UpdateDrawFrame(void)
 
         BeginMode3D(camera);
 
-		DrawModelEx(mainCube, (Vector3) { 0.0f, 0.0f, 0.0f }, (Vector3) { 1.0f, 1.0f, 1.0f }, (Vector3){}, (Vector3) { 1.0f, 1.0f, 1.0f }, WHITE);
+		DrawModel(mainCube, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 
             DrawGrid(10, 1.0f);
 
         EndMode3D();
 
         DrawFPS(10, 10);
-
-
-	ShowCursor;
 
     EndDrawing();
 }
