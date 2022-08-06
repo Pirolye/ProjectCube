@@ -9,10 +9,10 @@
 #include "raylib.h"
 #include "raymath.h"
 
-//----------------------------------------------------------------------------------
-// Shared Variables Definition (global)
-// NOTE: Those variables are shared between modules through screens.h
-//----------------------------------------------------------------------------------
+#define RLIGHTS_IMPLEMENTATION
+#include "rlights.h"
+
+#include "rlgl.h"
 
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -47,8 +47,30 @@ int main(void)
     mainCube            = LoadModel("game/content/model/smallCube/smallCube.obj");
     Texture2D mainCube_albedo = LoadTexture("game/content/model/smallCube/smallCube_albedo.png");
 
+	// Load basic lighting shader
+	Shader smallCube_shader = LoadShader("game/content/model/smallCube/base_lighting.vs", "game/content/model/smallCube/smallCube_lighting.fs");
+	// Get some required shader locations
+	smallCube_shader.locs[SHADER_LOC_VECTOR_VIEW] = GetShaderLocation(smallCube_shader, "viewPos");
+	// NOTE: "matModel" location name is automatically assigned on shader loading, 
+	// no need to get the location again if using that uniform name
+	//shader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(shader, "matModel");
+
+	// Ambient light level (some basic lighting)
+	int ambientLoc = GetShaderLocation(smallCube_shader, "ambient");
+	SetShaderValue(smallCube_shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
+
+	// Assign out lighting shader to model
+	//mainCube.materials[0].shader = smallCube_shader;
+	//cube.materials[0].shader = shader;
+
+	// Create lights
+	Light lights[MAX_LIGHTS] = { 0 };
+	lights[0] = CreateLight(LIGHT_POINT, (Vector3) { -2, 1, -2 }, Vector3Zero(), WHITE, smallCube_shader);
+	lights[1] = CreateLight(LIGHT_POINT, (Vector3) { 5, 5, 5 }, Vector3Zero(), WHITE, smallCube_shader);
+
+
     //(levente): This will be where we load the shader!
-    Shader smallCube_shader = LoadShader(0, TextFormat("game/content/model/smallCube/smallCube_standard.fs", 330));
+    //Shader smallCube_shader = LoadShader(0, TextFormat("game/content/model/smallCube/smallCube_standard.fs", 330));
 
 	mainCube.materials[0].shader = smallCube_shader;                     // Set shader effect to 3d model
 	mainCube.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = mainCube_albedo; // Bind texture to model
@@ -75,7 +97,7 @@ int main(void)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
-	glEnable(GL_CULL_FACE);
+	
 
     UpdateCamera(&camera);
 
@@ -132,11 +154,13 @@ static void UpdateDrawFrame(void)
 
     BeginDrawing();
 
-        ClearBackground(RAYWHITE);
+        ClearBackground(BLACK);
 
         BeginMode3D(camera);
 
+		rlEnableFrontfaceCulling();
 		DrawModel(mainCube, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+		rlDisableFrontfaceCulling();
 
             DrawGrid(10, 1.0f);
 
