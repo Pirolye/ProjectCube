@@ -36,7 +36,7 @@ int main(void)
     InitAudioDevice();      // Initialize audio device
 
     
-    camera.position = (Vector3){ 6.0f, 0.0f, 0.0f }; // Camera position
+    camera.position = (Vector3){ 4.0f, 0.0f, 0.0f }; // Camera position
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
     camera.fovy = 70.0f;                                // Camera field-of-view 
@@ -75,27 +75,31 @@ int main(void)
 // Update and draw game frame
 static void UpdateDrawFrame(void)
 {
+	glEnable(GL_CULL_FACE);
+
     UpdateCamera(&camera);
 
     //UpdateMusicStream(music);  // This is used when we need to manually increment the music player. No use when no music is playing.
 
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (cubeRot.x == 360.0f) cubeRot.x = 0.0f;
+	if (cubeRot.y == 360.0f) cubeRot.y = 0.0f;
+	if (cubeRot.z == 360.0f) cubeRot.z = 0.0f;
+
+	if (IsKeyDown(KEY_W))
 	{
-		HideCursor();
 
-		Vector2 delta = GetMouseDelta();
-		Vector2 mousePos = GetMousePosition();
-		SetMousePosition(mousePos.x - delta.x, mousePos.y - delta.y);
+		//Vector2 delta = GetMouseDelta();
+		//Vector2 mousePos = GetMousePosition();
+		//SetMousePosition(mousePos.x - delta.x, mousePos.y - delta.y);
 
-		if (cubeRot.x == 360.0f) cubeRot.x = 0.0f;
-		if (cubeRot.y == 360.0f) cubeRot.y = 0.0f;
-		if (cubeRot.z == 360.0f) cubeRot.z = 0.0f;
 
-		cubeRot.x += (delta.x * 0.2f);
-		cubeRot.y += (delta.y * 0.2f);
+		cubeRot.x += 5.0f;
+		//cubeRot.y += 5.0f;
 		
-		
-		if ( abs(delta.x) > 0.5f && abs(delta.y) > 0.5f)
+		// Okay so the problem is that when we rotate the cube we also rotate the axis' with it. Meaning if we rotate A and B by 90 degrees A and B will no longer be rotatebable to the 
+		// previous angle by the same mouse movement. I need to find a way to compensate the rotation of the axis'. 
+
+		/*if ( abs(delta.x) > 0.5f && abs(delta.y) > 0.5f)
 		{
 			float xs = (delta.x * delta.x) * 1.0f;
 			float ys = (delta.y * delta.y) * 1.0f;
@@ -105,17 +109,26 @@ static void UpdateDrawFrame(void)
 			float z = sqrt(zs);
 
 			cubeRot.z += z * 0.2f;
-		}
+		}*/
 		
-
-		mainCube.transform = MatrixRotateXYZ((Vector3) {DEG2RAD*cubeRot.x, DEG2RAD*cubeRot.y, DEG2RAD*cubeRot.z});
-
-		
+	
 	}
-	else
+	else if (IsKeyDown(KEY_S))
 	{
-		ShowCursor();
+		cubeRot.x -= 5.0f;
 	}
+	else if (IsKeyDown(KEY_A))
+	{
+		cubeRot.y += 5.0f;
+	}
+	else if (IsKeyDown(KEY_D))
+	{
+		cubeRot.y -= 5.0f;
+	}
+
+
+	mainCube.transform = MatrixRotateXYZ((Vector3) { DEG2RAD* cubeRot.x, DEG2RAD* cubeRot.y, DEG2RAD* cubeRot.z });
+
 
     BeginDrawing();
 
