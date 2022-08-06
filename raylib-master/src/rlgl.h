@@ -1647,13 +1647,13 @@ void rlEnableDepthMask(void) { glDepthMask(GL_TRUE); }
 void rlDisableDepthMask(void) { glDepthMask(GL_FALSE); }
 
 // Enable backface culling
-void rlEnableBackfaceCulling(void) { glEnable(GL_CULL_FACE); }
+void rlEnableBackfaceCulling(void) { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); }
 
 // Disable backface culling
 void rlDisableBackfaceCulling(void) { glDisable(GL_CULL_FACE); }
 
 // Enable frontface culling
-void rlEnableFrontfaceCulling(void) { glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); /*glFrontFace(GL_CW);*/ }
+void rlEnableFrontfaceCulling(void) { glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); /*glFrontFace(GL_CW);*/ } //(Levente): Counting order doesn't seem to work
 
 // Disable frontface culling
 void rlDisableFrontfaceCulling(void) { glDisable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW); }

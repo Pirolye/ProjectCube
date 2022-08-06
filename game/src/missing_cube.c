@@ -2,7 +2,7 @@
 *
 *  Missing Cube
 * 
-*  A game by Levente Biro (C) 2022. Uses raylib.
+*  A game by Levente Biro (C) 2022. Uses raylib. (rlgl.h is modified!)
 *
 ********************************************************************************************/
 
@@ -154,6 +154,8 @@ static void UpdateDrawFrame(void)
 
     BeginDrawing();
 
+		rlEnableBackfaceCulling();
+
         ClearBackground(BLACK);
 
         BeginMode3D(camera);
@@ -161,6 +163,7 @@ static void UpdateDrawFrame(void)
 		rlEnableFrontfaceCulling();
 		DrawModel(mainCube, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
 		rlDisableFrontfaceCulling();
+		rlEnableBackfaceCulling();
 
             DrawGrid(10, 1.0f);
 
