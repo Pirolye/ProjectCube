@@ -6,7 +6,7 @@
 *
 ********************************************************************************************/
 
-#include "raylib.h"
+#include "world.h"
 #include "raymath.h"
 
 #define RLIGHTS_IMPLEMENTATION
@@ -19,12 +19,17 @@
 //----------------------------------------------------------------------------------
 static const int screenWidth = 800;
 static const int screenHeight = 450;
-static Camera3D camera = { 0 };
+//static Camera3D camera = { 0 };
 static Model mainCube;
 static Vector2 mousePosChange;
 static Vector3 cubeRot;
 
-static void UpdateDrawFrame(void);          // Update and draw one frame
+static world persistentWorld;
+
+bool appShouldClose = false;
+
+static void draw(void);    
+static void update(void);  
 
 int main(void)
 {
@@ -34,15 +39,16 @@ int main(void)
     InitWindow(1600, 900, "Missing Cube -- WORKING TITLE");
 
     InitAudioDevice();      // Initialize audio device
-
     
-    camera.position = (Vector3){ 4.0f, 0.0f, 0.0f }; // Camera position
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 70.0f;                                // Camera field-of-view 
-    camera.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+    //camera.position = (Vector3){ 4.0f, 0.0f, 0.0f }; // Camera position
+    //camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+    //camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+    //camera.fovy = 70.0f;                                // Camera field-of-view 
+    //camera.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-    SetCameraMode(camera, CAMERA_CUSTOM); // Set a free camera mode
+    //SetCameraMode(camera, CAMERA_CUSTOM); // Set a free camera mode
+
+	make_entt(CAMERA, (Vector3) { 4.0f, 0.0f, 0.0f }, persistentWorld);
 
     mainCube            = LoadModel("game/content/model/smallCube/smallCube.obj");
     Texture2D mainCube_albedo = LoadTexture("game/content/model/smallCube/smallCube_albedo.png");
@@ -59,18 +65,10 @@ int main(void)
 	int ambientLoc = GetShaderLocation(smallCube_shader, "ambient");
 	SetShaderValue(smallCube_shader, ambientLoc, (float[4]) { 0.1f, 0.1f, 0.1f, 1.0f }, SHADER_UNIFORM_VEC4);
 
-	// Assign out lighting shader to model
-	//mainCube.materials[0].shader = smallCube_shader;
-	//cube.materials[0].shader = shader;
-
 	// Create lights
 	Light lights[MAX_LIGHTS] = { 0 };
 	lights[0] = CreateLight(LIGHT_POINT, (Vector3) { -2, 1, -2 }, Vector3Zero(), WHITE, smallCube_shader);
 	lights[1] = CreateLight(LIGHT_POINT, (Vector3) { 5, 5, 5 }, Vector3Zero(), WHITE, smallCube_shader);
-
-
-    //(levente): This will be where we load the shader!
-    //Shader smallCube_shader = LoadShader(0, TextFormat("game/content/model/smallCube/smallCube_standard.fs", 330));
 
 	mainCube.materials[0].shader = smallCube_shader;                     // Set shader effect to 3d model
 	mainCube.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = mainCube_albedo; // Bind texture to model
@@ -78,9 +76,9 @@ int main(void)
     SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
  
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose() && !appShouldClose)    // Detect window close button or ESC key
     {
-        UpdateDrawFrame();
+        update();
     }
 
 	UnloadShader(smallCube_shader);       // Unload shader
@@ -89,19 +87,18 @@ int main(void)
 
     CloseAudioDevice();     // Close audio context
 
+	empty_world(persistentWorld);
+
     CloseWindow();          // Close window and OpenGL context
   
     return 0;
 }
 
-// Update and draw game frame
-static void UpdateDrawFrame(void)
+static void update(void)
 {
-	
+	step_world(persistentWorld);
 
-    UpdateCamera(&camera);
-
-    //UpdateMusicStream(music);  // This is used when we need to manually increment the music player. No use when no music is playing.
+	//UpdateCamera(&camera);
 
 	if (cubeRot.x == 360.0f) cubeRot.x = 0.0f;
 	if (cubeRot.y == 360.0f) cubeRot.y = 0.0f;
@@ -151,25 +148,12 @@ static void UpdateDrawFrame(void)
 
 	mainCube.transform = MatrixRotateXYZ((Vector3) { DEG2RAD* cubeRot.x, DEG2RAD* cubeRot.y, DEG2RAD* cubeRot.z });
 
+	draw();
 
-    BeginDrawing();
+}
 
-		rlEnableBackfaceCulling();
+static void draw(void)
+{
 
-        ClearBackground(BLACK);
 
-        BeginMode3D(camera);
-
-		rlEnableFrontfaceCulling();
-		DrawModel(mainCube, (Vector3) { 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
-		rlDisableFrontfaceCulling();
-		rlEnableBackfaceCulling();
-
-            DrawGrid(10, 1.0f);
-
-        EndMode3D();
-
-        DrawFPS(10, 10);
-
-    EndDrawing();
 }
