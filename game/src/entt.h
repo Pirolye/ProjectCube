@@ -1,17 +1,23 @@
 #ifndef _ENTT_H_
 #define _ENTT_H_
 
-enum entts { cameraDefConfig, mainCubeDefConfig };
+#include "raylib.h"
+#include <string>
+
+enum entts {mainCube, cam, camSetCurrentlyRendering };
 
 struct entt
 {
-	entt();
-	virtual ~entt();
+	std::string id;
 
-	virtual void on_make();
-	virtual void on_destroy();
-	virtual void on_update();
-	virtual void on_draw();
+	entt() {};
+	~entt() {};
+
+	virtual void on_make() {};
+	virtual void on_destroy() {};
+	virtual void on_update() {};
+	virtual void on_draw_2d() {};
+	virtual void on_draw_3d() {}; //(Levente): Used when drawing 3d only components!
 };
 
 

@@ -14,6 +14,10 @@
 
 #include "rlgl.h"
 
+#include "world.h"
+#include "entt_camera.h"
+
+/*
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
 //----------------------------------------------------------------------------------
@@ -134,7 +138,7 @@ static void UpdateDrawFrame(void)
 			cubeRot.z += z * 0.2f;
 		}*/
 		
-	
+	/*
 	}
 	else if (IsKeyDown(KEY_S))
 	{
@@ -173,4 +177,39 @@ static void UpdateDrawFrame(void)
         DrawFPS(10, 10);
 
     EndDrawing();
+}
+*/
+;
+
+static world* persistentWorld;
+
+static void update();
+static void draw();
+
+int main()
+{
+	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
+
+	// Initialization
+	InitWindow(1600, 900, "Missing Cube -- WORKING TITLE");
+	InitAudioDevice();      // Initialize audio device
+	SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
+
+	persistentWorld = new world;
+	persistentWorld->make_desired_entt(entts::camSetCurrentlyRendering, Vector3{ 4.0f, 0.0f, 0.0f });
+	persistentWorld->make_desired_entt(entts::cam, Vector3{ 0.0f, 0.0f, 0.0f });
+
+	// Main game loop
+	while (!WindowShouldClose())    // Detect window close button or ESC key
+	{
+		persistentWorld->update();
+		persistentWorld->draw_all();
+	}
+
+	CloseAudioDevice();     // Close audio context
+
+	CloseWindow();          // Close window and OpenGL context
+
+	return 0;
+
 }

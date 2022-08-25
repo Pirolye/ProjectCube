@@ -11,37 +11,22 @@ void entt_camera::on_make()
 	rayCam.fovy = 70.0f;                                // Camera field-of-view 
 	rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode(rayCam, CAMERA_CUSTOM); // Set a free camera mode
+	SetCameraMode(rayCam, CAMERA_FREE); // Set a free camera mode
 
 }
 
 void entt_camera::on_destroy() {};
-void entt_camera::on_update()
+void entt_camera::on_update() {};
+
+void entt_camera::on_draw_2d()
 {
-	UpdateCamera(&rayCam);
-}
-
-void entt_camera::on_draw()
-{
-	BeginDrawing();
-
-	rlEnableBackfaceCulling();
-
+	if (currentlyDrawing != true) return;
 	ClearBackground(BLACK);
-
-	BeginMode3D(rayCam);
-
-	rlEnableFrontfaceCulling();
-	//DrawModel(mainCube, Vector3{ 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
-	rlDisableFrontfaceCulling();
-	rlEnableBackfaceCulling();
-
-	DrawGrid(10, 1.0f);
-
-	EndMode3D();
-
 	DrawFPS(10, 10);
+};
 
-	EndDrawing();
-
+void entt_camera::on_draw_3d()
+{
+	if (currentlyDrawing != true) return;
+	DrawGrid(10, 1.0f);
 }
