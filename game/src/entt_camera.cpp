@@ -9,7 +9,7 @@ void entt_camera::on_make()
 {
 	rayCam = new Camera3D;
 	
-	rayCam->position = Vector3{ 4.0f, 0.0f, 0.0f }; // Camera position
+	rayCam->position = Vector3{ 1.0f, 0.0f, 0.0f }; // Camera position
 	rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
 	rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
 	rayCam->fovy = 70.0f;                                // Camera field-of-view 

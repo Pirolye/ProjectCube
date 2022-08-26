@@ -8,7 +8,7 @@ struct world;
 
 #define MAX_ENTITIES_IN_WORLD 360
 
-enum entts {mainCube, cam, camSetCurrentlyRendering };
+enum entts {mainCube, cam, camSetCurrentlyRendering, };
 
 struct entt
 {
@@ -27,6 +27,6 @@ struct entt
 	std::string get_id();
 };
 
-
+#else
 
 #endif

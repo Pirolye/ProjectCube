@@ -17,7 +17,7 @@ struct world
 	entt_camera *currentlyRenderingCam; //(Levente): Each world can have as many cams as we like. The cam that we would like rendering from 
 									    // will be set by setting this pointer.
 
-	void make_desired_entt(entts inDesiredEntity, Vector3 inStartingPosition);
+	entt* make_desired_entt(entts inDesiredEntity);
 
 	bool cameraSwitchedLastFrame = false;
 
@@ -26,5 +26,6 @@ struct world
 	void on_destroy();
 }
 
+#else
 
 #endif

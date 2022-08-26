@@ -196,8 +196,10 @@ int main()
 	SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
 
 	persistentWorld = new world;
-	persistentWorld->make_desired_entt(entts::camSetCurrentlyRendering, Vector3{ 4.0f, 0.0f, 0.0f });
-	persistentWorld->make_desired_entt(entts::cam, Vector3{ 0.0f, 0.0f, 0.0f });
+	
+	entt* mainCam = persistentWorld->make_desired_entt(entts::camSetCurrentlyRendering);
+	entt* Cam1 = persistentWorld->make_desired_entt(entts::cam);
+	entt* mainCube = persistentWorld->make_desired_entt(entts::mainCube);
 
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key

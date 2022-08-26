@@ -1,5 +1,6 @@
 #include "world.h"
 #include "entt_camera.h"
+#include "entt_maincube.h"
 
 ;
 #include "assert.h"
@@ -34,60 +35,93 @@ world::~world() //(Levente): Technically this is really bad. We will need a prop
 
 }
 
-void world::make_desired_entt(entts inDesiredEntt, Vector3 inStartingPosition)
+entt* world::make_desired_entt(entts inDesiredEntt)
 {
 	switch (inDesiredEntt)
 	{
-	case entts::cam:
-	{
-		entt_camera* cam = new entt_camera;
-
-		totalMadeEntts = totalMadeEntts + 1;
-		entityArrayCurrentSize = entityArrayCurrentSize + 1;
-
-		cam->id = "entt_camera_" + std::to_string(totalMadeEntts);
-		cam->containingWorld = this;
-
-		cam->on_make();
-
-		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		case entts::cam:
 		{
-			if (entityArray[i] == NULL)
+			entt_camera* cam = new entt_camera;
+
+			totalMadeEntts = totalMadeEntts + 1;
+			entityArrayCurrentSize = entityArrayCurrentSize + 1;
+
+			cam->id = "entt_camera_" + std::to_string(totalMadeEntts);
+			cam->containingWorld = this;
+
+			cam->on_make();
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
-				entityArray[i] = cam;
-				break;
+				if (entityArray[i] == NULL)
+				{
+					entityArray[i] = cam;
+					break;
+				}
 			}
+
+			return cam;
+
+			break;
 		}
 
-		break;
-	}
-
-	case entts::camSetCurrentlyRendering:
-	{
-		entt_camera* camS = new entt_camera;
-
-		totalMadeEntts = totalMadeEntts + 1;
-		entityArrayCurrentSize = entityArrayCurrentSize + 1;
-
-		camS->id = "entt_camera_" + std::to_string(totalMadeEntts);
-		camS->containingWorld = this;
-
-		camS->on_make();
-
-		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		case entts::camSetCurrentlyRendering:
 		{
-			if (entityArray[i] == NULL)
+			entt_camera* camS = new entt_camera;
+
+			totalMadeEntts = totalMadeEntts + 1;
+			entityArrayCurrentSize = entityArrayCurrentSize + 1;
+
+			camS->id = "entt_camera_" + std::to_string(totalMadeEntts);
+			camS->containingWorld = this;
+
+			camS->on_make();
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
-				entityArray[i] = camS;
-				break;
+				if (entityArray[i] == NULL)
+				{
+					entityArray[i] = camS;
+					break;
+				}
 			}
+
+			currentlyRenderingCam = camS;
+			camS->currentlyDrawing = true;
+
+			return camS;
+
+			break;
 		}
 
-		currentlyRenderingCam = camS;
-		camS->currentlyDrawing = true;
+		case entts::mainCube:
+		{
+			entt_maincube* c = new entt_maincube;
 
-		break;
-	}
+			totalMadeEntts = totalMadeEntts + 1;
+			entityArrayCurrentSize = entityArrayCurrentSize + 1;
+
+			c->id = "entt_maincube_" + std::to_string(totalMadeEntts);
+			c->containingWorld = this;
+
+			c->on_make();
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+			{
+				if (entityArray[i] == NULL)
+				{
+					entityArray[i] = c;
+					break;
+				}
+			}
+
+			break;
+		}
+	
+		default:
+		{
+			return nullptr;
+		}
 
 	}
 }
@@ -142,6 +176,7 @@ void world::update()
 		}
 
 	}
+
 }
 
 void world::draw_all()
