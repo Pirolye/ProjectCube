@@ -4,7 +4,6 @@
 #include "entt.h"
 #include "entt_camera.h"
 
-#define MAX_ENTITIES_IN_WORLD 360
 ;
 struct world
 {
@@ -16,12 +15,15 @@ struct world
 	int totalMadeEntts = 0;
 
 	entt_camera *currentlyRenderingCam; //(Levente): Each world can have as many cams as we like. The cam that we would like rendering from 
-									 // will be set by setting this pointer.
+									    // will be set by setting this pointer.
 
 	void make_desired_entt(entts inDesiredEntity, Vector3 inStartingPosition);
 
+	bool cameraSwitchedLastFrame = false;
+
 	void update();
 	void draw_all();
+	void on_destroy();
 }
 
 

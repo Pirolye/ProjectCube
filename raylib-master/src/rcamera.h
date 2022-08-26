@@ -281,11 +281,18 @@ void UpdateCamera(Camera *camera)
 {
     static float swingCounter = 0.0f;    // Used for 1st person swinging movement
 
-    // TODO: Compute CAMERA.targetDistance and CAMERA.angle here (?)
+    // TODO: Compute CAMERA.targetDistance and CAMERA.angle here (?) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     // Mouse movement detection
     Vector2 mousePositionDelta = GetMouseDelta();
     float mouseWheelMove = GetMouseWheelMove();
+
+	CAMERA.targetDistance = camera->position.x; //(Pirolye, 2022.08.26): For some reason there is a separate CameraData struct hosting some
+												// some values. A variable from it is declared statically and it is used for the mouse wheel movement target.
+												// I don't understand why it was done this way as it would have been simpler to put the values inside the 
+												// Camera struct directly. Because the other position values are local to their pointer they are updated correctly
+												// per-camera. This isn't, thus we need to update this manually. Also applies to every other property
+												// stored in the static variable. (mode, eye level etc.)
 
     // Keys input detection
     // TODO: Input detection is raylib-dependant, it could be moved outside the module

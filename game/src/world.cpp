@@ -45,7 +45,8 @@ void world::make_desired_entt(entts inDesiredEntt, Vector3 inStartingPosition)
 		totalMadeEntts = totalMadeEntts + 1;
 		entityArrayCurrentSize = entityArrayCurrentSize + 1;
 
-		cam->id = "entt_camera_" + char(totalMadeEntts);
+		cam->id = "entt_camera_" + std::to_string(totalMadeEntts);
+		cam->containingWorld = this;
 
 		cam->on_make();
 
@@ -69,6 +70,7 @@ void world::make_desired_entt(entts inDesiredEntt, Vector3 inStartingPosition)
 		entityArrayCurrentSize = entityArrayCurrentSize + 1;
 
 		camS->id = "entt_camera_" + std::to_string(totalMadeEntts);
+		camS->containingWorld = this;
 
 		camS->on_make();
 
@@ -94,7 +96,9 @@ void world::update()
 {
 	assert(currentlyRenderingCam != nullptr);
 
-	UpdateCamera(&(currentlyRenderingCam->rayCam));
+	UpdateCamera((currentlyRenderingCam->rayCam));
+
+	cameraSwitchedLastFrame = false;
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -104,7 +108,7 @@ void world::update()
 		}
 	}
 
-	if (IsKeyDown(KEY_TAB))
+	if (IsKeyPressed(KEY_TAB))
 	{
 
 		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -126,6 +130,10 @@ void world::update()
 						currentlyRenderingCam->currentlyDrawing = true;
 
 						prev->currentlyDrawing = false;
+
+						cameraSwitchedLastFrame = true;
+
+						break;
 					}
 
 					
@@ -150,7 +158,7 @@ void world::draw_all()
 		}
 	}
 
-	BeginMode3D((currentlyRenderingCam->rayCam));
+	BeginMode3D(*(currentlyRenderingCam->rayCam));
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -163,4 +171,25 @@ void world::draw_all()
 	EndMode3D();
 
 	EndDrawing();
+}
+
+void world::on_destroy()
+{
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			entityArray[i]->on_destroy();
+		}
+	}
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			delete entityArray[i];
+		}
+	}
+
+
 }

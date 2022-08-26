@@ -8,7 +8,7 @@
 ;
 struct entt_camera : entt
 {
-	Camera3D rayCam{ 0 };
+	Camera3D* rayCam;
 
 	bool currentlyDrawing = false;
 

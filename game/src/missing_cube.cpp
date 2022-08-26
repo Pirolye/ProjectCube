@@ -206,6 +206,8 @@ int main()
 		persistentWorld->draw_all();
 	}
 
+	persistentWorld->on_destroy();
+
 	CloseAudioDevice();     // Close audio context
 
 	CloseWindow();          // Close window and OpenGL context
