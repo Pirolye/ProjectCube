@@ -9,13 +9,13 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#define RLIGHTS_IMPLEMENTATION
-#include "rlights.h"
+
 
 #include "rlgl.h"
 
 #include "world.h"
 #include "entt_camera.h"
+#include "entt_maincube.h"
 
 /*
 //----------------------------------------------------------------------------------
@@ -200,12 +200,38 @@ int main()
 	entt* mainCam = persistentWorld->make_desired_entt(entts::camSetCurrentlyRendering);
 	entt* Cam1 = persistentWorld->make_desired_entt(entts::cam);
 	entt* mainCube = persistentWorld->make_desired_entt(entts::mainCube);
+	entt* mainLight = persistentWorld->make_desired_entt(entts::light);
+	entt* secondaryLight = persistentWorld->make_desired_entt(entts::light);
+
+	entt* mainCube2 = persistentWorld->make_desired_entt(entts::mainCube);
+	
+	dynamic_cast<entt_light*>(secondaryLight)->update_light_props(1, Vector3{ 7.0f, 7.0f, 7.0f }, Vector3Zero(), WHITE);
+	dynamic_cast<entt_light*>(mainLight)->update_light_props(1, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero(), WHITE);
+	dynamic_cast<entt_maincube*>(mainCube2)->pos = Vector3{ 3.0f, 3.0f, 3.0f };
+
+	int i = 0;
 
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
 		persistentWorld->update();
 		persistentWorld->draw_all();
+
+		if (IsKeyPressed(KEY_Z))
+		{
+			if (i == 0)
+			{
+				dynamic_cast<entt_light*>(mainLight)->update_light_props(1, Vector3{ 4.0f, 4.0f, 4.0f }, Vector3Zero(), WHITE);
+				i = 1;
+			}
+
+			else if (i == 1)
+			{
+				dynamic_cast<entt_light*>(mainLight)->update_light_props(1, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero(), WHITE);
+				i = 0;
+			}
+
+		}
 	}
 
 	persistentWorld->on_destroy();

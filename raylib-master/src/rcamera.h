@@ -303,6 +303,8 @@ void UpdateCamera(Camera *camera)
 												// per-camera. This isn't, thus we need to update this manually. Also applies to every other property
 												// stored in the static variable. (mode, eye level etc.)
 
+	//(Update 2022.08.27): It turns out having this fucks up the CAMERA_FREE control preset :(
+
     // Keys input detection
     // TODO: Input detection is raylib-dependant, it could be moved outside the module
     bool keyPan = IsMouseButtonDown(CAMERA.panControl);

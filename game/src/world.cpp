@@ -13,7 +13,12 @@ world::world() //(Levente): Okay... this is clever but not very logical. Apparen
 		entityArray[i] = NULL;
 	}
 
-
+	
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
+	{
+		currentlyLoadedShaders[i] = { 0 };
+	}
+	
 }
 
 world::~world() //(Levente): Technically this is really bad. We will need a proper shutdown procedure!
@@ -35,6 +40,22 @@ world::~world() //(Levente): Technically this is really bad. We will need a prop
 
 }
 
+Shader world::make_shader(const char* vertexShader, const char* fragmentShader)
+{
+	Shader temp = LoadShader(vertexShader, fragmentShader);
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
+	{
+		if (currentlyLoadedShaders[i].id == 0 && currentlyLoadedShaders[i].locs == 0)
+		{
+			currentlyLoadedShaders[i] = temp;
+			break;
+		}
+	}
+
+	return temp;
+}
+
 entt* world::make_desired_entt(entts inDesiredEntt)
 {
 	switch (inDesiredEntt)
@@ -49,8 +70,6 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			cam->id = "entt_camera_" + std::to_string(totalMadeEntts);
 			cam->containingWorld = this;
 
-			cam->on_make();
-
 			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
 				if (entityArray[i] == NULL)
@@ -59,6 +78,8 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 					break;
 				}
 			}
+
+			cam->on_make();
 
 			return cam;
 
@@ -75,8 +96,6 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			camS->id = "entt_camera_" + std::to_string(totalMadeEntts);
 			camS->containingWorld = this;
 
-			camS->on_make();
-
 			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
 				if (entityArray[i] == NULL)
@@ -88,6 +107,8 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 
 			currentlyRenderingCam = camS;
 			camS->currentlyDrawing = true;
+
+			camS->on_make();
 
 			return camS;
 
@@ -104,8 +125,6 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			c->id = "entt_maincube_" + std::to_string(totalMadeEntts);
 			c->containingWorld = this;
 
-			c->on_make();
-
 			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
 				if (entityArray[i] == NULL)
@@ -115,9 +134,40 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 				}
 			}
 
+			c->on_make(); 
+			
+			return c;
+
 			break;
 		}
-	
+
+		case entts::light:
+		{
+			entt_light* l1 = new entt_light;
+
+			totalMadeEntts = totalMadeEntts + 1;
+			entityArrayCurrentSize = entityArrayCurrentSize + 1;
+
+			l1->id = "entt_point_light_" + std::to_string(totalMadeEntts);
+			l1->containingWorld = this;
+
+			l1->on_make();
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+			{
+				if (entityArray[i] == NULL)
+				{
+					entityArray[i] = l1;
+					break;
+				}
+			}
+
+			return l1;
+
+			break;
+		}
+
+
 		default:
 		{
 			return nullptr;
