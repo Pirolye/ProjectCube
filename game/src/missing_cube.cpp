@@ -190,6 +190,9 @@ int main()
 {
 	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
 
+	std::string workingDirectory = GetWorkingDirectory();
+	
+
 	// Initialization
 	InitWindow(1600, 900, "Missing Cube -- WORKING TITLE");
 	InitAudioDevice();      // Initialize audio device

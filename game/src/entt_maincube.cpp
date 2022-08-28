@@ -4,11 +4,11 @@
 ;
 void entt_maincube::on_make()
 {
-	cubeModel = LoadModel("game/content/model/smallCube/smallCube.obj");                 // Load model
-	cubeTexture = LoadTexture("game/content/model/smallCube/smallCube_albedo.png"); // Load model texture
+	cubeModel = LoadModel("../../game/content/model/smallCube/smallCube.obj");                 // Load model
+	cubeTexture = LoadTexture("../../game/content/model/smallCube/smallCube_albedo.png"); // Load model texture
 	cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = cubeTexture;
 
-	cubeShader = containingWorld->make_shader("game/content/model/smallCube/base_lighting.vs", "game/content/model/smallCube/smallCube_lighting.fs");
+	cubeShader = containingWorld->make_shader("../../game/content/model/smallCube/base_lighting.vs", "../../game/content/model/smallCube/smallCube_lighting.fs");
 	cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(cubeShader, "matModel");
 	int ambientLoc = GetShaderLocation(cubeShader, "ambient");
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
