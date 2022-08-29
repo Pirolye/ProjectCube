@@ -17,6 +17,8 @@ struct entt_light : entt
 	Light rayLight[360];
 
 	Model debugModel;
+	BoundingBox selectionBoundingBox;
+	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) override;
 
 	void update_light_props(int inType, Vector3 inPosition, Vector3 inTarget, Color inColor);
 

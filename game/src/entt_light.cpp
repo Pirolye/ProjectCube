@@ -29,9 +29,8 @@ void entt_light::on_make()
 		}
 	}
 
-	if(containingWorld->name == "debug") id = "debug_light_use_y_to_move_" + std::to_string(containingWorld->totalMadeEntts);
-
-	debugModel = LoadModelFromMesh(GenMeshSphere(1.0f, 30, 30));
+	debugModel = LoadModel("../../game/editor/point_light_model.obj");
+	selectionBoundingBox = GetModelBoundingBox(debugModel);
 }
 
 void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
@@ -74,11 +73,45 @@ void entt_light::on_destroy()
 
 void entt_light::on_update() 
 {
+#ifdef DEBUG
+	
+	if (containingWorld->currentlySelectedEntt == dynamic_cast<entt*>(this))
+	{
 
+	}
+
+#else
+
+#endif
 };
 
 void entt_light::on_draw_2d() {};
 void entt_light::on_draw_3d() 
 {
-	DrawModel(debugModel, rayLight[0].position, 1.0f, WHITE);
+	DrawModel(debugModel, rayLight[0].position, 0.7f, YELLOW);
+#ifdef DEBUG
+	if (containingWorld->currentlySelectedEntt == dynamic_cast<entt*>(this))
+	{
+	}
+		DrawModelWires(debugModel, rayLight[0].position, 0.7f, RED);
+		DrawBoundingBox(selectionBoundingBox, RED);
+
+#else
+#endif
 };
+
+entt* entt_light::try_select(Ray inRay, RayCollision inRayCollision)
+{
+	RayCollision boxHitInfo = GetRayCollisionBox(inRay, selectionBoundingBox);
+
+	if ((boxHitInfo.hit) && (boxHitInfo.distance < inRayCollision.distance))
+	{
+		inRayCollision = boxHitInfo;
+		return this;
+	}
+	else
+	{
+		return nullptr;
+	}
+
+}

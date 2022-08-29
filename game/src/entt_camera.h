@@ -22,6 +22,8 @@ struct entt_camera : entt
 	virtual void on_update() override;
 	virtual void on_draw_2d() override;
 	virtual void on_draw_3d() override;
+
+	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) override;
 }
 
 #else

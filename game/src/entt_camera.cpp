@@ -40,3 +40,19 @@ void entt_camera::on_draw_3d()
 	if (currentlyDrawing != true) return;
 	DrawGrid(10, 1.0f);
 }
+
+#ifdef DEBUG
+
+entt* entt_camera::try_select(Ray inRay, RayCollision inRayCollision)
+{
+	return nullptr;
+};
+
+#else
+
+entt* entt_camera::try_select(Ray inRay, RayCollision inRayCollision)
+{
+	return nullptr;
+};
+
+#endif

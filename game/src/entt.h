@@ -25,6 +25,8 @@ struct entt
 	virtual void on_draw_3d() {}; //(Levente): Used when drawing 3d only components!
 
 	std::string get_id();
+
+	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) { return nullptr; };
 };
 
 #else

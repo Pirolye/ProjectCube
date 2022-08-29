@@ -5,6 +5,9 @@
 ;
 #include "assert.h"
 
+#define FLT_MAX 340282346638528859811704183484516925440.0f 
+
+
 world::world() //(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
 {
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -195,6 +198,13 @@ void world::update()
 		}
 	}
 
+#ifdef DEBUG
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) try_select_entt();
+#else
+#endif
+
+	if (currentlySelectedEntt != nullptr) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
+
 	if (IsKeyPressed(KEY_TAB))
 	{
 
@@ -285,3 +295,44 @@ void world::on_destroy()
 
 
 }
+
+/*
+* 
+* 
+* EDITOR
+* 
+* 
+*/
+
+#ifdef DEBUG
+
+void world::try_select_entt()
+{
+	RayCollision collision = { 0 };
+	collision.distance = FLT_MAX;
+	collision.hit = false;
+
+	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->try_select(cursorSelectionRay, collision);
+			
+			if (currentlySelectedEntt != nullptr) break;
+			else continue;
+		}
+	}
+};
+
+
+
+#else
+
+void world::try_select_entt() {};
+
+
+#endif

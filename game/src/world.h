@@ -30,6 +30,11 @@ struct world
 
 	bool cameraSwitchedLastFrame = false;
 
+	// Editor functions
+	entt* currentlySelectedEntt = nullptr;
+	Ray cursorSelectionRay = { 0 };
+	void try_select_entt();
+
 	void update();
 	void draw_all();
 	void on_destroy();

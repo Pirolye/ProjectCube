@@ -40,3 +40,19 @@ void entt_maincube::on_update()
 {
 	
 }
+
+#ifdef DEBUG
+
+entt* entt_maincube::try_select(Ray inRay, RayCollision inRayCollision)
+{
+	return nullptr;
+};
+
+#else
+
+entt* entt_maincube::try_select(Ray inRay, RayCollision inRayCollision)
+{
+	return nullptr;
+};
+
+#endif

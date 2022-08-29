@@ -22,6 +22,7 @@ struct entt_maincube : entt
 	virtual void on_draw_2d() override;
 	virtual void on_draw_3d() override;
 
+	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) override;
 };
 
 
