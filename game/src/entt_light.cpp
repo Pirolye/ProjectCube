@@ -29,6 +29,8 @@ void entt_light::on_make()
 		}
 	}
 
+	if(containingWorld->name == "debug") id = "debug_light_use_y_to_move_" + std::to_string(containingWorld->totalMadeEntts);
+
 	debugModel = LoadModelFromMesh(GenMeshSphere(1.0f, 30, 30));
 }
 
@@ -70,7 +72,11 @@ void entt_light::on_destroy()
 	UnloadModel(debugModel);
 };
 
-void entt_light::on_update() {};
+void entt_light::on_update() 
+{
+
+};
+
 void entt_light::on_draw_2d() {};
 void entt_light::on_draw_3d() 
 {

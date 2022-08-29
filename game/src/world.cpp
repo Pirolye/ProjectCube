@@ -5,8 +5,7 @@
 ;
 #include "assert.h"
 
-world::world() //(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every
-			   // uninitialized entt in the array!
+world::world() //(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
 {
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -19,6 +18,10 @@ world::world() //(Levente): Okay... this is clever but not very logical. Apparen
 		currentlyLoadedShaders[i] = { 0 };
 	}
 	
+	name = "debug";
+
+	run_script_on_init();
+
 }
 
 world::~world() //(Levente): Technically this is really bad. We will need a proper shutdown procedure!
@@ -227,6 +230,8 @@ void world::update()
 
 	}
 
+	run_script_on_update();
+
 }
 
 void world::draw_all()
@@ -260,6 +265,8 @@ void world::draw_all()
 
 void world::on_destroy()
 {
+	run_script_on_destroy();
+	
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)

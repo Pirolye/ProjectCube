@@ -6,6 +6,9 @@
 *
 ********************************************************************************************/
 
+#include "game_instance.h"
+
+/*
 #include "raylib.h"
 #include "raymath.h"
 
@@ -16,7 +19,7 @@
 #include "world.h"
 #include "entt_camera.h"
 #include "entt_maincube.h"
-
+*/
 /*
 //----------------------------------------------------------------------------------
 // Local Variables Definition (local to this module)
@@ -181,6 +184,7 @@ static void UpdateDrawFrame(void)
 */
 ;
 
+/*
 static world* persistentWorld;
 
 static void update();
@@ -189,9 +193,6 @@ static void draw();
 int main()
 {
 	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
-
-	std::string workingDirectory = GetWorkingDirectory();
-	
 
 	// Initialization
 	InitWindow(1600, 900, "Missing Cube -- WORKING TITLE");
@@ -245,4 +246,20 @@ int main()
 
 	return 0;
 
+}
+*/
+
+int main()
+{
+	game_instance* currentInstance = new game_instance("Missing Cube", 1600, 900);
+
+	// Main game loop
+	while (!WindowShouldClose())    // Detect window close button or ESC key
+	{
+		currentInstance->update();
+		currentInstance->draw();
+	}
+
+	currentInstance->on_exit();
+	delete currentInstance;
 }
