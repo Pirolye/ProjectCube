@@ -3671,7 +3671,7 @@ RayCollision GetRayCollisionTriangle(Ray ray, Vector3 p1, Vector3 p2, Vector3 p3
     // Avoid culling!
     if ((det > -EPSILON) && (det < EPSILON)) return collision;
 
-    invDet = 1.0f/det;
+    invDet = 1.0f / det;
 
     // Calculate distance from V1 to ray origin
     tv = Vector3Subtract(ray.position, p1);

@@ -203,6 +203,8 @@ void world::update()
 #else
 #endif
 
+	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
+
 	if (currentlySelectedEntt != nullptr) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
 
 	if (IsKeyPressed(KEY_TAB))
@@ -268,6 +270,8 @@ void world::draw_all()
 		}
 	}
 
+	DrawRay(cursorSelectionRay, RED);
+
 	EndMode3D();
 
 	EndDrawing();
@@ -312,7 +316,7 @@ void world::try_select_entt()
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
+	
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{

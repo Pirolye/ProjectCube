@@ -94,7 +94,7 @@ void entt_light::on_draw_3d()
 	{
 	}
 		DrawModelWires(debugModel, rayLight[0].position, 0.7f, RED);
-		DrawBoundingBox(selectionBoundingBox, RED);
+		//DrawBoundingBox(selectionBoundingBox, RED);
 
 #else
 #endif
@@ -102,6 +102,9 @@ void entt_light::on_draw_3d()
 
 entt* entt_light::try_select(Ray inRay, RayCollision inRayCollision)
 {
+	/*
+	
+	
 	RayCollision boxHitInfo = GetRayCollisionBox(inRay, selectionBoundingBox);
 
 	if ((boxHitInfo.hit) && (boxHitInfo.distance < inRayCollision.distance))
@@ -111,7 +114,7 @@ entt* entt_light::try_select(Ray inRay, RayCollision inRayCollision)
 	}
 	else
 	{
-		return nullptr;
+		*/return nullptr;/*
 	}
-
+	*/
 }

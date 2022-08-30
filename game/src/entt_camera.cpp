@@ -32,7 +32,7 @@ void entt_camera::on_draw_2d()
 	ClearBackground(BLACK);
 	DrawFPS(10, 10);
 
-	DrawText(get_id().c_str(), 0, 100, 30, WHITE);
+	DrawText(id.c_str(), 0, 100, 30, WHITE);
 };
 
 void entt_camera::on_draw_3d()

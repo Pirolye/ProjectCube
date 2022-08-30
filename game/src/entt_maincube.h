@@ -8,7 +8,6 @@ struct entt_maincube : entt
 {
 	Model cubeModel;
 	Texture2D cubeTexture;
-	Vector3 pos;
 	Shader cubeShader;
 
 	using entt::entt;
@@ -21,8 +20,11 @@ struct entt_maincube : entt
 	virtual void on_update() override;
 	virtual void on_draw_2d() override;
 	virtual void on_draw_3d() override;
+	virtual void update_spatial_props(Vector3 inNewPos, float inNewScale, Vector3 inNewRotation) override;
+	virtual void update_spatial_props(entt_transform inNewEnttTransform) override;
 
 	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) override;
+	BoundingBox selectionBoundingBox;
 };
 
 
