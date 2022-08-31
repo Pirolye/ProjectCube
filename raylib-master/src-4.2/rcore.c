@@ -2842,7 +2842,7 @@ bool IsFileExtension(const char *fileName, const char *ext)
         int extCount = 0;
         const char **checkExts = TextSplit(ext, ';', &extCount);  // WARNING: Module required: rtext
 
-        char fileExtLower[MAX_FILE_EXTENSION_SIZE] = { 0 };
+        char fileExtLower[MAX_FILE_EXTENSION_SIZE + 1] = { 0 };
         strncpy(fileExtLower, TextToLower(fileExt),MAX_FILE_EXTENSION_SIZE);  // WARNING: Module required: rtext
 
         for (int i = 0; i < extCount; i++)
@@ -3765,26 +3765,17 @@ float GetMouseWheelMove(void)
     else result = (float)CORE.Input.Mouse.currentWheelMove.y;
 #endif
 
-#if defined(PLATFORM_WEB)
-    result /= 100.0f;
-#endif
-
     return result;
 }
 
 // Get mouse wheel movement X/Y as a vector
 Vector2 GetMouseWheelMoveV(void)
 {
-#if defined(PLATFORM_ANDROID)
-    return (Vector2){ 0.0f, 0.0f };
-#endif
-#if defined(PLATFORM_WEB)
-    Vector2 result = CORE.Input.Mouse.currentWheelMove;
-    result.x /= 100.0f;
-    result.y /= 100.0f;
-#endif
+    Vector2 result = { 0 };
+   
+    result = CORE.Input.Mouse.currentWheelMove;
 
-    return CORE.Input.Mouse.currentWheelMove;
+    return result;
 }
 
 // Set mouse cursor
@@ -4079,14 +4070,6 @@ static bool InitGraphicsDevice(int width, int height)
                 }
             }
         }
-
-#if defined(PLATFORM_DESKTOP)
-        // If we are windowed fullscreen, ensures that window does not minimize when focus is lost
-        if ((CORE.Window.screen.height == CORE.Window.display.height) && (CORE.Window.screen.width == CORE.Window.display.width))
-        {
-            glfwWindowHint(GLFW_AUTO_ICONIFY, 0);
-        }
-#endif
         TRACELOG(LOG_WARNING, "SYSTEM: Closest fullscreen videomode: %i x %i", CORE.Window.display.width, CORE.Window.display.height);
 
         // NOTE: ISSUE: Closest videomode could not match monitor aspect-ratio, for example,
@@ -4108,6 +4091,13 @@ static bool InitGraphicsDevice(int width, int height)
     }
     else
     {
+#if defined(PLATFORM_DESKTOP)
+        // If we are windowed fullscreen, ensures that window does not minimize when focus is lost
+        if ((CORE.Window.screen.height == CORE.Window.display.height) && (CORE.Window.screen.width == CORE.Window.display.width))
+        {
+            glfwWindowHint(GLFW_AUTO_ICONIFY, 0);
+        }
+#endif
         // No-fullscreen window creation
         CORE.Window.handle = glfwCreateWindow(CORE.Window.screen.width, CORE.Window.screen.height, (CORE.Window.title != 0)? CORE.Window.title : " ", NULL, NULL);
 
@@ -5275,6 +5265,8 @@ static void WindowFocusCallback(GLFWwindow *window, int focused)
 // GLFW3 Keyboard Callback, runs on key pressed
 static void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
+    if (key < 0) return;    // Security check, macOS fn key generates -1
+    
     // WARNING: GLFW could return GLFW_REPEAT, we need to consider it as 1
     // to work properly with our implementation (IsKeyDown/IsKeyUp checks)
     if (action == GLFW_RELEASE) CORE.Input.Keyboard.currentKeyState[key] = 0;

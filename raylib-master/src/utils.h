@@ -65,7 +65,7 @@
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-#if defined(__cplusplus)
+#ifdef __cplusplus
 extern "C" {            // Prevents name mangling of functions
 #endif
 
@@ -74,7 +74,7 @@ void InitAssetManager(AAssetManager *manager, const char *dataPath);   // Initia
 FILE *android_fopen(const char *fileName, const char *mode);           // Replacement for fopen() -> Read-only!
 #endif
 
-#if defined(__cplusplus)
+#ifdef __cplusplus
 }
 #endif
 

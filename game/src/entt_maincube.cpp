@@ -26,7 +26,7 @@ void entt_maincube::on_destroy()
 
 void entt_maincube::on_draw_3d()
 {
-	//rlEnableFrontfaceCulling();
+	rlEnableFrontfaceCulling();
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
@@ -37,7 +37,7 @@ void entt_maincube::on_draw_3d()
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
 	}
 
-	//rlDisableFrontfaceCulling();
+	rlDisableFrontfaceCulling();
 }
 
 void entt_maincube::on_draw_2d()
