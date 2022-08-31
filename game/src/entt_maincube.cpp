@@ -106,7 +106,7 @@ entt* entt_maincube::editor_try_select(Ray inRay, RayCollision inRayCollision)
 
 #else
 
-entt* entt_maincube::try_select(Ray inRay, RayCollision inRayCollision)
+entt* entt_maincube::editor_try_select(Ray inRay, RayCollision inRayCollision)
 {
 	return nullptr;
 };

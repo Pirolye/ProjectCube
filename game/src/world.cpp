@@ -348,7 +348,7 @@ void world::editor_try_select_entt()
 #else
 
 void world::update_world_editor() {};
-void world::try_select_entt() {};
+void world::editor_try_select_entt() {};
 
 
 #endif
