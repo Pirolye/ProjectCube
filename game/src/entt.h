@@ -31,10 +31,14 @@ struct entt
 	virtual void on_draw_2d() {};
 	virtual void on_draw_3d() {}; //(Levente): Used when drawing 3d only components!
 	
+	//(Levente): We always manually update all entites spatial properties because we need to apply it to whatever matrixes might exist plus it lets us control
+	//what component we want where.
 	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation) {};
-	virtual void update_spatial_props(entt_transform inNewEnttTransform) {};
+	//virtual void update_spatial_props(entt_transform inNewEnttTransform) {};
 
-	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) { return nullptr; };
+	//(Levente): Prototype of editor entity selection. Sends out a request to all entites to check for collisions between whatever they want to be selectable and the ray 
+	//shot out by the currently rendering camera.
+	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) { return nullptr; };
 };
 
 #else

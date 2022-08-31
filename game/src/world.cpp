@@ -8,14 +8,15 @@
 #define FLT_MAX 340282346638528859811704183484516925440.0f 
 
 
-world::world() //(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
+world::world() 
 {
+	//(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		entityArray[i] = NULL;
 	}
 
-	
+	//(Levente): Same for the shaders.
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
 		currentlyLoadedShaders[i] = { 0 };
@@ -198,49 +199,16 @@ void world::update()
 		}
 	}
 
-#ifdef DEBUG
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) try_select_entt();
-#else
-#endif
-
-	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
-
-	if (currentlySelectedEntt != nullptr) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
-
-	if (IsKeyPressed(KEY_TAB))
+	if (IsKeyPressed(KEY_F1))
 	{
-
-		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-		{
-			if (entityArray[i] != NULL) 
-			{
-				if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr)
-				{
-					entt_camera* foundCam = dynamic_cast<entt_camera*>(entityArray[i]);
-					
-					if (foundCam != currentlyRenderingCam) 
-					{
-						currentlyRenderingCam->currentlyDrawing = false;
-						foundCam->currentlyDrawing = false;
-
-						entt_camera* prev = currentlyRenderingCam;
-
-						currentlyRenderingCam = foundCam;
-						currentlyRenderingCam->currentlyDrawing = true;
-
-						prev->currentlyDrawing = false;
-
-						cameraSwitchedLastFrame = true;
-
-						break;
-					}
-
-					
-				}
-			}
-		}
-
+		#ifdef DEBUG 
+		isInEditorMode = true;
+		#else
+		isInEditorMode = false;
+		#endif
 	}
+
+	if(isInEditorMode) update_world_editor();
 
 	run_script_on_update();
 
@@ -252,6 +220,16 @@ void world::draw_all()
 
 	BeginDrawing();
 
+	BeginMode3D(*(currentlyRenderingCam->rayCam));
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			entityArray[i]->on_draw_3d();
+		}
+	}
+	EndMode3D();
+
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)
@@ -260,21 +238,8 @@ void world::draw_all()
 		}
 	}
 
-	BeginMode3D(*(currentlyRenderingCam->rayCam));
-
-	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-	{
-		if (entityArray[i] != NULL)
-		{
-			entityArray[i]->on_draw_3d();
-		}
-	}
-
-	DrawRay(cursorSelectionRay, RED);
-
-	EndMode3D();
-
 	EndDrawing();
+
 }
 
 void world::on_destroy()
@@ -303,28 +268,74 @@ void world::on_destroy()
 /*
 * 
 * 
-* EDITOR
+* EDITOR FUNCTION DEFINITIONS
 * 
 * 
 */
 
 #ifdef DEBUG
 
-void world::try_select_entt()
+void world::update_world_editor()
+{
+
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) editor_try_select_entt();
+
+	//Will be removed once we got editor gui
+	if (currentlySelectedEntt != nullptr) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
+
+	if (IsKeyPressed(KEY_TAB))
+	{
+
+		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		{
+			if (entityArray[i] != NULL)
+			{
+				if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr)
+				{
+					entt_camera* foundCam = dynamic_cast<entt_camera*>(entityArray[i]);
+
+					if (foundCam != currentlyRenderingCam)
+					{
+						currentlyRenderingCam->currentlyDrawing = false;
+						foundCam->currentlyDrawing = false;
+
+						entt_camera* prev = currentlyRenderingCam;
+
+						currentlyRenderingCam = foundCam;
+						currentlyRenderingCam->currentlyDrawing = true;
+
+						prev->currentlyDrawing = false;
+
+						cameraSwitchedLastFrame = true;
+
+						break;
+					}
+
+
+				}
+			}
+		}
+
+	}
+
+
+}
+
+void world::editor_try_select_entt()
 {
 	RayCollision collision = { 0 };
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	
+	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)
 		{
-			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			
 			if (currentlySelectedEntt != nullptr) break;
 			else continue;
@@ -336,6 +347,7 @@ void world::try_select_entt()
 
 #else
 
+void world::update_world_editor() {};
 void world::try_select_entt() {};
 
 

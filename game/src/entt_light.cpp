@@ -3,6 +3,8 @@
 #include "raymath.h"
 
 ;
+//(Levente): Each shader individually keeps track of light source information. When making a light, we go through each shader and manually update the 
+//information.
 void entt_light::on_make()
 {
 	for (int i = 0; i != 360; i++)
@@ -34,11 +36,12 @@ void entt_light::on_make()
 	enttTransform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
 	debugModel = LoadModel("../../game/editor/point_light_model.obj");
-	selectionBoundingBox = GetModelBoundingBox(debugModel);
 }
 
 void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
 {
+	update_spatial_props(inPos, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+	
 	for (int i2 = 0; i2 != 360; i2++)
 	{
 		if (rayLight[i2].enabled == true)
@@ -70,6 +73,20 @@ void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget,
 	}
 };
 
+void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
+{
+	enttTransform.pos = inNewPos;
+	enttTransform.scale = inNewScale;
+	enttTransform.rot = inNewRotation;
+
+	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ inNewRotation.x * DEG2RAD, inNewRotation.y * DEG2RAD, inNewRotation.z * DEG2RAD });
+	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
+
+	debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+}
+
 void entt_light::on_destroy() 
 {
 	UnloadModel(debugModel);
@@ -77,48 +94,71 @@ void entt_light::on_destroy()
 
 void entt_light::on_update() 
 {
-#ifdef DEBUG
-	
-	if (containingWorld->currentlySelectedEntt == dynamic_cast<entt*>(this))
+	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
-
+	
 	}
-
-#else
-
-#endif
 };
 
-void entt_light::on_draw_2d() {};
+void entt_light::on_draw_2d() 
+{
+
+};
+
 void entt_light::on_draw_3d() 
 {
-	DrawModel(debugModel, rayLight[0].position, 0.7f, YELLOW);
-#ifdef DEBUG
-	if (containingWorld->currentlySelectedEntt == dynamic_cast<entt*>(this))
+	if (containingWorld->isInEditorMode)
 	{
-	}
-		DrawModelWires(debugModel, rayLight[0].position, 0.7f, RED);
-		//DrawBoundingBox(selectionBoundingBox, RED);
+		DrawModel(debugModel, Vector3Zero(), 1.0f, YELLOW);
 
-#else
-#endif
+		if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
+		{
+			DrawModelWires(debugModel, Vector3Zero(), 1.0f, RED);
+		}
+
+	}
+	
 };
 
-entt* entt_light::try_select(Ray inRay, RayCollision inRayCollision)
-{
-	/*
-	
-	
-	RayCollision boxHitInfo = GetRayCollisionBox(inRay, selectionBoundingBox);
+/*
+*
+*
+* EDITOR FUNCTION DEFINITIONS
+*
+*
+*/
 
-	if ((boxHitInfo.hit) && (boxHitInfo.distance < inRayCollision.distance))
+#ifdef DEBUG
+
+entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
+{
+	// Check ray collision against model meshes
+	RayCollision meshHitInfo = { 0 };
+	for (int m = 0; m < debugModel.meshCount; m++)
 	{
-		inRayCollision = boxHitInfo;
-		return this;
+		meshHitInfo = GetRayCollisionMesh(inRay, debugModel.meshes[m], debugModel.transform);
+		if (meshHitInfo.hit)
+		{
+			// Save the closest hit mesh
+			inRayCollision = meshHitInfo;
+
+			return this;
+
+			break;  // Stop once one mesh collision is detected, the colliding mesh is m
+		}
+		else
+		{
+			return nullptr;
+		}
 	}
-	else
-	{
-		*/return nullptr;/*
-	}
-	*/
+
 }
+
+#else
+
+entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
+{
+	return nullptr;
+}
+
+#endif

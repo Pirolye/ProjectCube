@@ -1,4 +1,4 @@
-#include "entt_camera.h"
+#include "world.h"
 
 #include "raylib.h"
 
@@ -31,28 +31,44 @@ void entt_camera::on_update() {};
 void entt_camera::on_draw_2d()
 {
 	if (currentlyDrawing != true) return;
-	ClearBackground(BLACK);
 	DrawFPS(10, 10);
 
-	DrawText(id.c_str(), 0, 100, 30, WHITE);
+	if (containingWorld->isInEditorMode)
+	{
+		DrawText(id.c_str(), 0, 100, 30, WHITE);
+	}
 };
 
 void entt_camera::on_draw_3d()
 {
 	if (currentlyDrawing != true) return;
-	DrawGrid(10, 1.0f);
+	ClearBackground(BLACK);
+	
+	if (containingWorld->isInEditorMode)
+	{
+		DrawGrid(10, 1.0f);
+	}
+
 }
+
+/*
+*
+*
+* EDITOR FUNCTION DEFINITIONS
+*
+*
+*/
 
 #ifdef DEBUG
 
-entt* entt_camera::try_select(Ray inRay, RayCollision inRayCollision)
+entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
 {
 	return nullptr;
 };
 
 #else
 
-entt* entt_camera::try_select(Ray inRay, RayCollision inRayCollision)
+entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
 {
 	return nullptr;
 };

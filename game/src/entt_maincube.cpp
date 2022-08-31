@@ -15,9 +15,6 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
-	//update_spatial_props(Vector3Zero(), 1.0f, Vector3Zero());
-
-	//selectionBoundingBox = GetModelBoundingBox(cubeModel);
 }
 
 void entt_maincube::on_destroy()
@@ -30,7 +27,7 @@ void entt_maincube::on_destroy()
 void entt_maincube::on_draw_3d()
 {
 	//rlEnableFrontfaceCulling();
-	if (containingWorld->currentlySelectedEntt == this)
+	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
 		DrawModelWires(cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
@@ -50,7 +47,7 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
-	if (containingWorld->currentlySelectedEntt == this)
+	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_W))
 		{
@@ -65,64 +62,30 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	enttTransform.scale = inNewScale;
 	enttTransform.rot = inNewRotation;
 
-	//cubeModel.transform = MatrixIdentity();
-
 	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ inNewRotation.x * DEG2RAD, inNewRotation.y * DEG2RAD, inNewRotation.z * DEG2RAD });
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-
-
-	/*
-	Matrix matScale = MatrixScale(scale.x, scale.y, scale.z);
-	cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), MatrixRotateXYZ(Vector3{ inNewRotation.x, inNewRotation.y, inNewRotation.z } ));
-	cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), MatrixRotateXYZ(Vector3{ inNewRotation.x, inNewRotation.y, inNewRotation.z } ));
-	*/
-
-	//cubeModel.transform = MatrixMultiply(MatrixScale(enttTransform.scale, enttTransform.scale, enttTransform.scale), cubeModel.transform);
-	//cubeModel.transform = MatrixMultiply(MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x, DEG2RAD * enttTransform.rot.y, DEG2RAD * enttTransform.rot.z }), cubeModel.transform);
-	//cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), cubeModel.transform);*/
-
 }
 
-void entt_maincube::update_spatial_props(entt_transform inNewEnttTransform)
-{/*
-	enttTransform.pos = inNewEnttTransform.pos;
-	enttTransform.scale = inNewEnttTransform.scale;
-	enttTransform.rot = inNewEnttTransform.rot;
-
-	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixScale(enttTransform.scale));
-	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x, DEG2RAD * enttTransform.rot.y, DEG2RAD * enttTransform.rot.z }));
-	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixTranslate(enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z));
-	*/
-}
+/*
+*
+*
+* EDITOR FUNCTION DEFINITIONS
+* 
+* 
+*/
 
 #ifdef DEBUG
 
-entt* entt_maincube::try_select(Ray inRay, RayCollision inRayCollision)
+entt* entt_maincube::editor_try_select(Ray inRay, RayCollision inRayCollision)
 {
-	/*
-	RayCollision boxHitInfo = GetRayCollisionBox(inRay, selectionBoundingBox);
-
-	if (boxHitInfo.hit && (boxHitInfo.distance < inRayCollision.distance))
-	{
-		return this;
-	}
-	else
-	{
-		return nullptr;
-	}
-	*/
-
 	// Check ray collision against model meshes
 	RayCollision meshHitInfo = { 0 };
 	for (int m = 0; m < cubeModel.meshCount; m++)
 	{
-		// NOTE: We consider the model.transform for the collision check but 
-		// it can be checked against any transform Matrix, used when checking against same
-		// model drawn multiple times with multiple transforms
 		meshHitInfo = GetRayCollisionMesh(inRay, cubeModel.meshes[m], cubeModel.transform);
 		if (meshHitInfo.hit)
 		{

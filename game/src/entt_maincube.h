@@ -21,10 +21,8 @@ struct entt_maincube : entt
 	virtual void on_draw_2d() override;
 	virtual void on_draw_3d() override;
 	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation) override;
-	virtual void update_spatial_props(entt_transform inNewEnttTransform) override;
 
-	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) override;
-	BoundingBox selectionBoundingBox;
+	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 };
 
 
