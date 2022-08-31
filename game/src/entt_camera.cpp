@@ -1,6 +1,8 @@
 #include "entt_camera.h"
 
 #include "raylib.h"
+
+;
 #include "rlgl.h"
 
 #include "stdlib.h"

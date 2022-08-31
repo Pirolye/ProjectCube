@@ -5,7 +5,7 @@
 ;
 void entt_maincube::on_make()
 {
-	cubeModel = LoadModel("../../game/content/model/smallCube/smallCube.glb");                 // Load model
+	cubeModel = LoadModel("../../game/content/model/smallCube/smallCube.obj");                 // Load model
 	cubeTexture = LoadTexture("../../game/content/model/smallCube/smallCube_albedo.png"); // Load model texture
 	cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = cubeTexture;
 
@@ -15,9 +15,9 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
-	update_spatial_props(Vector3Zero(), 1.0f, Vector3Zero());
+	//update_spatial_props(Vector3Zero(), 1.0f, Vector3Zero());
 
-	selectionBoundingBox = GetModelBoundingBox(cubeModel);
+	//selectionBoundingBox = GetModelBoundingBox(cubeModel);
 }
 
 void entt_maincube::on_destroy()
@@ -32,12 +32,12 @@ void entt_maincube::on_draw_3d()
 	//rlEnableFrontfaceCulling();
 	if (containingWorld->currentlySelectedEntt == this)
 	{
-		DrawModel(cubeModel, enttTransform.pos, enttTransform.scale, WHITE);
-		DrawModelWires(cubeModel, enttTransform.pos, enttTransform.scale, RED);
+		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
+		DrawModelWires(cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
 	}
 	else
 	{
-		DrawModel(cubeModel, enttTransform.pos, enttTransform.scale, WHITE);
+		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
 	}
 
 	//rlDisableFrontfaceCulling();
@@ -59,67 +59,44 @@ void entt_maincube::on_update()
 	}
 }
 
-void entt_maincube::update_spatial_props(Vector3 inNewPos, float inNewScale, Vector3 inNewRotation)
+void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
 {
 	enttTransform.pos = inNewPos;
 	enttTransform.scale = inNewScale;
 	enttTransform.rot = inNewRotation;
 
-	cubeModel.transform = MatrixIdentity();
+	//cubeModel.transform = MatrixIdentity();
 
-	Vector3 posScaled = Vector3Scale(enttTransform.pos, enttTransform.scale);
+	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ inNewRotation.x * DEG2RAD, inNewRotation.y * DEG2RAD, inNewRotation.z * DEG2RAD });
+	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
-	cubeModel.transform = MatrixMultiply(MatrixScale(enttTransform.scale, enttTransform.scale, enttTransform.scale), cubeModel.transform);
-	cubeModel.transform = MatrixMultiply(MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x, DEG2RAD * enttTransform.rot.y, DEG2RAD * enttTransform.rot.z }), cubeModel.transform);
-	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixTranslate(posScaled.x, posScaled.y, posScaled.z));
+	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	//BoundingBox entityBox = BoundingBox
-	{ Vector3
-		{
-			enttTransform.pos.x - enttTransform.scale / 2,
-			enttTransform.pos.y - enttTransform.scale / 2,
-			enttTransform.pos.z - enttTransform.scale / 2
-	},
-		Vector3
-		{
-			enttTransform.pos.x + enttTransform.scale / 2,
-			enttTransform.pos.y + enttTransform.scale / 2,
-			enttTransform.pos.z + enttTransform.scale / 2
-	};
-	};
-	
-	//selectionBoundingBox = entityBox;
-	
+
+
 	/*
-	
-	selectionBoundingBox.min = Vector3Scale(selectionBoundingBox.min, enttTransform.scale * enttTransform.scale);
-	selectionBoundingBox.max = Vector3Scale(selectionBoundingBox.max, enttTransform.scale * enttTransform.scale);
-
-
-
-	//Vector3 bruh = { enttTransform.scale / 2.0f, enttTransform.scale / 2.0f, enttTransform.scale / 2.0f };
-	Vector3 bruh = { enttTransform.scale, enttTransform.scale, enttTransform.scale };
-	
-	Vector3 posScaled = Vector3Scale(enttTransform.pos, (enttTransform.scale * enttTransform.scale));
-
-	Vector3 aaa = Vector3{ posScaled.x + posScaled.x + posScaled.x, posScaled.y + posScaled.y + posScaled.y, posScaled.z + posScaled.z + posScaled.z };
-	selectionBoundingBox.min = Vector3Add(selectionBoundingBox.min, aaa);
-	selectionBoundingBox.max = Vector3Add(selectionBoundingBox.max, aaa);
-	//Vector3 bbb = Vector3Subtract(aaa, bruh);
-
+	Matrix matScale = MatrixScale(scale.x, scale.y, scale.z);
+	cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), MatrixRotateXYZ(Vector3{ inNewRotation.x, inNewRotation.y, inNewRotation.z } ));
+	cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), MatrixRotateXYZ(Vector3{ inNewRotation.x, inNewRotation.y, inNewRotation.z } ));
 	*/
+
+	//cubeModel.transform = MatrixMultiply(MatrixScale(enttTransform.scale, enttTransform.scale, enttTransform.scale), cubeModel.transform);
+	//cubeModel.transform = MatrixMultiply(MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x, DEG2RAD * enttTransform.rot.y, DEG2RAD * enttTransform.rot.z }), cubeModel.transform);
+	//cubeModel.transform = MatrixMultiply(MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z), cubeModel.transform);*/
+
 }
 
 void entt_maincube::update_spatial_props(entt_transform inNewEnttTransform)
-{
+{/*
 	enttTransform.pos = inNewEnttTransform.pos;
 	enttTransform.scale = inNewEnttTransform.scale;
 	enttTransform.rot = inNewEnttTransform.rot;
 
-	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixScale(enttTransform.scale, enttTransform.scale, enttTransform.scale));
+	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixScale(enttTransform.scale));
 	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x, DEG2RAD * enttTransform.rot.y, DEG2RAD * enttTransform.rot.z }));
 	cubeModel.transform = MatrixMultiply(cubeModel.transform, MatrixTranslate(enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z));
-
+	*/
 }
 
 #ifdef DEBUG

@@ -12,8 +12,7 @@ enum entts {mainCube, cam, camSetCurrentlyRendering, light};
 
 struct entt_transform
 {
-	Vector3 pos, rot;
-	float scale;
+	Vector3 pos, rot, scale;
 };
 
 struct entt
@@ -32,7 +31,7 @@ struct entt
 	virtual void on_draw_2d() {};
 	virtual void on_draw_3d() {}; //(Levente): Used when drawing 3d only components!
 	
-	virtual void update_spatial_props(Vector3 inNewPos, float inNewScale, Vector3 inNewRotation) {};
+	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation) {};
 	virtual void update_spatial_props(entt_transform inNewEnttTransform) {};
 
 	virtual entt* try_select(Ray inRay, RayCollision inRayCollision) { return nullptr; };

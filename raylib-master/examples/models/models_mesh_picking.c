@@ -44,7 +44,7 @@ int main(void)
     Texture2D texture = LoadTexture("resources/models/obj/turret_diffuse.png"); // Load model texture
     tower.materials[0].maps[MATERIAL_MAP_DIFFUSE].texture = texture;            // Set model diffuse texture
 
-    Vector3 towerPos = { 0.0f, 0.0f, 0.0f };                        // Set model position
+    Vector3 towerPos = { 5.0f, 5.0f, 5.0f };                        // Set model position
     BoundingBox towerBBox = GetMeshBoundingBox(tower.meshes[0]);    // Get mesh bounding box
 
     // Ground quad

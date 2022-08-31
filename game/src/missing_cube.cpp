@@ -249,8 +249,14 @@ int main()
 }
 */
 
+
+
+
+
 int main()
 {
+
+	
 	game_instance* currentInstance = new game_instance("Missing Cube", 1600, 900);
 
 	// Main game loop
@@ -262,4 +268,173 @@ int main()
 
 	currentInstance->on_exit();
 	delete currentInstance;
+
+	return 0;
+	
+
+	/*
+	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
+
+	// Initialization
+	InitWindow(1600, 900, "Missing Cube -- WORKING TITLE");
+
+	InitAudioDevice();      // Initialize audio device
+
+	bool selected = false;
+
+	Camera3D camera = { 0 };
+
+	camera.position = Vector3{ 4.0f, 0.0f, 0.0f }; // Camera position
+	camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+	camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+	camera.fovy = 70.0f;                                // Camera field-of-view 
+	camera.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+
+	SetCameraMode(camera, CAMERA_FREE); // Set a free camera mode
+
+	Model mainCube = LoadModel("../../game/content/model/smallCube/smallCube.obj");
+
+	SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
+
+	// Main game loop
+	while (!WindowShouldClose())    // Detect window close button or ESC key
+	{
+		UpdateCamera(&camera);
+
+		BeginDrawing();
+
+//		rlEnableBackfaceCulling();
+
+		ClearBackground(BLACK);
+
+		BeginMode3D(camera);
+
+	//	rlEnableFrontfaceCulling();
+		DrawModel(mainCube, Vector3{ 2.0f, 2.0f, 2.0f }, 1.5f, WHITE);
+		if (selected) DrawModelWires(mainCube, Vector3{ 2.0f, 2.0f, 2.0f }, 1.5f, RED);
+	//	rlDisableFrontfaceCulling();
+	//	rlEnableBackfaceCulling();
+
+		DrawGrid(10, 1.0f);
+
+		EndMode3D();
+
+		DrawFPS(10, 10);
+
+		EndDrawing();
+
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+		{
+			Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera);
+
+			RayCollision meshHitInfo = { 0 };
+			for (int m = 0; m < mainCube.meshCount; m++)
+			{
+				// NOTE: We consider the model.transform for the collision check but 
+				// it can be checked against any transform Matrix, used when checking against same
+				// model drawn multiple times with multiple transforms
+				meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, mainCube.meshes[m], mainCube.transform);
+				if (meshHitInfo.hit)
+				{
+					// Save the closest hit mesh
+					//inRayCollision = meshHitInfo;
+
+					//return this;
+
+					selected = true;
+
+					break;  // Stop once one mesh collision is detected, the colliding mesh is m
+				}
+				else
+				{
+					//return nullptr;
+					selected = false;
+				}
+			}
+
+		}
+
+	}
+
+	//UnloadShader(smallCube_shader);       // Unload shader
+	//UnloadTexture(mainCube_albedo);     // Unload texture
+	UnloadModel(mainCube);
+
+	CloseAudioDevice();     // Close audio context
+
+	CloseWindow();          // Close window and OpenGL context
+
+	return 0;
+	*/
 }
+
+
+/*
+#include "raylib.h"
+#include "raymath.h"
+
+int main()
+{
+	InitWindow(1600, 900, "Found Cube -- WORKING TITLE");
+
+	Camera3D camera = { 0 };
+	camera.position = Vector3{ 0.0f, 1.0f, -16.0f };
+	camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
+	camera.up = Vector3{ 0.0f, 1.0f, 0.0f };
+	camera.fovy = 45.0f;
+	camera.projection = CAMERA_PERSPECTIVE;
+
+	SetCameraMode(camera, CAMERA_FREE);
+
+	Model mainCube = LoadModel("no file default cube");
+
+	SetTargetFPS(60);
+
+	float a = 0.0f;
+	bool selected = false;
+
+	while (!WindowShouldClose())
+	{
+		a += 0.005f;
+		UpdateCamera(&camera);
+
+		BeginDrawing();
+		ClearBackground(BLACK);
+		BeginMode3D(camera);
+
+		mainCube.transform = MatrixMultiply(MatrixTranslate(2, 0, 0), MatrixRotateXYZ(Vector3{ a, a * 1.2f, a * -2.2f }));
+
+		DrawModel(mainCube, Vector3{ 0.0f, 0.0f, 0.0f }, 1.0f, WHITE);
+		if (selected) DrawModelWires(mainCube, Vector3{ 0.0f, 0.0f, 0.0f }, 1.0f, RED);
+
+		DrawGrid(10, 1.0f);
+
+		EndMode3D();
+		DrawText(TextFormat("selected %i", selected), 8, 28, 16, WHITE);
+		DrawFPS(10, 10);
+
+		EndDrawing();
+
+		Ray cursorSelectionRay;
+		if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+		{
+			cursorSelectionRay = GetMouseRay(GetMousePosition(), camera);
+			selected = false;
+			RayCollision meshHitInfo = { 0 };
+			for (int m = 0; m < mainCube.meshCount; m++)
+			{
+				meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, mainCube.meshes[m], mainCube.transform);
+				if (meshHitInfo.hit)
+				{
+					selected = true;
+					break;
+				}
+			}
+		}
+	}
+
+	UnloadModel(mainCube);
+	CloseWindow();
+	return 0;
+}
+*/

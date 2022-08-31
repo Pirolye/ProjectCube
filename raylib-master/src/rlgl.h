@@ -282,7 +282,6 @@
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
 //----------------------------------------------------------------------------------
-;
 typedef enum {
     OPENGL_11 = 1,
     OPENGL_21,
@@ -572,8 +571,6 @@ RLAPI void rlEnableDepthMask(void);                     // Enable depth write
 RLAPI void rlDisableDepthMask(void);                    // Disable depth write
 RLAPI void rlEnableBackfaceCulling(void);               // Enable backface culling
 RLAPI void rlDisableBackfaceCulling(void);              // Disable backface culling
-RLAPI void rlEnableFrontfaceCulling(void);              // Enable frontface culling
-RLAPI void rlDisableFrontfaceCulling(void);             // Disable frontface culling
 RLAPI void rlEnableScissorTest(void);                   // Enable scissor test
 RLAPI void rlDisableScissorTest(void);                  // Disable scissor test
 RLAPI void rlScissor(int x, int y, int width, int height); // Scissor test
@@ -720,7 +717,7 @@ RLAPI void rlLoadDrawQuad(void);     // Load and draw a quad
         #include <OpenGL/glext.h>       // OpenGL extensions library
     #else
         // APIENTRY for OpenGL function pointer declarations is required
-        #ifndef APIENTRY
+        #if !defined(APIENTRY)
             #if defined(_WIN32)
                 #define APIENTRY __stdcall
             #else
@@ -1648,16 +1645,10 @@ void rlEnableDepthMask(void) { glDepthMask(GL_TRUE); }
 void rlDisableDepthMask(void) { glDepthMask(GL_FALSE); }
 
 // Enable backface culling
-void rlEnableBackfaceCulling(void) { glEnable(GL_CULL_FACE); glCullFace(GL_BACK); }
+void rlEnableBackfaceCulling(void) { glEnable(GL_CULL_FACE); }
 
 // Disable backface culling
 void rlDisableBackfaceCulling(void) { glDisable(GL_CULL_FACE); }
-
-// Enable frontface culling
-void rlEnableFrontfaceCulling(void) { glEnable(GL_CULL_FACE); glCullFace(GL_FRONT); /*glFrontFace(GL_CW);*/ } //(Levente): Counting order doesn't seem to work
-
-// Disable frontface culling
-void rlDisableFrontfaceCulling(void) { glDisable(GL_CULL_FACE); glCullFace(GL_BACK); glFrontFace(GL_CCW); }
 
 // Enable scissor test
 void rlEnableScissorTest(void) { glEnable(GL_SCISSOR_TEST); }

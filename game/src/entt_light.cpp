@@ -18,7 +18,7 @@ void entt_light::on_make()
 			{
 				if (rayLight[i2].enabled != true)
 				{
-					rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ -2, 1, -2 }, Vector3Zero(), WHITE, containingWorld->currentlyLoadedShaders[i]);
+					rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3Zero(), WHITE, containingWorld->currentlyLoadedShaders[i]);
 					break;
 				}
 				else
@@ -28,6 +28,10 @@ void entt_light::on_make()
 			}
 		}
 	}
+
+	enttTransform.pos = Vector3Zero();
+	enttTransform.rot = Vector3Zero();
+	enttTransform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
 	debugModel = LoadModel("../../game/editor/point_light_model.obj");
 	selectionBoundingBox = GetModelBoundingBox(debugModel);
