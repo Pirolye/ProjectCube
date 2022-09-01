@@ -18,6 +18,7 @@ int main()
 	{
 		currentInstance->update();
 		currentInstance->draw();
+
 	}
 
 	currentInstance->on_exit();

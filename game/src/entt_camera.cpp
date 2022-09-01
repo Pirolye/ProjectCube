@@ -22,7 +22,7 @@ void entt_camera::on_make()
 
 	SetCameraMode((*rayCam), CAMERA_FREE); // Set a free camera mode
 
-	debugModel = LoadModel("../../game/editor/camera_model.obj1");
+	debugModel = LoadModel("../../game/editor/camera_model.obj1"); //Loading the wrong model here intentionally...
 
 }
 

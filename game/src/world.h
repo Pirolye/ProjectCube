@@ -8,7 +8,7 @@
 #include "entt_light.h"
 
 ;
-//(Levente): The world houses the main entity array plus standard configuration you would want. Loading world are taken care of by the game instance.
+//(Levente): The world houses the main entity array plus standard configuration you would want. Loading worlds is taken care of by the game instance.
 struct world
 {
 	world(); // Alias init
