@@ -15,6 +15,17 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
+	collisionBox = dBodyCreate(containingWorld->physicsWorld);
+
+	dMassSetBoxTotal(&collisionBoxMass, 1.0, 0.5, 0.5, 0.5);
+	dBodySetMass(collisionBox, &collisionBoxMass);
+
+	collisionBoxGeom = dCreateBox(containingWorld->physicsSpace, 1.0, 1.0, 1.0);
+
+	dGeomSetBody(collisionBoxGeom, collisionBox);
+	
+	update_spatial_props(Vector3{ 100.0f, 100.0f, 100.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+
 }
 
 void entt_maincube::on_destroy()
@@ -26,7 +37,7 @@ void entt_maincube::on_destroy()
 
 void entt_maincube::on_draw_3d()
 {
-	rlEnableFrontfaceCulling();
+	//rlEnableFrontfaceCulling();
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
@@ -37,7 +48,7 @@ void entt_maincube::on_draw_3d()
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
 	}
 
-	rlDisableFrontfaceCulling();
+	//rlDisableFrontfaceCulling();
 }
 
 void entt_maincube::on_draw_2d()
@@ -47,11 +58,21 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
+	float floatType;
+	
+	const dReal* newPos1[3];
+	newPos1[0] = dBodyGetPosition(collisionBox) + sizeof(floatType);
+	newPos1[1] = dBodyGetPosition(collisionBox) + sizeof(floatType) + sizeof(floatType);
+	newPos1[2] = dBodyGetPosition(collisionBox) + sizeof(floatType) + sizeof(floatType) + sizeof(floatType);
+	//dVector3 newPos = static_cast<dVector3>(newPos1);
+	
+	update_spatial_props( Vector3{ *(newPos1[0]), *(newPos1[1]), *(newPos1[2]) }, enttTransform.scale, enttTransform.rot);
+	
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_W))
 		{
-			update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ -0.3f, 0.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
+			update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 100.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
 		}
 	}
 }
@@ -67,6 +88,8 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+	dBodySetPosition(collisionBox, enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z);
 
 }
 
@@ -98,7 +121,7 @@ entt* entt_maincube::editor_try_select(Ray inRay, RayCollision inRayCollision)
 		}
 		else
 		{
-			return nullptr;
+			return NULL;
 		}
 	}
 

@@ -99,13 +99,13 @@ entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
 			// Save the closest hit mesh
 			inRayCollision = meshHitInfo;
 
-			//return this;
+			return NULL;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}
 		else
 		{
-			return nullptr;
+			return NULL;
 		}
 	}
 

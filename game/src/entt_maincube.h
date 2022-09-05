@@ -4,11 +4,18 @@
 #include "world.h"
 
 ;
+#include "ode/ode.h"
+
+;
 struct entt_maincube : entt
 {
 	Model cubeModel;
 	Texture2D cubeTexture;
 	Shader cubeShader;
+
+	dBodyID collisionBox;
+	dMass collisionBoxMass;
+	dGeomID collisionBoxGeom;
 
 	using entt::entt;
 
