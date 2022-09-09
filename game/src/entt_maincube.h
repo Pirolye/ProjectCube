@@ -4,7 +4,7 @@
 #include "world.h"
 
 ;
-#include "ode/ode.h"
+#include "btBulletDynamicsCommon.h"
 
 ;
 struct entt_maincube : entt
@@ -13,9 +13,14 @@ struct entt_maincube : entt
 	Texture2D cubeTexture;
 	Shader cubeShader;
 
+	/*
 	dBodyID collisionBox;
 	dMass collisionBoxMass;
 	dGeomID collisionBoxGeom;
+	*/
+
+	btRigidBody* collisionObject;
+	btCollisionShape* collisionShape;
 
 	using entt::entt;
 

@@ -5,9 +5,6 @@
 ;
 #include "assert.h"
 
-;
-#include "ode/ode.h"
-
 #define FLT_MAX 340282346638528859811704183484516925440.0f 
 
 
@@ -27,6 +24,16 @@ world::world()
 	
 	name = "debug";
 
+	collisionConfiguration = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collisionConfiguration);
+	overlappingPairCache = new btDbvtBroadphase();
+	solver = new btSequentialImpulseConstraintSolver();
+	
+	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+	dynamicsWorld->setGravity(btVector3(0, -10, 0));
+
+
+	/*
 	dInitODE2(0);
 
 	physicsWorld = dWorldCreate();
@@ -36,6 +43,8 @@ world::world()
 	collisionData = collision_data{ physicsWorld, collisionContactGroup };
 
 	groundGeom = dCreatePlane(physicsSpace, 0, 1, 0, 0);
+	*/
+
 
 	run_script_on_init();
 
@@ -205,9 +214,13 @@ void world::update()
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
 	{
+		dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
+		
+		/*
 		dSpaceCollide(physicsSpace, &collisionData, &nearCallback);
 		dWorldQuickStep(physicsWorld, 1 / 60.0f);
 		dJointGroupEmpty(collisionContactGroup);
+		*/
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -281,10 +294,39 @@ void world::on_destroy()
 			delete entityArray[i];
 		}
 	}
+	
+	/*for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
+	{
+		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+		btRigidBody* body = btRigidBody::upcast(obj);
+		if (body && body->getMotionState())
+		{
+			delete body->getMotionState();
+		}
+		dynamicsWorld->removeCollisionObject(obj);
+		delete obj;
+	}*/
 
+
+	// delete dynamics world
+	delete dynamicsWorld;
+
+	// delete solver
+	delete solver;
+
+	// delete broadphase
+	delete overlappingPairCache;
+
+	// delete dispatcher
+	delete dispatcher;
+
+	delete collisionConfiguration;
+
+	/*
 	dSpaceDestroy(physicsSpace);
 	dWorldDestroy(physicsWorld);
 	dCloseODE();
+	*/
 }
 
 
@@ -333,7 +375,7 @@ void nearCallback(void* inData, dGeomID inGeom1, dGeomID inGeom2)
 	}
 }
 */
-
+/*
 void nearCallback(void* data, dGeomID o1, dGeomID o2)
 {
 	if (dGeomIsSpace(o1) || dGeomIsSpace(o2)) {
@@ -354,7 +396,7 @@ void nearCallback(void* data, dGeomID o1, dGeomID o2)
 		int num_contact = dCollide(o1, o2, 8, &contacts[0].geom, sizeof(dContact));
 		// add these contact points to the simulation ... 
 	}
-}
+}*/
 
 /*
 * 

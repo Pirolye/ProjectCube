@@ -9,13 +9,13 @@
 #include "entt_light.h"
 
 ;
-#include "ode/ode.h"
+#include "btBulletDynamicsCommon.h"
 
-struct collision_data
+/*struct collision_data
 {
 	dWorldID world;
 	dJointGroupID contactGroup;
-};
+};*/
 
 ;
 //(Levente): The world houses the main entity array plus standard configuration you would want. Loading worlds is taken care of by the game instance.
@@ -31,12 +31,21 @@ struct world
 	int totalMadeEntts = 0;
 
 	// Physics
+	/*
 	float gravity_y = 1.0;
 	dWorldID physicsWorld;
 	dSpaceID physicsSpace;
 	dJointGroupID collisionContactGroup;
 	collision_data collisionData;
 	dGeomID groundGeom;
+	*/
+
+	btDefaultCollisionConfiguration* collisionConfiguration;
+	btCollisionDispatcher* dispatcher;
+	btBroadphaseInterface* overlappingPairCache;
+	btSequentialImpulseConstraintSolver* solver;
+
+	btDiscreteDynamicsWorld* dynamicsWorld;
 
 
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
@@ -71,7 +80,7 @@ struct world
 	void run_script_on_destroy();
 };
 
-void nearCallback(void* data, dGeomID o1, dGeomID o2);
+//void nearCallback(void* data, dGeomID o1, dGeomID o2);
 
 
 #else
