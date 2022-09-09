@@ -27,6 +27,8 @@ void entt_maincube::on_make()
 	dGeomSetBody(collisionBoxGeom, collisionBox);
 	*/
 
+	/*
+	
 	btTransform startingTransform;
 	startingTransform.setIdentity();
 	startingTransform.setOrigin(btVector3(0.0f, 100.0f, 0.0f));
@@ -43,7 +45,23 @@ void entt_maincube::on_make()
 
 	containingWorld->dynamicsWorld->addRigidBody(collisionObject);
 
-	update_spatial_props(Vector3{ 100.0f, 100.0f, 100.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+	*/
+
+	bodyDef.bodyType = eDynamicBody;
+	body = containingWorld->physicsSpace->CreateBody(bodyDef);
+		
+	q3BoxDef boxDef; // See q3Box.h for settings details
+	q3Transform localSpace; // Contains position and orientation, see q3Transform.h for details
+	q3Identity(localSpace); // Specify the origin, and identity orientation
+
+	// Create a box at the origin with width, height, depth = (1.0, 1.0, 1.0)
+	// and add it to a rigid body. The transform is defined relative to the owning body
+	boxDef.Set(localSpace, q3Vec3(1.0, 1.0, 1.0));
+	body->AddBox(boxDef);
+
+	body->SetToSleep();
+
+	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
 
 }
 
@@ -52,6 +70,8 @@ void entt_maincube::on_destroy()
 	UnloadTexture(cubeTexture);
 	UnloadModel(cubeModel);
 	UnloadShader(cubeShader); // REVISIT!!!!
+
+	//delete body; WILL BE REVISITED
 }
 
 void entt_maincube::on_draw_3d()
@@ -77,9 +97,9 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
-	float floatType;
+	//float floatType;
 	
-	btVector3 pos = collisionObject->getWorldTransform().getOrigin();
+	//btVector3 pos = collisionObject->getWorldTransform().getOrigin();
 
 	//const dReal* newPos1[3];
 	//newPos1[0] = dBodyGetPosition(collisionBox) + sizeof(floatType);
@@ -87,14 +107,21 @@ void entt_maincube::on_update()
 	//newPos1[2] = dBodyGetPosition(collisionBox) + sizeof(floatType) + sizeof(floatType) + sizeof(floatType);
 	//dVector3 newPos = static_cast<dVector3>(newPos1);
 	
-	update_spatial_props( Vector3{ pos.x(), pos.y(), pos.z()}, enttTransform.scale, enttTransform.rot);
+	q3Transform pos = body->GetTransform();
+
+	update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
 	
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_W))
 		{
-			update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 100.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
+			update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 2.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
 		}
+		if (IsKeyPressed(KEY_X))
+		{
+			body->SetToAwake();
+		}
+
 	}
 }
 
@@ -109,6 +136,8 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+	body->SetTransform(q3Vec3(inNewPos.x, inNewPos.y, inNewPos.z));
 
 	//collisionObject->setWorldTransform()
 

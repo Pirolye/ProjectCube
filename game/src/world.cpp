@@ -24,6 +24,7 @@ world::world()
 	
 	name = "debug";
 
+	/*
 	collisionConfiguration = new btDefaultCollisionConfiguration();
 	dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	overlappingPairCache = new btDbvtBroadphase();
@@ -31,7 +32,7 @@ world::world()
 	
 	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
 	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-
+	*/
 
 	/*
 	dInitODE2(0);
@@ -45,6 +46,11 @@ world::world()
 	groundGeom = dCreatePlane(physicsSpace, 0, 1, 0, 0);
 	*/
 
+	physicsSpace = new q3Scene(1.0 / 60);
+	physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
+
+	//q3Scene scene(1.0 / 60.0);
+	//physicsSpace = scene;
 
 	run_script_on_init();
 
@@ -214,13 +220,15 @@ void world::update()
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
 	{
-		dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
+		//dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
 		
 		/*
 		dSpaceCollide(physicsSpace, &collisionData, &nearCallback);
 		dWorldQuickStep(physicsWorld, 1 / 60.0f);
 		dJointGroupEmpty(collisionContactGroup);
 		*/
+
+		physicsSpace->Step();
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -309,18 +317,18 @@ void world::on_destroy()
 
 
 	// delete dynamics world
-	delete dynamicsWorld;
+	//delete dynamicsWorld;
 
 	// delete solver
-	delete solver;
+	//delete solver;
 
 	// delete broadphase
-	delete overlappingPairCache;
+	//delete overlappingPairCache;
 
 	// delete dispatcher
-	delete dispatcher;
+	//delete dispatcher;
 
-	delete collisionConfiguration;
+	//delete collisionConfiguration;
 
 	/*
 	dSpaceDestroy(physicsSpace);

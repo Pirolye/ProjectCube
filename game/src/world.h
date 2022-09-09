@@ -9,7 +9,7 @@
 #include "entt_light.h"
 
 ;
-#include "btBulletDynamicsCommon.h"
+#include "q3.h"
 
 /*struct collision_data
 {
@@ -40,13 +40,17 @@ struct world
 	dGeomID groundGeom;
 	*/
 
+	/*
+	
 	btDefaultCollisionConfiguration* collisionConfiguration;
 	btCollisionDispatcher* dispatcher;
 	btBroadphaseInterface* overlappingPairCache;
 	btSequentialImpulseConstraintSolver* solver;
 
 	btDiscreteDynamicsWorld* dynamicsWorld;
+	*/
 
+	q3Scene* physicsSpace;
 
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 

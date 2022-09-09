@@ -10,6 +10,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectCube", "_build\Proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib", "_build\raylib.vcxproj", "{8898EA18-743A-15EF-5DF5-284349369C3F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qu3e", "qu3e\qu3e.vcxproj", "{61FB76AE-F794-4084-90F3-2BB84AA63452}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -34,6 +36,14 @@ Global
 		{8898EA18-743A-15EF-5DF5-284349369C3F}.Release|Win32.Build.0 = Release|Win32
 		{8898EA18-743A-15EF-5DF5-284349369C3F}.Release|x64.ActiveCfg = Debug|Win32
 		{8898EA18-743A-15EF-5DF5-284349369C3F}.Release|x64.Build.0 = Debug|Win32
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Debug|Win32.ActiveCfg = Debug|Win32
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Debug|Win32.Build.0 = Debug|Win32
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Debug|x64.ActiveCfg = Debug|x64
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Debug|x64.Build.0 = Debug|x64
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Release|Win32.ActiveCfg = Release|Win32
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Release|Win32.Build.0 = Release|Win32
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Release|x64.ActiveCfg = Release|x64
+		{61FB76AE-F794-4084-90F3-2BB84AA63452}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

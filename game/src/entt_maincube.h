@@ -4,7 +4,7 @@
 #include "world.h"
 
 ;
-#include "btBulletDynamicsCommon.h"
+#include "q3.h"
 
 ;
 struct entt_maincube : entt
@@ -19,8 +19,14 @@ struct entt_maincube : entt
 	dGeomID collisionBoxGeom;
 	*/
 
+	
+	/*
 	btRigidBody* collisionObject;
 	btCollisionShape* collisionShape;
+	*/
+
+	q3BodyDef bodyDef;
+	q3Body* body;
 
 	using entt::entt;
 

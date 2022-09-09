@@ -1,0 +1,19 @@
+﻿  q3BroadPhase.cpp
+  q3DynamicAABBTree.cpp
+  q3Box.cpp
+  q3Collide.cpp
+  q3Geometry.cpp
+  q3Memory.cpp
+  q3Body.cpp
+  q3Contact.cpp
+  q3ContactManager.cpp
+  q3ContactSolver.cpp
+  q3Island.cpp
+  q3Mat3.cpp
+  q3Quaternion.cpp
+  q3Vec3.cpp
+  q3Scene.cpp
+G:\PROJECTS\ProjectCube\qu3e-master\src\scene\q3Scene.cpp(444,17): warning C4477: 'fprintf' : format string '%lu' requires an argument of type 'unsigned long', but variadic argument 1 has type 'size_t'
+G:\PROJECTS\ProjectCube\qu3e-master\src\scene\q3Scene.cpp(444,17): message : consider using '%zu' in the format string
+  Generating Code...
+  qu3e.vcxproj -> G:\PROJECTS\ProjectCube\_bin\Debug\qu3e.lib
