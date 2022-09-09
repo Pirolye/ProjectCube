@@ -16,37 +16,7 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
-	/*
-	collisionBox = dBodyCreate(containingWorld->physicsWorld);
-
-	dMassSetBoxTotal(&collisionBoxMass, 1.0, 0.5, 0.5, 0.5);
-	dBodySetMass(collisionBox, &collisionBoxMass);
-
-	collisionBoxGeom = dCreateBox(containingWorld->physicsSpace, 1.0, 1.0, 1.0);
-
-	dGeomSetBody(collisionBoxGeom, collisionBox);
-	*/
-
-	/*
-	
-	btTransform startingTransform;
-	startingTransform.setIdentity();
-	startingTransform.setOrigin(btVector3(0.0f, 100.0f, 0.0f));
-	btDefaultMotionState* startingMotionState = new btDefaultMotionState(startingTransform);
-
-	btVector3* boxHalfSize = new btVector3(btVector3(btScalar(0.5f), btScalar(0.5f), btScalar(0.5f)));
-
-	btBoxShape* collisionShape = new btBoxShape(*boxHalfSize);
-	dynamic_castcollisionShape->InitializePolyhedralFeatures();
-	//m_CollisionShapes.push_back(collisionShape);
-
-	btRigidBody::btRigidBodyConstructionInfo* info = new btRigidBody::btRigidBodyConstructionInfo(btScalar(10.0f), startingMotionState, collisionShape, btVector3(0.0f, 0.0f, 0.0f));
-	btRigidBody* collisionObject = new btRigidBody(*info);
-
-	containingWorld->dynamicsWorld->addRigidBody(collisionObject);
-
-	*/
-
+	//(Levente): All of this will be made into a separate header!
 	bodyDef.bodyType = eDynamicBody;
 	body = containingWorld->physicsSpace->CreateBody(bodyDef);
 		
@@ -97,16 +67,6 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
-	//float floatType;
-	
-	//btVector3 pos = collisionObject->getWorldTransform().getOrigin();
-
-	//const dReal* newPos1[3];
-	//newPos1[0] = dBodyGetPosition(collisionBox) + sizeof(floatType);
-	//newPos1[1] = dBodyGetPosition(collisionBox) + sizeof(floatType) + sizeof(floatType);
-	//newPos1[2] = dBodyGetPosition(collisionBox) + sizeof(floatType) + sizeof(floatType) + sizeof(floatType);
-	//dVector3 newPos = static_cast<dVector3>(newPos1);
-	
 	q3Transform pos = body->GetTransform();
 
 	update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
@@ -138,10 +98,6 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
 	body->SetTransform(q3Vec3(inNewPos.x, inNewPos.y, inNewPos.z));
-
-	//collisionObject->setWorldTransform()
-
-	//dBodySetPosition(collisionBox, enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z);
 
 }
 

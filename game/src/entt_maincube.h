@@ -13,18 +13,6 @@ struct entt_maincube : entt
 	Texture2D cubeTexture;
 	Shader cubeShader;
 
-	/*
-	dBodyID collisionBox;
-	dMass collisionBoxMass;
-	dGeomID collisionBoxGeom;
-	*/
-
-	
-	/*
-	btRigidBody* collisionObject;
-	btCollisionShape* collisionShape;
-	*/
-
 	q3BodyDef bodyDef;
 	q3Body* body;
 

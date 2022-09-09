@@ -31,32 +31,12 @@ struct world
 	int totalMadeEntts = 0;
 
 	// Physics
-	/*
-	float gravity_y = 1.0;
-	dWorldID physicsWorld;
-	dSpaceID physicsSpace;
-	dJointGroupID collisionContactGroup;
-	collision_data collisionData;
-	dGeomID groundGeom;
-	*/
-
-	/*
-	
-	btDefaultCollisionConfiguration* collisionConfiguration;
-	btCollisionDispatcher* dispatcher;
-	btBroadphaseInterface* overlappingPairCache;
-	btSequentialImpulseConstraintSolver* solver;
-
-	btDiscreteDynamicsWorld* dynamicsWorld;
-	*/
-
 	q3Scene* physicsSpace;
-
-	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Lighting is done inside the shaders of course, but lights are also entites in their own term. This means we have to manually update all shaders
 	//to notify them of any changes that might happened in lighting data.
 	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 2];
+	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Each world can have as many cams as we like. The cam that we would like rendering will be set by setting this pointer.
 	entt_camera* currentlyRenderingCam;
@@ -83,9 +63,6 @@ struct world
 	void run_script_on_update();
 	void run_script_on_destroy();
 };
-
-//void nearCallback(void* data, dGeomID o1, dGeomID o2);
-
 
 #else
 

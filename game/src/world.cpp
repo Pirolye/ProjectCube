@@ -24,33 +24,8 @@ world::world()
 	
 	name = "debug";
 
-	/*
-	collisionConfiguration = new btDefaultCollisionConfiguration();
-	dispatcher = new btCollisionDispatcher(collisionConfiguration);
-	overlappingPairCache = new btDbvtBroadphase();
-	solver = new btSequentialImpulseConstraintSolver();
-	
-	dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-	dynamicsWorld->setGravity(btVector3(0, -10, 0));
-	*/
-
-	/*
-	dInitODE2(0);
-
-	physicsWorld = dWorldCreate();
-	dWorldSetGravity(physicsWorld, 0.0, -9.81, 0.0);
-	physicsSpace = dHashSpaceCreate(NULL);
-	collisionContactGroup = dJointGroupCreate(0);
-	collisionData = collision_data{ physicsWorld, collisionContactGroup };
-
-	groundGeom = dCreatePlane(physicsSpace, 0, 1, 0, 0);
-	*/
-
 	physicsSpace = new q3Scene(1.0 / 60);
 	physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
-
-	//q3Scene scene(1.0 / 60.0);
-	//physicsSpace = scene;
 
 	run_script_on_init();
 
@@ -220,14 +195,6 @@ void world::update()
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
 	{
-		//dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
-		
-		/*
-		dSpaceCollide(physicsSpace, &collisionData, &nearCallback);
-		dWorldQuickStep(physicsWorld, 1 / 60.0f);
-		dJointGroupEmpty(collisionContactGroup);
-		*/
-
 		physicsSpace->Step();
 	}
 
@@ -303,108 +270,7 @@ void world::on_destroy()
 		}
 	}
 	
-	/*for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--)
-	{
-		btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-		btRigidBody* body = btRigidBody::upcast(obj);
-		if (body && body->getMotionState())
-		{
-			delete body->getMotionState();
-		}
-		dynamicsWorld->removeCollisionObject(obj);
-		delete obj;
-	}*/
-
-
-	// delete dynamics world
-	//delete dynamicsWorld;
-
-	// delete solver
-	//delete solver;
-
-	// delete broadphase
-	//delete overlappingPairCache;
-
-	// delete dispatcher
-	//delete dispatcher;
-
-	//delete collisionConfiguration;
-
-	/*
-	dSpaceDestroy(physicsSpace);
-	dWorldDestroy(physicsWorld);
-	dCloseODE();
-	*/
 }
-
-
-/*
-void nearCallback(void* inData, dGeomID inGeom1, dGeomID inGeom2)
-{
-	auto collisionData = static_cast<collision_data*>(inData);
-
-	// Get the rigid bodies associated with the geometries
-	dBodyID body1 = dGeomGetBody(inGeom1);
-	dBodyID body2 = dGeomGetBody(inGeom2);
-
-	// Maximum number of contacts to create between bodies (see ODE documentation)
-	const int MAX_NUM_CONTACTS = 8;
-	dContact contacts[MAX_NUM_CONTACTS];
-
-	// Add collision joints
-	int numc = dCollide(inGeom1, inGeom2, MAX_NUM_CONTACTS, &contacts[0].geom, sizeof(dContact));
-
-	for (int i = 0; i < numc; ++i) {
-
-		contacts[i].surface.mode = dContactMotion1;
-
-		contacts[i].surface.mu = 50.0;
-		contacts[i].surface.soft_erp = 0.96;
-		contacts[i].surface.soft_cfm = 2.00;
-
-		// struct dSurfaceParameters {
-		//      int mode;
-		//      dReal mu;
-		//      dReal mu2;
-		//      dReal rho;
-		//      dReal rho2;
-		//      dReal rhoN;
-		//      dReal bounce;
-		//      dReal bounce_vel;
-		//      dReal soft_erp;
-		//      dReal soft_cfm;
-		//      dReal motion1, motion2, motionN;
-		//      dReal slip1, slip2;
-		// };
-
-		dJointID contact = dJointCreateContact(collisionData->world, collisionData->contactGroup, &contacts[i]);
-
-		dJointAttach(contact, body1, body2);
-	}
-}
-*/
-/*
-void nearCallback(void* data, dGeomID o1, dGeomID o2)
-{
-	if (dGeomIsSpace(o1) || dGeomIsSpace(o2)) {
-		// colliding a space with something :
-		dSpaceCollide2(o1, o2, data, &nearCallback);
-		// collide all geoms internal to the space(s)
-		if (dGeomIsSpace(o1))
-			dSpaceCollide((dSpaceID)o1, data, &nearCallback);
-		if (dGeomIsSpace(o2))
-			dSpaceCollide((dSpaceID)o2, data, &nearCallback);
-	}
-	else {
-		// colliding two non-space geoms, so generate contact
-		// points between o1 and o2
-		const int MAX_NUM_CONTACTS = 8;
-		dContact contacts[MAX_NUM_CONTACTS];
-
-		int num_contact = dCollide(o1, o2, 8, &contacts[0].geom, sizeof(dContact));
-		// add these contact points to the simulation ... 
-	}
-}*/
 
 /*
 * 
