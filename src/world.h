@@ -11,12 +11,6 @@
 ;
 #include "q3.h"
 
-/*struct collision_data
-{
-	dWorldID world;
-	dJointGroupID contactGroup;
-};*/
-
 ;
 //(Levente): The world houses the main entity array plus standard configuration you would want. Loading worlds is taken care of by the game instance.
 struct world

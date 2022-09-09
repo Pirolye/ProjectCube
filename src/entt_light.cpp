@@ -35,7 +35,7 @@ void entt_light::on_make()
 	enttTransform.rot = Vector3Zero();
 	enttTransform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
-	debugModel = LoadModel("../../game/editor/point_light_model.obj");
+	debugModel = LoadModel("editor/point_light_model.obj");
 }
 
 void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
