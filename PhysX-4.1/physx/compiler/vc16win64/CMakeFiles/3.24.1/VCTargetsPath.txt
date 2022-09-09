@@ -1,1 +1,0 @@
-C:/biro,program/Microsoft Visual Studio/2019/Community/MSBuild/Microsoft/VC/v160

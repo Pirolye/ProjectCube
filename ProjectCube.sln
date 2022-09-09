@@ -10,7 +10,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectCube", "_build\Proje
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "raylib", "_build\raylib.vcxproj", "{8898EA18-743A-15EF-5DF5-284349369C3F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qu3e", "qu3e\qu3e.vcxproj", "{61FB76AE-F794-4084-90F3-2BB84AA63452}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "qu3e", "_build\qu3e.vcxproj", "{61FB76AE-F794-4084-90F3-2BB84AA63452}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
