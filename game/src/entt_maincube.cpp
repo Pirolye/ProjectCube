@@ -56,7 +56,7 @@ void entt_maincube::on_make()
 
 	// Create a box at the origin with width, height, depth = (1.0, 1.0, 1.0)
 	// and add it to a rigid body. The transform is defined relative to the owning body
-	boxDef.Set(localSpace, q3Vec3(1.0, 1.0, 1.0));
+	boxDef.Set(localSpace, q3Vec3(2.0, 2.0, 2.0));
 	body->AddBox(boxDef);
 
 	body->SetToSleep();
