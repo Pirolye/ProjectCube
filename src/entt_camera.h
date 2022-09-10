@@ -10,6 +10,9 @@ struct entt_camera : entt
 {
 	Camera3D* rayCam;
 
+	Vector2 mousePosOriginal;
+	Vector3 rotation;
+
 	bool currentlyDrawing = false;
 
 	using entt::entt;

@@ -5,6 +5,9 @@
 ;
 #include "raymath.h"
 
+#define CAMERA_IMPLEMENTATION
+#include "rcamera.h"
+
 ;
 #include "rlgl.h"
 
@@ -14,15 +17,21 @@ void entt_camera::on_make()
 {
 	rayCam = new Camera3D;
 	
-	rayCam->position = Vector3{ 1.0f, 0.0f, 0.0f }; // Camera position
+	rayCam->position = Vector3{ -5.0f, 0.0f, 0.0f }; // Camera position
 	rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
 	rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
 	rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
 	SetCameraMode((*rayCam), CAMERA_FREE); // Set a free camera mode
+	
+	//rayCam->position = Vector3{ 0.0f, 0.0f, 0.0f }; // Camera position
+	rotation = Vector3Zero();
 
-	debugModel = LoadModel("../../game/editor/camera_model.obj1"); //Loading the wrong model here intentionally...
+	//update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+	//update_spatial_props(Vector3{ -5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+
+	debugModel = LoadModel("editor/camera_model.obj1"); //Loading the wrong model here intentionally...
 
 }
 
@@ -31,7 +40,70 @@ void entt_camera::on_destroy()
 	delete(rayCam);
 };
 
-void entt_camera::on_update() {};
+void entt_camera::on_update() 
+{
+	assert(dynamic_cast<entt*>(this) != false);
+	if (currentlyDrawing != true) return;
+
+	Vector2 delta = GetMouseDelta();
+
+	if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+	{
+		mousePosOriginal = GetMousePosition();
+	}
+
+	/*if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	{
+		HideCursor();
+
+		if (delta.x != 0.0f)
+		{
+			//CAMERA.angle = Vector2{ CAMERA.angle.x + delta.x * 0.05f, CAMERA.angle.y};
+			rotation.z = rotation.z + delta.x * 0.1f;
+		}
+		if (delta.y != 0.0f)
+		{
+			//CAMERA.angle = Vector2{ CAMERA.angle.x, CAMERA.angle.y + delta.y * 0.05f};
+			rotation.y = rotation.y - delta.y * 0.1f;
+		}
+
+		if (IsKeyDown(KEY_W))
+		{
+			//(Levente): This is not scaled to framerate!!! TODO!!
+			dynamic_cast<entt*>(this)->update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.1f, 0.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
+
+		}
+		if (IsKeyDown(KEY_S))
+		{
+			//(Levente): This is not scaled to framerate!!! TODO!!
+			dynamic_cast<entt*>(this)->update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ -0.1f, 0.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
+
+		}
+		if (IsKeyDown(KEY_A))
+		{
+			//(Levente): This is not scaled to framerate!!! TODO!!
+			dynamic_cast<entt*>(this)->update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 0.0f, -0.1f }), enttTransform.scale, enttTransform.rot);
+
+		}
+		if (IsKeyDown(KEY_D))
+		{
+			//(Levente): This is not scaled to framerate!!! TODO!!
+			dynamic_cast<entt*>(this)->update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 0.0f, 0.1f }), enttTransform.scale, enttTransform.rot);
+
+		}
+
+	}
+	else
+	{
+		ShowCursor();
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+		{
+			SetMousePosition(mousePosOriginal.x, mousePosOriginal.y);
+
+		}
+	}*/
+
+};
 
 void entt_camera::on_draw_2d()
 {
@@ -41,6 +113,8 @@ void entt_camera::on_draw_2d()
 	if (containingWorld->isInEditorMode)
 	{
 		DrawText(id.c_str(), 0, 100, 30, WHITE);
+		DrawText(std::to_string(rayCam->target.y).c_str(), 0, 200, 30, WHITE);
+		DrawText(std::to_string(rayCam->target.z).c_str(), 0, 230, 30, WHITE);
 	}
 };
 
@@ -65,6 +139,10 @@ void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	
 	//We will manually update the camera location, rotation target etc...
 	
+	//rayCam->target = Vector3Zero();
+	//rayCam->position = inNewPos;
+	//rayCam->target = rotation;
+
 	enttTransform.pos = inNewPos;
 	enttTransform.scale = inNewScale;
 	enttTransform.rot = inNewRotation;

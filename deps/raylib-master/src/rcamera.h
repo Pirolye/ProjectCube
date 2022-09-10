@@ -227,14 +227,14 @@ typedef struct {
 // Global Variables Definition
 //----------------------------------------------------------------------------------
 static CameraData CAMERA = {        // Global CAMERA state context
-    .mode = 0,
-    .targetDistance = 0,
-    .playerEyesPosition = 1.85f,
-    .angle = { 0 },
-    .moveControl = { 'W', 'S', 'D', 'A', 'E', 'Q' },
-    .smoothZoomControl = 341,       // raylib: KEY_LEFT_CONTROL
-    .altControl = 342,              // raylib: KEY_LEFT_ALT
-    .panControl = 2                 // raylib: MOUSE_BUTTON_MIDDLE
+	0,
+	0,
+	1.85f,
+	{ 0 },
+	{ 'W', 'S', 'D', 'A', 'E', 'Q' },
+	341,       // raylib: KEY_LEFT_CONTROL
+	342,              // raylib: KEY_LEFT_ALT
+	2                 // raylib: MOUSE_BUTTON_MIDDLE
 };
 
 //----------------------------------------------------------------------------------
@@ -296,10 +296,10 @@ void UpdateCamera(Camera *camera)
     Vector2 mousePositionDelta = GetMouseDelta();
     float mouseWheelMove = GetMouseWheelMove();
 
-	CAMERA.targetDistance = camera->position.x; //(Pirolye, 2022.08.26): For some reason there is a separate CameraData struct hosting some
+	//CAMERA.targetDistance = camera->position.x; //(Pirolye, 2022.08.26): For some reason there is a separate CameraData struct hosting some
 												// some values. A variable from it is declared statically and it is used for the mouse wheel movement target.
 												// I don't understand why it was done this way as it would have been simpler to put the values inside the 
-												// Camera struct directly. Because the other position values are local to their pointer they are updated correctly
+												// Camera struct directly, because the other position values are local to their pointer they are updated correctly
 												// per-camera. This isn't, thus we need to update this manually. Also applies to every other property
 												// stored in the static variable. (mode, eye level etc.)
 
