@@ -148,7 +148,7 @@ entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 

@@ -129,7 +129,7 @@ entt* entt_maincube::editor_try_select(Ray inRay, RayCollision inRayCollision)
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 

@@ -23,6 +23,7 @@ world::world()
 	}
 	
 	name = "debug";
+	gameCameraPosition = Vector3{ -5.0f, 0.0f, 0.0f };
 
 	physicsSpace = new q3Scene(1.0 / 60);
 	physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
@@ -72,6 +73,19 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 	{
 		case entts::cam:
 		{
+			bool isThereAnotherCameraInTheWorld = false;
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+			{
+				if (entityArray[i] != NULL)
+				{
+					isThereAnotherCameraInTheWorld = dynamic_cast<entt_camera*>(entityArray[i]);
+					break;
+				}
+			}
+
+			assert(isThereAnotherCameraInTheWorld != true);
+			
 			entt_camera* cam = new entt_camera;
 
 			totalMadeEntts = totalMadeEntts + 1;
@@ -92,35 +106,6 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			cam->on_make();
 
 			return cam;
-
-			break;
-		}
-
-		case entts::camSetCurrentlyRendering:
-		{
-			entt_camera* camS = new entt_camera;
-
-			totalMadeEntts = totalMadeEntts + 1;
-			entityArrayCurrentSize = entityArrayCurrentSize + 1;
-
-			camS->id = "entt_camera_" + std::to_string(totalMadeEntts);
-			camS->containingWorld = this;
-
-			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-			{
-				if (entityArray[i] == NULL)
-				{
-					entityArray[i] = camS;
-					break;
-				}
-			}
-
-			currentlyRenderingCam = camS;
-			camS->currentlyDrawing = true;
-
-			camS->on_make();
-
-			return camS;
 
 			break;
 		}
@@ -188,9 +173,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 
 void world::update()
 {
-	assert(currentlyRenderingCam != nullptr);
-
-	UpdateCamera((currentlyRenderingCam->rayCam));
+	UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
 
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
@@ -209,9 +192,10 @@ void world::update()
 	if (IsKeyPressed(KEY_F1))
 	{
 		#ifdef DEBUG 
-		isInEditorMode = true;
+		if (isInEditorMode) exit_editor_mode();
+		else enter_editor_mode();
 		#else
-		isInEditorMode = false;
+		
 		#endif
 	}
 
@@ -224,11 +208,9 @@ void world::update()
 
 void world::draw_all()
 {
-	assert(currentlyRenderingCam != nullptr);
-
 	BeginDrawing();
 
-	BeginMode3D(*(currentlyRenderingCam->rayCam));
+	BeginMode3D(*(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)
@@ -282,6 +264,41 @@ void world::on_destroy()
 
 #ifdef DEBUG
 
+void world::enter_editor_mode()
+{
+	isInEditorMode = true;
+
+	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
+
+	cam->rayCam->position = Vector3{0.0f, 0.0f, 0.0f}; // Camera position
+	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
+	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+
+	SetCameraMode(*(cam->rayCam), CAMERA_FREE); // Set a free camera mode
+
+}
+
+void world::exit_editor_mode()
+{
+	isInEditorMode = false;
+
+	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
+
+	cam->rayCam->position = gameCameraPosition; // Camera position
+	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
+	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+
+	SetCameraMode(*(cam->rayCam), CAMERA_CUSTOM); // Set a free camera mode
+
+	currentlySelectedEntt = nullptr;
+
+	// START WORLD AGAIN FROM THE BEGINNING
+}
+
 void world::update_world_editor()
 {
 
@@ -289,42 +306,6 @@ void world::update_world_editor()
 
 	//Will be removed once we got editor gui
 	if (currentlySelectedEntt != NULL) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
-
-	if (IsKeyPressed(KEY_TAB))
-	{
-
-		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-		{
-			if (entityArray[i] != NULL)
-			{
-				if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr)
-				{
-					entt_camera* foundCam = dynamic_cast<entt_camera*>(entityArray[i]);
-
-					if (foundCam != currentlyRenderingCam)
-					{
-						currentlyRenderingCam->currentlyDrawing = false;
-						foundCam->currentlyDrawing = false;
-
-						entt_camera* prev = currentlyRenderingCam;
-
-						currentlyRenderingCam = foundCam;
-						currentlyRenderingCam->currentlyDrawing = true;
-
-						prev->currentlyDrawing = false;
-
-						cameraSwitchedLastFrame = true;
-
-						break;
-					}
-
-
-				}
-			}
-		}
-
-	}
-
 
 }
 
@@ -334,7 +315,7 @@ void world::editor_try_select_entt()
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(currentlyRenderingCam->rayCam));
+	cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -343,7 +324,7 @@ void world::editor_try_select_entt()
 			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			
+
 			if (currentlySelectedEntt != nullptr) break;
 			else continue;
 		}
@@ -354,6 +335,8 @@ void world::editor_try_select_entt()
 
 #else
 
+void world::enter_editor_mode() {};
+void world::exit_editor_mode() {};
 void world::update_world_editor() {};
 void world::editor_try_select_entt() {};
 

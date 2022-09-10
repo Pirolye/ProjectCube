@@ -32,8 +32,8 @@ struct world
 	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 2];
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
-	//(Levente): Each world can have as many cams as we like. The cam that we would like rendering will be set by setting this pointer.
-	entt_camera* currentlyRenderingCam;
+	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor.
+	Vector3 gameCameraPosition;
 
 	//(Levente): The make functions make the data structures and also do whatever is neccessary at that point in gameplay. Usually registering to arrays.
 	entt* make_desired_entt(entts inDesiredEntity);
@@ -46,6 +46,8 @@ struct world
 	Ray cursorSelectionRay = { 0 };
 	void editor_try_select_entt();
 	void update_world_editor();
+	void enter_editor_mode();
+	void exit_editor_mode();
 	bool isInEditorMode = false;
 
 	void update();

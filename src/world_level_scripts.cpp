@@ -9,7 +9,6 @@ void world::run_script_on_init()
 	if (name == "debug")
 	{
 		
-		entt* mainCam = this->make_desired_entt(entts::camSetCurrentlyRendering);
 		entt* Cam1 = this->make_desired_entt(entts::cam);
 		entt* mainCube = this->make_desired_entt(entts::mainCube);
 		entt* mainCube2 = this->make_desired_entt(entts::mainCube);
