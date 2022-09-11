@@ -4,7 +4,7 @@
 #include "world.h"
 
 ;
-#include "q3.h"
+#include "physics.h"
 
 ;
 struct entt_maincube : entt
@@ -13,8 +13,10 @@ struct entt_maincube : entt
 	Texture2D cubeTexture;
 	Shader cubeShader;
 
-	q3BodyDef bodyDef;
-	q3Body* body;
+	//q3BodyDef bodyDef;
+	//q3Body* body;
+
+	dynamic_body* collisionBox;
 
 	using entt::entt;
 

@@ -16,8 +16,11 @@ void world::run_script_on_init()
 		entt* mainLight = this->make_desired_entt(entts::light);
 		entt* secondaryLight = this->make_desired_entt(entts::light);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
 
-		dynamic_cast<entt_maincube*>(mainCube)->update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f });
+		dynamic_cast<entt_maincube*>(mainCube)->update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 90.0f, 90.0f });
 		dynamic_cast<entt_maincube*>(mainCube2)->update_spatial_props(Vector3{ 0.0f, -5.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f });
+		
+		
+		
 		dynamic_cast<entt_light*>(secondaryLight)->update_light_props(1, Vector3{ 7.0f, 7.0f, 7.0f }, Vector3Zero(), WHITE);
 		dynamic_cast<entt_light*>(mainLight)->update_light_props(1, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero(), WHITE);
 		
@@ -42,7 +45,7 @@ void world::run_script_on_update()
 {
 	if (name == "debug")
 	{
-		return;
+
 	}
 
 };

@@ -16,6 +16,7 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
+	/*
 	//(Levente): All of this will be made into a separate header!
 	bodyDef.bodyType = eDynamicBody;
 	body = containingWorld->physicsSpace->CreateBody(bodyDef);
@@ -30,8 +31,11 @@ void entt_maincube::on_make()
 	body->AddBox(boxDef);
 
 	body->SetToSleep();
+	*/
 
-	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
+	collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->physicsSpace, true);
+
+	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{0.0f, 0.0f, 0.0f});
 
 }
 
@@ -67,19 +71,18 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
-	q3Transform pos = body->GetTransform();
-
-	update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
+	//q3Transform pos = body->GetTransform();
+	//update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
 	
+	//collisionBox->update();
+
+	update_spatial_props(collisionBox->get_updated_spatial_props().pos, collisionBox->get_updated_spatial_props().scale, collisionBox->get_updated_spatial_props().rot);
+
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
-		if (IsKeyPressed(KEY_W))
-		{
-			update_spatial_props(Vector3Add(enttTransform.pos, Vector3{ 0.0f, 2.0f, 0.0f }), enttTransform.scale, enttTransform.rot);
-		}
 		if (IsKeyPressed(KEY_X))
 		{
-			body->SetToAwake();
+			collisionBox->enable();
 		}
 
 	}
@@ -91,13 +94,14 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	enttTransform.scale = inNewScale;
 	enttTransform.rot = inNewRotation;
 
-	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ inNewRotation.x * DEG2RAD, inNewRotation.y * DEG2RAD, inNewRotation.z * DEG2RAD });
-	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
+	Matrix matScale = MatrixScale(enttTransform.scale.x, enttTransform.scale.y, enttTransform.scale.z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x , DEG2RAD * enttTransform.rot.y , DEG2RAD * enttTransform.rot.z  });
+	Matrix matTranslation = MatrixTranslate(enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z);
 
+	cubeModel.transform = MatrixIdentity();
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	body->SetTransform(q3Vec3(inNewPos.x, inNewPos.y, inNewPos.z));
+	collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
 
 }
 

@@ -333,11 +333,11 @@ void world::update_world_editor()
 
 		if (IsKeyPressed(KEY_W))
 		{
-			editor_move_entt(currentlyEditingAxis, 1.0f);
+			editor_move_entt(currentlyEditingAxis, 0.5f);
 		}
 		if (IsKeyPressed(KEY_S))
 		{
-			editor_move_entt(currentlyEditingAxis, -1.0f);
+			editor_move_entt(currentlyEditingAxis, -0.5f);
 		}
 
 	}
