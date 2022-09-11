@@ -45,10 +45,12 @@ struct world
 	entt* currentlySelectedEntt = nullptr;
 	Ray cursorSelectionRay = { 0 };
 	void editor_try_select_entt();
+	void editor_move_entt(int axis, float val);
 	void update_world_editor();
 	void enter_editor_mode();
 	void exit_editor_mode();
 	bool isInEditorMode = false;
+	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
 
 	void update();
 	void draw_all();

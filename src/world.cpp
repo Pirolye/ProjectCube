@@ -228,6 +228,22 @@ void world::draw_all()
 		}
 	}
 
+	if (isInEditorMode)
+	{
+		switch (currentlyEditingAxis)
+		{
+		case 0:
+			DrawText("x", 0, 100, 30, WHITE);
+			break;
+		case 1:
+			DrawText("y", 0, 100, 30, WHITE);
+			break;
+		case 2:
+			DrawText("z", 0, 100, 30, WHITE);
+			break;
+		}
+	}
+
 	EndDrawing();
 
 }
@@ -304,8 +320,52 @@ void world::update_world_editor()
 
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) editor_try_select_entt();
 
+	if (IsKeyPressed(KEY_TAB))
+	{
+		currentlyEditingAxis = currentlyEditingAxis + 1;
+		if (currentlyEditingAxis == 3) currentlyEditingAxis = 0;
+	}
+
 	//Will be removed once we got editor gui
-	if (currentlySelectedEntt != NULL) DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
+	if (currentlySelectedEntt != NULL)
+	{
+		DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
+
+		if (IsKeyPressed(KEY_W))
+		{
+			editor_move_entt(currentlyEditingAxis, 1.0f);
+		}
+		if (IsKeyPressed(KEY_S))
+		{
+			editor_move_entt(currentlyEditingAxis, -1.0f);
+		}
+
+	}
+
+}
+
+void world::editor_move_entt(int axis, float val)
+{
+	if (currentlySelectedEntt == nullptr) return;
+
+	if (axis == 0)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
+
+	}
+	if (axis == 1)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
+
+	}
+	if (axis == 2)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
+
+	}
 
 }
 
@@ -335,6 +395,7 @@ void world::editor_try_select_entt()
 
 #else
 
+void world::editor_move_entt(int axis, float val) {};
 void world::enter_editor_mode() {};
 void world::exit_editor_mode() {};
 void world::update_world_editor() {};

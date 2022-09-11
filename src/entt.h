@@ -39,6 +39,7 @@ struct entt
 	//(Levente): Prototype of editor entity selection. Sends out a request to all entites to check for collisions between whatever they want to be selectable and the ray 
 	//shot out by the currently rendering camera.
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) { return nullptr; };
+	//int currentlyEditingAxis; //(Levente): This is used for initial entt movement.
 };
 
 #else
