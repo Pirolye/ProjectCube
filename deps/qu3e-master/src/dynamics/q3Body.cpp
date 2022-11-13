@@ -393,6 +393,14 @@ void q3Body::SetTransform( const q3Vec3& position, const q3Vec3& axis, r32 angle
 }
 
 //--------------------------------------------------------------------------------------------------
+void q3Body::SetTransformRotation(const q3Mat3& inRotation)
+{
+	m_tx.rotation = inRotation;
+
+	SynchronizeProxies();
+}
+
+//--------------------------------------------------------------------------------------------------
 i32 q3Body::GetFlags( ) const
 {
 	return m_flags;

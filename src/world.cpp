@@ -135,7 +135,32 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 
 			break;
 		}
+		
+		case entts::mainCube_Static:
+		{
+			entt_maincube_static* c = new entt_maincube_static;
 
+			totalMadeEntts = totalMadeEntts + 1;
+			entityArrayCurrentSize = entityArrayCurrentSize + 1;
+
+			c->id = "entt_maincube_static_" + std::to_string(totalMadeEntts);
+			c->containingWorld = this;
+
+			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+			{
+				if (entityArray[i] == NULL)
+				{
+					entityArray[i] = c;
+					break;
+				}
+			}
+
+			c->on_make();
+
+			return c;
+
+			break;
+		}
 		case entts::light:
 		{
 			entt_light* l1 = new entt_light;
@@ -331,14 +356,23 @@ void world::update_world_editor()
 	{
 		DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
 
-		if (IsKeyPressed(KEY_W))
+		if (IsKeyDown(KEY_W))
 		{
-			editor_move_entt(currentlyEditingAxis, 0.5f);
+			editor_move_entt(currentlyEditingAxis, 0.05f);
 		}
-		if (IsKeyPressed(KEY_S))
+		if (IsKeyDown(KEY_S))
 		{
-			editor_move_entt(currentlyEditingAxis, -0.5f);
+			editor_move_entt(currentlyEditingAxis, -0.05f);
 		}
+		if (IsKeyDown(KEY_A))
+		{
+			editor_rotate_entt(currentlyEditingAxis, 0.5f);
+		}
+		if (IsKeyDown(KEY_D))
+		{
+			editor_rotate_entt(currentlyEditingAxis, -0.5f);
+		}
+
 
 	}
 
@@ -369,6 +403,36 @@ void world::editor_move_entt(int axis, float val)
 
 }
 
+void world::editor_rotate_entt(int axis, float val)
+{
+	if (currentlySelectedEntt == nullptr) return;
+
+	if (axis == 0)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+
+		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x + val, t.rot.y, t.rot.z });
+
+	}
+	if (axis == 1)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+
+		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y + val, t.rot.z });
+
+	}
+	if (axis == 2)
+	{
+		entt_transform t = currentlySelectedEntt->enttTransform;
+
+		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y, t.rot.z + val });
+
+	}
+
+}
+
+
+
 void world::editor_try_select_entt()
 {
 	RayCollision collision = { 0 };
@@ -383,6 +447,7 @@ void world::editor_try_select_entt()
 		{
 			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
 			if (currentlySelectedEntt != nullptr) break;

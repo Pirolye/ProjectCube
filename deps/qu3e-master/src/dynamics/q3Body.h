@@ -105,6 +105,7 @@ public:
 	// can be updated.
 	void SetTransform( const q3Vec3& position );
 	void SetTransform( const q3Vec3& position, const q3Vec3& axis, r32 angle );
+	void SetTransformRotation(const q3Mat3& inRotation);
 
 	// Used for debug rendering lines, triangles and basic lighting
 	void Render( q3Render* render ) const;

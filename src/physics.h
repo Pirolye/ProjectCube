@@ -26,10 +26,41 @@ struct dynamic_body
 
 	void update();
 
+	bool shouldBeSleeping;
+
 	entt_transform get_updated_spatial_props();
 	void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot);
 
 };
+
+struct static_body
+{
+	static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, q3Scene* inContainingPhysicsSpace, bool e);
+	~static_body();
+
+	q3Scene* containingPhysicsSpace;
+
+	q3BodyDef bodyDef;
+	q3Body* body;
+	q3BoxDef boxDef; // See q3Box.h for settings details
+	q3Transform localSpace; // Contains position and orientation, see q3Transform.h for details
+
+	bool everEnable;
+
+	entt_transform t;
+
+	void enable();
+	void disable();
+
+	void update();
+
+	bool shouldBeSleeping;
+
+	entt_transform get_updated_spatial_props();
+	void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot);
+
+};
+
 
 
 

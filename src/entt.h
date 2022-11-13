@@ -8,7 +8,7 @@ struct world;
 
 #define MAX_ENTITIES_IN_WORLD 360
 
-enum entts {mainCube, cam, light};
+enum entts {mainCube, cam, light, mainCube_Static};
 
 struct entt_transform
 {

@@ -46,6 +46,7 @@ struct world
 	Ray cursorSelectionRay = { 0 };
 	void editor_try_select_entt();
 	void editor_move_entt(int axis, float val);
+	void editor_rotate_entt(int axis, float val);
 	void update_world_editor();
 	void enter_editor_mode();
 	void exit_editor_mode();
