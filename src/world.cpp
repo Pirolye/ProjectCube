@@ -1,6 +1,7 @@
-#include "world.h"
 #include "entt_camera.h"
 #include "entt_maincube.h"
+
+#include "game_instance.h"
 
 ;
 #include "assert.h"
@@ -8,7 +9,7 @@
 #define FLT_MAX 340282346638528859811704183484516925440.0f 
 
 
-world::world() 
+world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress) 
 {
 	//(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -22,11 +23,34 @@ world::world()
 		currentlyLoadedShaders[i] = { 0 };
 	}
 	
+	gameInstance = inGameInstance;
+	assert(gameInstance != nullptr);
+
 	name = "debug";
 	gameCameraPosition = Vector3{ -5.0f, 0.0f, 0.0f };
 
-	physicsSpace = new q3Scene(1.0 / 60);
-	physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
+	globalPhysics = inPhysicsMemAddress; // (Levente): We do this because for some reason the program
+										 // can't read gPhysics static var properly. (Even though it can read
+										 // gFoundation just fine...)
+
+	PxSceneDesc sceneDesc(globalPhysics->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	gameInstance->gDispatcher = PxDefaultCpuDispatcherCreate(2);
+	sceneDesc.cpuDispatcher = gameInstance->gDispatcher;
+	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	gScene = globalPhysics->createScene(sceneDesc);
+
+	//physicsSpace = new q3Scene(1.0 / 60);
+	//physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
+
+	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	if (pvdClient)
+	{
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+	}
+
 
 	run_script_on_init();
 
@@ -136,7 +160,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			break;
 		}
 		
-		case entts::mainCube_Static:
+		/*case entts::mainCube_Static:
 		{
 			entt_maincube_static* c = new entt_maincube_static;
 
@@ -160,7 +184,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			return c;
 
 			break;
-		}
+		}*/
 		case entts::light:
 		{
 			entt_light* l1 = new entt_light;
@@ -203,7 +227,11 @@ void world::update()
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
 	{
-		physicsSpace->Step();
+		if (!isInEditorMode) 
+		{
+			gScene->simulate(1.0f / 60.0f);
+			gScene->fetchResults(true);
+		}
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -447,7 +475,7 @@ void world::editor_try_select_entt()
 		{
 			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			//if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
 			if (currentlySelectedEntt != nullptr) break;

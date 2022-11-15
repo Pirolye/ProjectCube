@@ -3,10 +3,16 @@
 
 #include "raylib.h"
 #include "raymath.h"
+#include "PxPhysicsAPI.h"
 #include <string>
 
 ;
 #include "world.h"
+
+static PxDefaultAllocator		gAllocator;
+static PxDefaultErrorCallback	gErrorCallback;
+static PxFoundation*            gFoundation;
+static PxPhysics*               gPhysics;
 
 ;
 struct game_instance
@@ -14,6 +20,10 @@ struct game_instance
 	std::string displayName;
 	int windowWidth, windowHeight;
 	//
+
+	PxDefaultCpuDispatcher* gDispatcher = NULL;
+	//PxScene*              gScene = NULL;
+	PxPvd*                  gPvd = NULL;
 
 	world* persistentWorld;
 

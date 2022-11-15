@@ -9,13 +9,17 @@
 #include "entt_light.h"
 
 ;
-#include "q3.h"
+#include "PxPhysicsAPI.h"
+using namespace physx;
+
+struct game_instance;
+
 
 ;
 //(Levente): The world houses the main entity array plus standard configuration you would want. Loading worlds is taken care of by the game instance.
 struct world
 {
-	world(); // Alias init
+	world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress); // Alias init
 	virtual ~world(); // Separate from on_destroy()
 
 	std::string name;
@@ -25,7 +29,10 @@ struct world
 	int totalMadeEntts = 0;
 
 	// Physics
-	q3Scene* physicsSpace;
+	PxScene* gScene;
+	PxPhysics* globalPhysics;
+
+	game_instance* gameInstance;
 
 	//(Levente): Lighting is done inside the shaders of course, but lights are also entites in their own term. This means we have to manually update all shaders
 	//to notify them of any changes that might happened in lighting data.

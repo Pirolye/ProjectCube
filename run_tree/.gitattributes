@@ -1,0 +1,7 @@
+PhysXDevice64.dll filter=lfs diff=lfs merge=lfs -text
+PhysXFoundation_64.dll filter=lfs diff=lfs merge=lfs -text
+PhysXGpu_64.dll filter=lfs diff=lfs merge=lfs -text
+freeglutd.dll filter=lfs diff=lfs merge=lfs -text
+PhysX_64.dll filter=lfs diff=lfs merge=lfs -text
+PhysXCommon_64.dll filter=lfs diff=lfs merge=lfs -text
+PhysXCooking_64.dll filter=lfs diff=lfs merge=lfs -text

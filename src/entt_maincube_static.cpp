@@ -2,7 +2,7 @@
 #include "rlgl.h"
 #include "raymath.h"
 #include "assert.h"
-
+/*
 ;
 void entt_maincube_static::on_make()
 {
@@ -31,9 +31,9 @@ void entt_maincube_static::on_make()
 	body->AddBox(boxDef);
 
 	body->SetToSleep();
-	*/
+	*//*
 
-	collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->physicsSpace, true);
+	collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->physicsSpace, false);
 
 	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f });
 
@@ -112,7 +112,7 @@ void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewS
 *
 *
 */
-
+/*
 #ifdef DEBUG
 
 entt* entt_maincube_static::editor_try_select(Ray inRay, RayCollision inRayCollision)
@@ -146,4 +146,4 @@ entt* entt_maincube_static::editor_try_select(Ray inRay, RayCollision inRayColli
 	return nullptr;
 };
 
-#endif
+#endif*/

@@ -3,6 +3,10 @@
 #include "raymath.h"
 #include "assert.h"
 
+#include <iostream>
+#include <string>
+#include <sstream>
+
 ;
 void entt_maincube::on_make()
 {
@@ -33,7 +37,7 @@ void entt_maincube::on_make()
 	body->SetToSleep();
 	*/
 
-	collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->physicsSpace, true);
+	collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->gScene, containingWorld);
 
 	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{0.0f, 0.0f, 0.0f});
 
@@ -66,7 +70,27 @@ void entt_maincube::on_draw_3d()
 
 void entt_maincube::on_draw_2d()
 {
-	
+	std::ostringstream getTheAddress;
+	getTheAddress << &(collisionBox->t.rot.x);
+	std::string b = getTheAddress.str();
+
+	std::ostringstream getTheAddress1;
+	getTheAddress1 << &(collisionBox->t.rot.y);
+	std::string b1 = getTheAddress1.str();
+
+	std::ostringstream getTheAddress2;
+	getTheAddress2 << &(collisionBox->t.rot.z);
+	std::string b2 = getTheAddress2.str();
+
+
+	std::string a = "Reading rot.x at " + b + " = " + std::to_string(collisionBox->t.rot.x);
+	std::string a1 = "Reading rot.y at " + b1 + " = " + std::to_string(collisionBox->t.rot.y);
+	std::string a2 = "Reading rot.z at " + b2 + " = " + std::to_string(collisionBox->t.rot.z);
+
+	DrawText(a.c_str(), 1000, 10, 24, WHITE);
+	DrawText(a1.c_str(), 1000, 30, 24, WHITE);
+	DrawText(a2.c_str(), 1000, 50, 24, WHITE);
+
 }
 
 void entt_maincube::on_update()
