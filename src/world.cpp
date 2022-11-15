@@ -227,11 +227,15 @@ void world::update()
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
 	{
-		if (!isInEditorMode) 
+		/*		if (!isInEditorMode) 
 		{
 			gScene->simulate(1.0f / 60.0f);
 			gScene->fetchResults(true);
 		}
+*/
+
+		gScene->simulate(1.0f / 60.0f);
+		gScene->fetchResults(true);
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)

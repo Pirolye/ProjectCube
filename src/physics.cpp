@@ -1,5 +1,6 @@
 #include "physics.h"
 #include "game_instance.h"
+#include "assert.h"
 
 dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, PxScene* inContainingPhysicsSpace, world* inContainingWorld)
 {
@@ -17,6 +18,8 @@ dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Ve
 
 	containingPhysicsSpace->addActor(*rigidDynamic);
 	
+	disable();
+
 	/*
 	
 
@@ -36,7 +39,7 @@ dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Ve
 	//body->SetTransform(q3Vec3(inInitialPos.x, inInitialPos.y, inInitialPos.z), AXIS, ANGLE);
 	//(Levente): q3's body only has a raylib type transform setter for the angle (axis, angle as arguments). Will have to experiment with it.
 
-	disable();*/
+	*/
 
 }
 
@@ -83,9 +86,11 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 
 	PxMat33 m(c1, c2, c3);
 
-	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, PxQuat(m));
+	PxTransform newT(t.pos.x, t.pos.y, t.pos.z);
 
-	rigidDynamic->setGlobalPose(newT);
+	assert(newT.isSane() == true);
+	
+	rigidDynamic->setGlobalPose(newT, false);
 
 	//boxDef.Set(t1, q3Vec3(t.scale.x * 2.0f, t.scale.y * 2.0f, t.scale.z * 2.0f));
 
@@ -117,12 +122,16 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 }
 void dynamic_body::enable()
 {
+	rigidDynamic->wakeUp();
+
 	/*body->SetToAwake();
 	shouldBeSleeping = false;*/
 }
 
 void dynamic_body::disable()
 {
+	rigidDynamic->putToSleep();
+	
 	/*body->SetToSleep();
 	shouldBeSleeping = true;*/
 }
