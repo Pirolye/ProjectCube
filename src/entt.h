@@ -13,6 +13,7 @@ enum entts {mainCube, cam, light, mainCube_Static};
 struct entt_transform
 {
 	Vector3 pos, rot, scale;
+	Quaternion q;
 };
 
 struct entt

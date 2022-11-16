@@ -57,8 +57,8 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	t.pos.z = newT.p.z;
 
 	t.rot.x = newT.q.getBasisVector0().x;
-	t.rot.y = newT.q.getBasisVector0().y;
-	t.rot.z = newT.q.getBasisVector0().z;
+	t.rot.y = newT.q.getBasisVector1().y;
+	t.rot.z = newT.q.getBasisVector2().z;
 
 	return t;
 	
@@ -80,15 +80,14 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	t.scale = inNewScale;
 	t.rot = inNewRot;
 
-	PxVec3 c1(0.0f, t.rot.x, 0.0f);
-	PxVec3 c2(0.0f, t.rot.y, 0.0f);
-	PxVec3 c3(0.0f, t.rot.z, 0.0f);
+	Quaternion qa = QuaternionFromEuler(t.rot.y, t.rot.z, t.rot.x);
+	//Quaternion qa = QuaternionFromEuler(t.rot.y, t.rot.z, t.rot.x);
 
-	PxMat33 m(c1, c2, c3);
+	PxQuat q(qa.x, qa.y, qa.z, qa.w);
 
-	PxTransform newT(t.pos.x, t.pos.y, t.pos.z);
+	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, q);
 
-	assert(newT.isSane() == true);
+	assert( (newT.isSane() == true) && "New spatial properties of dynamic rigid body must be sane! (PhysX)");
 	
 	rigidDynamic->setGlobalPose(newT, false);
 

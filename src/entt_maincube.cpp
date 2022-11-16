@@ -87,9 +87,16 @@ void entt_maincube::on_draw_2d()
 	std::string a1 = "Reading rot.y at " + b1 + " = " + std::to_string(collisionBox->t.rot.y);
 	std::string a2 = "Reading rot.z at " + b2 + " = " + std::to_string(collisionBox->t.rot.z);
 
+	/*
+	DrawText(a.c_str(), 1000, 10  std::stoi(std::to_string(id[14])), 24, WHITE);
+	DrawText(a1.c_str(), 1000, 30 * std::stoi(std::to_string(id[14])), 24, WHITE);
+	DrawText(a2.c_str(), 1000, 50 * std::stoi(std::to_string(id[14])), 24, WHITE);
+	*/
+
 	DrawText(a.c_str(), 1000, 10, 24, WHITE);
 	DrawText(a1.c_str(), 1000, 30, 24, WHITE);
 	DrawText(a2.c_str(), 1000, 50, 24, WHITE);
+
 
 }
 
