@@ -55,17 +55,16 @@ struct dynamic_body
 	*/
 };
 
-/*struct static_body
+struct static_body
 {
-	static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, q3Scene* inContainingPhysicsSpace, bool e);
+	static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, PxScene* inContainingPhysicsSpace, world* inContainingWorld);
 	~static_body();
 
-	q3Scene* containingPhysicsSpace;
+	PxMaterial* testMaterial;
+	PxRigidStatic* rigidStatic;
 
-	q3BodyDef bodyDef;
-	q3Body* body;
-	q3BoxDef boxDef; // See q3Box.h for settings details
-	q3Transform localSpace; // Contains position and orientation, see q3Transform.h for details
+	PxScene* containingPhysicsSpace;
+	world* containingWorld;
 
 	bool everEnable;
 
@@ -81,7 +80,7 @@ struct dynamic_body
 	entt_transform get_updated_spatial_props();
 	void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot);
 
-};*/
+};
 
 
 

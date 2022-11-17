@@ -33,7 +33,7 @@ struct entt_maincube : entt
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 };
 
-/*
+
 struct entt_maincube_static : entt
 {
 	Model cubeModel;
@@ -59,7 +59,7 @@ struct entt_maincube_static : entt
 
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 };
-*/
+
 
 
 #else

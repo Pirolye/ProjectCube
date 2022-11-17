@@ -160,7 +160,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			break;
 		}
 		
-		/*case entts::mainCube_Static:
+		case entts::mainCube_Static:
 		{
 			entt_maincube_static* c = new entt_maincube_static;
 
@@ -184,7 +184,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			return c;
 
 			break;
-		}*/
+		}
 		case entts::light:
 		{
 			entt_light* l1 = new entt_light;
@@ -222,6 +222,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 
 void world::update()
 {
+	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/a camera should always exist at entity array index 0!");
 	UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
 
 	cameraSwitchedLastFrame = false;
@@ -399,11 +400,11 @@ void world::update_world_editor()
 		}
 		if (IsKeyDown(KEY_A))
 		{
-			editor_rotate_entt(currentlyEditingAxis, 0.5f);
+			editor_rotate_entt(currentlyEditingAxis, 10.0f);
 		}
 		if (IsKeyDown(KEY_D))
 		{
-			editor_rotate_entt(currentlyEditingAxis, -0.5f);
+			editor_rotate_entt(currentlyEditingAxis, -10.0f);
 		}
 
 

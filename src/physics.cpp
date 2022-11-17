@@ -2,6 +2,11 @@
 #include "game_instance.h"
 #include "assert.h"
 
+#include "stdio.h"
+//#include "stringstream.h"
+;
+#include <iostream>
+
 dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, PxScene* inContainingPhysicsSpace, world* inContainingWorld)
 {
 	containingPhysicsSpace = inContainingPhysicsSpace;
@@ -52,13 +57,42 @@ entt_transform dynamic_body::get_updated_spatial_props()
 {
 	PxTransform newT = rigidDynamic->getGlobalPose();
 	
+	//std::cout << "get_updated_spatial_props begins..." << "\n";
+
 	t.pos.x = newT.p.x;
 	t.pos.y = newT.p.y;
 	t.pos.z = newT.p.z;
+	
+	
+	//PxQuat qa = newT.q;
 
-	t.rot.x = newT.q.getBasisVector0().x;
-	t.rot.y = newT.q.getBasisVector1().y;
-	t.rot.z = newT.q.getBasisVector2().z;
+	//PxVec3 r = newT.q.rotate(PxVec3(t.rot.x, t.rot.x, t.rot.x));
+	
+	/*
+	float* angle = new float(0.0f);
+	PxVec3* axis = new PxVec3(0.0f, 0.0f, 0.0f);
+	Vector3 pre_final = Vector3{ 1.0f, 1.0f, 1.0f };
+	Vector3 final = Vector3{ 0.0f, 0.0f, 0.0f };
+
+	qa.toRadiansAndUnitAxis(*angle, *axis);
+
+	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
+	*/
+	
+	t.rot.x = QuatGetBasisVector0(newT.q); //newT.q.getBasisVector0().x * RAD2DEG;
+	t.rot.y = QuatGetBasisVector1(newT.q); //newT.q.getBasisVector1().y * RAD2DEG;
+	t.rot.z = QuatGetBasisVector2(newT.q); //newT.q.getBasisVector2().z* RAD2DEG;
+	
+	//std::cout << "get_updated_spatial_props ended." << "\n";
+
+	//t.rot = final;
+
+	//t.rot.x = r.x;
+	//t.rot.y = r.y;
+	//t.rot.z = r.z;
+
+	//delete angle;
+	//delete axis;
 
 	return t;
 	
@@ -76,16 +110,28 @@ entt_transform dynamic_body::get_updated_spatial_props()
 
 void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
 {
+	std::cout << "update_spatial_props begins...\n";
+
 	t.pos = inNewPos;
 	t.scale = inNewScale;
 	t.rot = inNewRot;
 
-	Quaternion qa = QuaternionFromEuler(t.rot.y, t.rot.z, t.rot.x);
-	//Quaternion qa = QuaternionFromEuler(t.rot.y, t.rot.z, t.rot.x);
+	PxTransform oldT = rigidDynamic->getGlobalPose();
+	//Matrix m = MatrixIdentity();
+
+	std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
+
+	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
+
+	//Quaternion qa = QuaternionFromMatrix(m);
+	Quaternion qa = QuaternionFromEuler(DEG2RAD*t.rot.y, DEG2RAD * t.rot.z, DEG2RAD * t.rot.x);
+
+	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
+
 
 	PxQuat q(qa.x, qa.y, qa.z, qa.w);
 
-	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, q);
+	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, (q));
 
 	assert( (newT.isSane() == true) && "New spatial properties of dynamic rigid body must be sane! (PhysX)");
 	
@@ -151,10 +197,31 @@ void dynamic_body::update()
 
 //////////////////////////////////////////////////
 
+
+
+static_body::static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, PxScene* inContainingPhysicsSpace, world* inContainingWorld)
+{
+
+
+	containingPhysicsSpace = inContainingPhysicsSpace;
+	containingWorld = inContainingWorld;
+
+	testMaterial = containingWorld->globalPhysics->createMaterial(1.0f, 1.0f, 1.0f);
+	rigidStatic = containingWorld->globalPhysics->createRigidStatic(PxTransform(PxVec3(inInitialPos.x, inInitialPos.y, inInitialPos.z)));
+	PxRigidActorExt::createExclusiveShape(*rigidStatic, PxBoxGeometry(inInitialDimensions.x, inInitialDimensions.y, inInitialDimensions.z), *testMaterial);
+
+
+	t.pos = inInitialPos;
+	t.rot = inInitialRot;
+	t.scale = inInitialDimensions;
+
+	containingPhysicsSpace->addActor(*rigidStatic);
+
+	disable();
+
+
 /*
 
-static_body::static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, q3Scene* inContainingPhysicsSpace, bool neverEnable)
-{
 	t.pos = inInitialPos;
 	t.scale = inInitialDimensions;
 	t.rot = inInitialRot;
@@ -178,25 +245,108 @@ static_body::static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vect
 	//(Levente): q3's body only has a raylib type transform setter for the angle (axis, angle as arguments). Will have to experiment with it.
 
 	//disable();
-
+	*/
 }
 
 static_body::~static_body()
 {
-	containingPhysicsSpace->RemoveBody(body);
+	//containingPhysicsSpace->RemoveBody(body);
 }
 
 entt_transform static_body::get_updated_spatial_props()
 {
+	PxTransform newT = rigidStatic->getGlobalPose();
+
+	//std::cout << "get_updated_spatial_props begins..." << "\n";
+
+	t.pos.x = newT.p.x;
+	t.pos.y = newT.p.y;
+	t.pos.z = newT.p.z;
+
+
+	//PxQuat qa = newT.q;
+
+	//PxVec3 r = newT.q.rotate(PxVec3(t.rot.x, t.rot.x, t.rot.x));
+
+	/*
+	float* angle = new float(0.0f);
+	PxVec3* axis = new PxVec3(0.0f, 0.0f, 0.0f);
+	Vector3 pre_final = Vector3{ 1.0f, 1.0f, 1.0f };
+	Vector3 final = Vector3{ 0.0f, 0.0f, 0.0f };
+
+	qa.toRadiansAndUnitAxis(*angle, *axis);
+
+	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
+	*/
+
+	t.rot.x = QuatGetBasisVector0(newT.q); //newT.q.getBasisVector0().x * RAD2DEG;
+	t.rot.y = QuatGetBasisVector1(newT.q); //newT.q.getBasisVector1().y * RAD2DEG;
+	t.rot.z = QuatGetBasisVector2(newT.q); //newT.q.getBasisVector2().z* RAD2DEG;
+
+	//std::cout << "get_updated_spatial_props ended." << "\n";
+
+	//t.rot = final;
+
+	//t.rot.x = r.x;
+	//t.rot.y = r.y;
+	//t.rot.z = r.z;
+
+	//delete angle;
+	//delete axis;
+
+	return t;
+
+	/*t.pos = Vector3{body->GetTransform().position.x, body->GetTransform().position.y, body->GetTransform().position.z};
+
+	float x = body->GetTransform().rotation[0].x;
+
+	t.rot = Vector3{ body->GetTransform().rotation[0].x, body->GetTransform().rotation[1].y, body->GetTransform().rotation[2].z };
+
+	//(Levente): Current problem: After spawning, after a random amount of time, the body's rotation gets set to 1. Also when you set it to awake.
+	//There seems to be a correlation between how fast it gets reset on spawn and how close it is to [0;0;0]
+
+	return t;*/
+
+	/*
 	t.pos = Vector3{ body->GetTransform().position.x, body->GetTransform().position.y, body->GetTransform().position.z };
 
 	t.rot = Vector3{ body->GetTransform().rotation[0].x, body->GetTransform().rotation[1].y, body->GetTransform().rotation[2].z };
 
-	return t;
+	return t;*/
 }
 
 void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
 {
+	std::cout << "update_spatial_props begins...\n";
+
+	t.pos = inNewPos;
+	t.scale = inNewScale;
+	t.rot = inNewRot;
+
+	PxTransform oldT = rigidStatic->getGlobalPose();
+	//Matrix m = MatrixIdentity();
+
+	std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
+
+	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
+
+	//Quaternion qa = QuaternionFromMatrix(m);
+	Quaternion qa = QuaternionFromEuler(DEG2RAD * t.rot.y, DEG2RAD * t.rot.z, DEG2RAD * t.rot.x);
+
+	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
+
+
+	PxQuat q(qa.x, qa.y, qa.z, qa.w);
+
+	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, (q));
+
+	assert((newT.isSane() == true) && "New spatial properties of dynamic rigid body must be sane! (PhysX)");
+
+	rigidStatic->setGlobalPose(newT, false);
+
+/*
+	
+	
 	t.pos = inNewPos;
 	t.scale = inNewScale;
 	t.rot = inNewRot;
@@ -218,18 +368,18 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 		body->SetToSleep();
 	}
 
-	boxDef.Set(t1, q3Vec3(t.scale.x * 2.0f, t.scale.y * 2.0f, t.scale.z * 2.0f));
+	boxDef.Set(t1, q3Vec3(t.scale.x * 2.0f, t.scale.y * 2.0f, t.scale.z * 2.0f));*/
 }
 
 void static_body::enable()
 {
-	body->SetToAwake();
+	//rigidStatic->wakeUp()
 	shouldBeSleeping = false;
 }
 
 void static_body::disable()
 {
-	body->SetToSleep();
+	//rigidStatic->putToSleep()
 	shouldBeSleeping = true;
 }
 
@@ -243,4 +393,4 @@ void static_body::update()
 	{
 
 	}
-}*/
+}

@@ -107,7 +107,13 @@ void entt_maincube::on_update()
 	
 	//collisionBox->update();
 
-	update_spatial_props(collisionBox->get_updated_spatial_props().pos, collisionBox->get_updated_spatial_props().scale, collisionBox->get_updated_spatial_props().rot);
+	entt_transform newT = collisionBox->get_updated_spatial_props();
+
+	Vector3 difference = Vector3{ 0.02f, 0.02f, 0.02f };
+
+	update_spatial_props(newT.pos, newT.scale, newT.rot);
+	entt_transform newI = collisionBox->get_updated_spatial_props();
+	update_spatial_props(newI.pos, newI.scale, Vector3Add(newI.rot, difference));
 
 	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
