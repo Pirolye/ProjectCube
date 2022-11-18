@@ -79,9 +79,13 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 	
-	t.rot.x = QuatGetBasisVector0(newT.q); //newT.q.getBasisVector0().x * RAD2DEG;
-	t.rot.y = QuatGetBasisVector1(newT.q); //newT.q.getBasisVector1().y * RAD2DEG;
-	t.rot.z = QuatGetBasisVector2(newT.q); //newT.q.getBasisVector2().z* RAD2DEG;
+	//t.rot.x = newT.q.getBasisVector0().x* RAD2DEG;
+	//t.rot.y = newT.q.getBasisVector1().y* RAD2DEG;
+	//t.rot.z = newT.q.getBasisVector2().z * RAD2DEG;
+	
+	//t.rot.x = QuatGetBasisVector0(newT.q);
+	//t.rot.y = QuatGetBasisVector1(newT.q);
+	//t.rot.z = QuatGetBasisVector2(newT.q);
 	
 	//std::cout << "get_updated_spatial_props ended." << "\n";
 
@@ -108,6 +112,47 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	return t;*/
 }
 
+/*
+Quaternion quat_from_euler(float x, float y, float z)
+{
+	float yaw = z;
+	float pitch = y;
+	float roll = x;
+
+	Quaternion q;
+
+	q.x = sinf(roll / 2) * cosf(pitch / 2) * cosf(yaw / 2) - cosf(roll / 2) * sinf(pitch / 2) * sinf(yaw / 2);
+		q.y = cosf(roll / 2) * sinf(pitch / 2) * cosf(yaw / 2) + sinf(roll / 2) * cosf(pitch / 2) * sinf(yaw / 2)
+		q.z = cosf(roll / 2) * cosf(pitch / 2) * sinf(yaw / 2) - sinf(roll / 2) * sinf(pitch / 2) * cosf(yaw / 2)
+		q.w = cosf(roll / 2) * cosf(pitch / 2) * np.cos(yaw / 2) + sinf(roll / 2) * sinf(pitch / 2) * sinf(yaw / 2)
+
+	/*
+	(yaw, pitch, roll) = (r[0], r[1], r[2])
+		qx = sinf(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) - np.cos(roll / 2) * sinf(pitch / 2) * sinf(yaw / 2)
+		qy = np.cos(roll / 2) * sinf(pitch / 2) * np.cos(yaw / 2) + sinf(roll / 2) * np.cos(pitch / 2) * sinf(yaw / 2)
+		qz = np.cos(roll / 2) * np.cos(pitch / 2) * sinf(yaw / 2) - sinf(roll / 2) * sinf(pitch / 2) * np.cos(yaw / 2)
+		qw = np.cos(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) + sinf(roll / 2) * sinf(pitch / 2) * sinf(yaw / 2)
+		return[qx, qy, qz, qw]
+
+		float   c = cosf(a.x / 2.0);
+		float	d = cosf(a.y / 2.0);
+        float	e = cosf(a.z / 2.0);
+	    float	f = sinf(a.x / 2.0);
+		float	g = sinf(a.y / 2.0);
+		float	h = sinf(a.z / 2.0);
+		
+		q.x = f * d * e + c * g * h;
+		q.y = c * g * e - f * d * h; 
+		q.z = c * d * h + f * g * e;
+		q.w = c * d * e - f * g * h;
+
+
+	*/
+/*
+
+}
+*/
+
 void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
 {
 	std::cout << "update_spatial_props begins...\n";
@@ -124,7 +169,30 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
 
 	//Quaternion qa = QuaternionFromMatrix(m);
-	Quaternion qa = QuaternionFromEuler(DEG2RAD*t.rot.y, DEG2RAD * t.rot.z, DEG2RAD * t.rot.x);
+    /*
+	Quaternion qa = QuaternionFromEuler(DEG2RAD*t.rot.z, DEG2RAD * t.rot.y, DEG2RAD * t.rot.x);
+	qa.x = qa.y;
+	qa.y = qa.z;
+	qa.z = qa.x;
+	qa.w = cosf(t.rot.x / 2.0f) * cosf(t.rot.y / 2.0f) * cosf(t.rot.z / 2.0f) + sinf(t.rot.x / 2.0f) * sinf(t.rot.y / 2.0f) * sinf(t.rot.z / 2.0f);
+	*/
+
+	Quaternion qa = QuaternionIdentity();
+
+	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
+
+	float   c = cosf(a.x / 2.0);
+	float	d = cosf(a.y / 2.0);
+	float	e = cosf(a.z / 2.0);
+	float	f = sinf(a.x / 2.0);
+	float	g = sinf(a.y / 2.0);
+	float	h = sinf(a.z / 2.0);
+
+	qa.x = f * d * e + c * g * h;
+	qa.y = c * g * e - f * d * h;
+	qa.z = c * d * h + f * g * e;
+	qa.w = c * d * e - f * g * h;
+
 
 	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
@@ -279,9 +347,15 @@ entt_transform static_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 
-	t.rot.x = QuatGetBasisVector0(newT.q); //newT.q.getBasisVector0().x * RAD2DEG;
-	t.rot.y = QuatGetBasisVector1(newT.q); //newT.q.getBasisVector1().y * RAD2DEG;
-	t.rot.z = QuatGetBasisVector2(newT.q); //newT.q.getBasisVector2().z* RAD2DEG;
+	/*
+	t.rot.x = t.rot.x;
+	t.rot.y = t.rot.y; 
+	t.rot.z = t.rot.z;
+	*/
+
+	//t.rot.x = newT.q.getBasisVector0().x * RAD2DEG;
+	//t.rot.y = newT.q.getBasisVector1().y * RAD2DEG;
+	//t.rot.z = newT.q.getBasisVector2().z * RAD2DEG;
 
 	//std::cout << "get_updated_spatial_props ended." << "\n";
 
@@ -331,7 +405,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
 
 	//Quaternion qa = QuaternionFromMatrix(m);
-	Quaternion qa = QuaternionFromEuler(DEG2RAD * t.rot.y, DEG2RAD * t.rot.z, DEG2RAD * t.rot.x);
+	Quaternion qa = QuaternionFromEuler(DEG2RAD * t.rot.z, DEG2RAD * t.rot.y, DEG2RAD * t.rot.x);
 
 	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
