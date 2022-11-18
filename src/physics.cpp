@@ -53,6 +53,39 @@ dynamic_body::~dynamic_body()
 	//containingPhysicsSpace->RemoveBody(body);
 }
 
+
+Vector3 toEuler(double x, double y, double z, double angle) {
+	double s = sinf(angle);
+	double c = cosf(angle);
+	double t = 1 - c;
+
+	Vector3 final0 = Vector3Zero();
+
+	//if axis is not already normalised then uncomment this
+	double magnitude = sqrtf(x*x + y*y + z*z);
+	if (magnitude == 0) return final0;
+	x /= magnitude;
+	y /= magnitude;
+	z /= magnitude;
+	if ((x * y * t + z * s) > 0.998) { // north pole singularity detected
+		final0.y = 2 * atan2f(x * sinf(angle / 2), cosf(angle / 2));
+		final0.z = PI / 2;
+		final0.x = 0;
+		return final0;
+	}
+	if ((x * y * t + z * s) < -0.998) { // south pole singularity detected
+		final0.y = -2 * atan2f(x * sinf(angle / 2), cosf(angle / 2));
+		final0.z = -PI / 2;
+		final0.x = 0;
+		return final0;
+	}
+	final0.y = atan2f(y * s - x * z * t, 1 - (y * y + z * z) * t);
+	final0.z = asinf(x * y * t + z * s);
+	final0.x = atan2f(x * s - y * z * t, 1 - (x * x + z * z) * t);
+	return final0;
+}
+
+
 entt_transform dynamic_body::get_updated_spatial_props()
 {
 	PxTransform newT = rigidDynamic->getGlobalPose();
@@ -79,10 +112,36 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 	
-	//t.rot.x = newT.q.getBasisVector0().x* RAD2DEG;
-	//t.rot.y = newT.q.getBasisVector1().y* RAD2DEG;
-	//t.rot.z = newT.q.getBasisVector2().z * RAD2DEG;
-	
+	/*
+	t.rot.x = RAD2DEG * newT.q.getBasisVector0().x;
+	t.rot.y = RAD2DEG * newT.q.getBasisVector1().y;
+	t.rot.z = RAD2DEG * newT.q.getBasisVector2().z;
+	*/
+
+	Quaternion q1 = QuaternionIdentity();
+	q1.x = newT.q.x;
+	q1.y = newT.q.y;
+	q1.z = newT.q.z;
+	q1.w = newT.q.w;
+
+	Vector3 xyzRad = QuaternionToEuler(q1);
+
+	t.rot.x = xyzRad.x * RAD2DEG;
+	t.rot.y = xyzRad.y * RAD2DEG;
+	t.rot.z = xyzRad.z * RAD2DEG;
+
+	/*
+	float angle = 0.0f;
+	PxVec3 axis(0.0f, 0.0f, 0.0f);
+	newT.q.toRadiansAndUnitAxis(angle, axis);
+
+	Vector3 b = toEuler(axis.x, axis.y, axis.z, RAD2DEG*angle); //Vector3RotateByAxisAngle(t.rot, Vector3{axis.x, axis.y, axis.z}, RAD2DEG*angle);
+
+	t.rot.x = b.x;
+	t.rot.y = b.y;
+	t.rot.z = b.z;
+	*/
+
 	//t.rot.x = QuatGetBasisVector0(newT.q);
 	//t.rot.y = QuatGetBasisVector1(newT.q);
 	//t.rot.z = QuatGetBasisVector2(newT.q);
@@ -177,10 +236,12 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	qa.w = cosf(t.rot.x / 2.0f) * cosf(t.rot.y / 2.0f) * cosf(t.rot.z / 2.0f) + sinf(t.rot.x / 2.0f) * sinf(t.rot.y / 2.0f) * sinf(t.rot.z / 2.0f);
 	*/
 
+	
 	Quaternion qa = QuaternionIdentity();
 
 	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
 
+	//(Levente): Shamelessly stolen from http://www.andre-gaschler.com/rotationconverter/
 	float   c = cosf(a.x / 2.0);
 	float	d = cosf(a.y / 2.0);
 	float	e = cosf(a.z / 2.0);
@@ -192,7 +253,7 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	qa.y = c * g * e - f * d * h;
 	qa.z = c * d * h + f * g * e;
 	qa.w = c * d * e - f * g * h;
-
+	
 
 	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
