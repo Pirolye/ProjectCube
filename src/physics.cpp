@@ -433,15 +433,62 @@ entt_transform static_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 
+	graphene_quaternion_t* gq = &graphene_quaternion_t{}; // = graphene_quaternion_init_identity(gq);
+	gq = graphene_quaternion_init(gq, newT.q.x, newT.q.y, newT.q.z, newT.q.w);
+
+	float x = 0.0f;// = float{};
+	float y = 0.0f;// = float{};
+	float z = 0.0f;// = float{};
+
+	graphene_quaternion_to_angles(gq, &x, &y, &z);
+
+	float x1 = ceil(x * 100.0f) / 100.0f;
+	float y1 = ceil(y * 100.0f) / 100.0f;
+	float z1 = ceil(z * 100.0f) / 100.0f;
+
+	t.rot.x = x1;
+	t.rot.y = y1;
+	t.rot.z = z1;
+
+	//delete x, y, z;
+
 	/*
-	t.rot.x = t.rot.x;
-	t.rot.y = t.rot.y; 
-	t.rot.z = t.rot.z;
+	float x = RAD2DEG * (newT.q.getBasisVector0().x + newT.q.getBasisVector0().y + newT.q.getBasisVector0().z);
+
+	t.rot.x = newT.q.getBasisVector0().x;
+	t.rot.y = newT.q.getBasisVector1().y;
+	t.rot.z = newT.q.getBasisVector2().z;
 	*/
 
-	//t.rot.x = newT.q.getBasisVector0().x * RAD2DEG;
-	//t.rot.y = newT.q.getBasisVector1().y * RAD2DEG;
-	//t.rot.z = newT.q.getBasisVector2().z * RAD2DEG;
+	/*
+	Quaternion q1 = QuaternionIdentity();
+	q1.x = newT.q.x;
+	q1.y = newT.q.y;
+	q1.z = newT.q.z;
+	q1.w = newT.q.w;
+	*/
+
+	//Vector3 xyzRad = QuaternionToEuler(q1);
+
+	//t.rot.x = xyzRad.x * RAD2DEG;
+	//t.rot.y = xyzRad.y * RAD2DEG;
+	//t.rot.z = xyzRad.z * RAD2DEG;
+
+	/*
+	float angle = 0.0f;
+	PxVec3 axis(0.0f, 0.0f, 0.0f);
+	newT.q.toRadiansAndUnitAxis(angle, axis);
+
+	Vector3 b = toEuler(axis.x, axis.y, axis.z, RAD2DEG*angle); //Vector3RotateByAxisAngle(t.rot, Vector3{axis.x, axis.y, axis.z}, RAD2DEG*angle);
+
+	t.rot.x = b.x;
+	t.rot.y = b.y;
+	t.rot.z = b.z;
+	*/
+
+	//t.rot.x = QuatGetBasisVector0(newT.q);
+	//t.rot.y = QuatGetBasisVector1(newT.q);
+	//t.rot.z = QuatGetBasisVector2(newT.q);
 
 	//std::cout << "get_updated_spatial_props ended." << "\n";
 
@@ -466,13 +513,6 @@ entt_transform static_body::get_updated_spatial_props()
 	//There seems to be a correlation between how fast it gets reset on spawn and how close it is to [0;0;0]
 
 	return t;*/
-
-	/*
-	t.pos = Vector3{ body->GetTransform().position.x, body->GetTransform().position.y, body->GetTransform().position.z };
-
-	t.rot = Vector3{ body->GetTransform().rotation[0].x, body->GetTransform().rotation[1].y, body->GetTransform().rotation[2].z };
-
-	return t;*/
 }
 
 void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
@@ -491,7 +531,32 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
 
 	//Quaternion qa = QuaternionFromMatrix(m);
-	Quaternion qa = QuaternionFromEuler(DEG2RAD * t.rot.z, DEG2RAD * t.rot.y, DEG2RAD * t.rot.x);
+	/*
+	Quaternion qa = QuaternionFromEuler(DEG2RAD*t.rot.z, DEG2RAD * t.rot.y, DEG2RAD * t.rot.x);
+	qa.x = qa.y;
+	qa.y = qa.z;
+	qa.z = qa.x;
+	qa.w = cosf(t.rot.x / 2.0f) * cosf(t.rot.y / 2.0f) * cosf(t.rot.z / 2.0f) + sinf(t.rot.x / 2.0f) * sinf(t.rot.y / 2.0f) * sinf(t.rot.z / 2.0f);
+	*/
+
+
+	Quaternion qa = QuaternionIdentity();
+
+	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
+
+	//(Levente): Shamelessly stolen from http://www.andre-gaschler.com/rotationconverter/
+	float   c = cosf(a.x / 2.0);
+	float	d = cosf(a.y / 2.0);
+	float	e = cosf(a.z / 2.0);
+	float	f = sinf(a.x / 2.0);
+	float	g = sinf(a.y / 2.0);
+	float	h = sinf(a.z / 2.0);
+
+	qa.x = f * d * e + c * g * h;
+	qa.y = c * g * e - f * d * h;
+	qa.z = c * d * h + f * g * e;
+	qa.w = c * d * e - f * g * h;
+
 
 	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
@@ -504,10 +569,11 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 
 	rigidStatic->setGlobalPose(newT, false);
 
-/*
-	
-	
-	t.pos = inNewPos;
+	//boxDef.Set(t1, q3Vec3(t.scale.x * 2.0f, t.scale.y * 2.0f, t.scale.z * 2.0f));
+
+
+
+	/*t.pos = inNewPos;
 	t.scale = inNewScale;
 	t.rot = inNewRot;
 
@@ -528,7 +594,8 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 		body->SetToSleep();
 	}
 
-	boxDef.Set(t1, q3Vec3(t.scale.x * 2.0f, t.scale.y * 2.0f, t.scale.z * 2.0f));*/
+}
+*/
 }
 
 void static_body::enable()
