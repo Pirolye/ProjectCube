@@ -59,6 +59,9 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 	editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
 	editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
 
+	editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
+	editorGizmoHelperModel = LoadModelFromMesh(editorGizmoHelperMesh);
+
 	run_script_on_init();
 
 }
@@ -285,6 +288,7 @@ void world::draw_all()
 		}
 	}
 
+	DrawModel(editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	if (isInEditorMode && editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(editorCurrentlySelectedEntt->enttTransform.pos);
 
 	EndMode3D();
@@ -311,6 +315,13 @@ void world::draw_all()
 			DrawText("z", 0, 100, 30, WHITE);
 			break;
 		}
+	}
+
+	if (isInEditorMode)
+	{
+		if (editorInfo.selectingGizmoMoveAxisX) DrawText("Moving X gizmo", 0, 150, 30, WHITE);
+		if (editorInfo.selectingGizmoMoveAxisY) DrawText("Moving X gizmo", 0, 150, 30, WHITE);
+		if (editorInfo.selectingGizmoMoveAxisZ) DrawText("Moving X gizmo", 0, 150, 30, WHITE);
 	}
 
 	EndDrawing();
@@ -386,7 +397,7 @@ void world::exit_editor_mode()
 
 void world::update_world_editor()
 {
-	editor_check_against_gizmo();
+	if(editorCurrentlySelectedEntt != nullptr) editor_check_against_gizmo(editorCurrentlySelectedEntt->enttTransform.pos);
 	
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && editorInfo.canSelectEntt) editor_try_select_entt();
 
@@ -549,12 +560,13 @@ void world::editor_draw_gizmo(Vector3 inCenterPos)
 
 }
 
-void world::editor_check_against_gizmo()
+void world::editor_check_against_gizmo(Vector3 inCenterPos)
 {
 	if (!isInEditorMode) return;
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
+		
 		RayCollision collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
@@ -577,7 +589,7 @@ void world::editor_check_against_gizmo()
 			else
 			{
 				editorInfo.selectingGizmoMoveAxisX = false;
-				editorInfo.canSelectEntt = true;
+				//editorInfo.canSelectEntt = true;
 					
 			}
 		}
@@ -595,11 +607,12 @@ void world::editor_check_against_gizmo()
 				editorInfo.canSelectEntt = false;
 
 				break;
+				return;
 			}
 			else
 			{
 				editorInfo.selectingGizmoMoveAxisY = false;
-				editorInfo.canSelectEntt = true;
+				//editorInfo.canSelectEntt = true;
 					
 			}
 		}
@@ -618,11 +631,12 @@ void world::editor_check_against_gizmo()
 				editorInfo.canSelectEntt = false;
 
 				break;
+				return;
 			}
 			else
 			{
 				editorInfo.selectingGizmoMoveAxisZ = false;
-				editorInfo.canSelectEntt = true;
+				//editorInfo.canSelectEntt = true;
 					
 			}
 		}
@@ -639,8 +653,102 @@ void world::editor_check_against_gizmo()
 		editorInfo.canSelectEntt = true;
 	}
 
+	if (editorInfo.selectingGizmoMoveAxisX && editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(0, inCenterPos, editorCurrentlySelectedEntt);
 
 
+}
+
+void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove)
+{
+	SetCameraMode( *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam), CAMERA_CUSTOM); // Set a free camera mode
+	
+	switch (inAxis)
+	{
+	case 0:
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD*-90.0f, DEG2RAD * 90.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		float currentFramePointX = 0.0f;
+
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		float prevFramePointX = 0.0f;
+
+		for (int m = 0; m < editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, editorGizmoHelperModel.meshes[m], editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				prevFramePointX = meshHitInfo.point.x;
+
+				break;
+				return;
+			}
+			else
+			{
+				//editorInfo.selectingGizmoMoveAxisX = false;
+				//editorInfo.canSelectEntt = true;
+
+			}
+		}
+
+
+		for (int m = 0; m < editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, editorGizmoHelperModel.meshes[m], editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				currentFramePointX = meshHitInfo.point.x;
+				
+				float diff = currentFramePointX - prevFramePointX;
+
+				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+				/*
+				if (diff < 0.0f)
+				{
+					newPos = Vector3{ enttToMove->enttTransform.pos.x + diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+					//diff = fabs(diff);
+				}
+				else
+				{
+
+				}*/
+
+				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+
+				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+
+
+				//float diff = fabs(enttToMove->enttTransform.pos.x - meshHitInfo.point.x);
+				//float diff = fabs(meshHitInfo.point.x - enttToMove->enttTransform.pos.x);
+
+
+				break;
+				return;
+			}
+			else
+			{
+				//editorInfo.selectingGizmoMoveAxisX = false;
+				//editorInfo.canSelectEntt = true;
+
+			}
+		}
+
+
+
+	}
+
+	SetCameraMode( *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam), CAMERA_FREE); // Set a free camera mode
 }
 
 #else

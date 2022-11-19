@@ -73,8 +73,11 @@ struct world
 	Model editorGizmoMoveAxisZ{};
 	Texture editorGizmoMoveAxisMat{};
 	void editor_draw_gizmo(Vector3 inCenterPos);
-	void editor_check_against_gizmo();
+	void editor_check_against_gizmo(Vector3 inGizmoCenterPos);
 	editor_info editorInfo;
+	void editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
+	Mesh editorGizmoHelperMesh{};
+	Model editorGizmoHelperModel{};
 
 	void update();
 	void draw_all();
