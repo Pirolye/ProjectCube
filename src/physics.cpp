@@ -239,7 +239,7 @@ Quaternion quat_from_euler(float x, float y, float z)
 
 void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
 {
-	std::cout << "update_spatial_props begins...\n";
+	//std::cout << "update_spatial_props begins...\n";
 
 	t.pos = inNewPos;
 	t.scale = inNewScale;
@@ -248,7 +248,7 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	PxTransform oldT = rigidDynamic->getGlobalPose();
 	//Matrix m = MatrixIdentity();
 
-	std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
+	//std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
 
 	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
 
@@ -280,7 +280,7 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	qa.w = c * d * e - f * g * h;
 	
 
-	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
+	//std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
 
 	PxQuat q(qa.x, qa.y, qa.z, qa.w);
@@ -517,7 +517,7 @@ entt_transform static_body::get_updated_spatial_props()
 
 void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
 {
-	std::cout << "update_spatial_props begins...\n";
+	//std::cout << "update_spatial_props begins...\n";
 
 	t.pos = inNewPos;
 	t.scale = inNewScale;
@@ -526,7 +526,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	PxTransform oldT = rigidStatic->getGlobalPose();
 	//Matrix m = MatrixIdentity();
 
-	std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
+	//std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
 
 	//m = MatrixRotateXYZ(Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z });
 
@@ -558,7 +558,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	qa.w = c * d * e - f * g * h;
 
 
-	std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
+	//std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
 
 	PxQuat q(qa.x, qa.y, qa.z, qa.w);

@@ -51,6 +51,13 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
+	editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
+	editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
+	editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
+	editorGizmoMoveAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
+	editorGizmoMoveAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
+	editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
+	editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
 
 	run_script_on_init();
 
@@ -277,6 +284,9 @@ void world::draw_all()
 			entityArray[i]->on_draw_3d();
 		}
 	}
+
+	if (isInEditorMode && editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(editorCurrentlySelectedEntt->enttTransform.pos);
+
 	EndMode3D();
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
@@ -289,7 +299,7 @@ void world::draw_all()
 
 	if (isInEditorMode)
 	{
-		switch (currentlyEditingAxis)
+		switch (editorCurrentlyEditingAxis)
 		{
 		case 0:
 			DrawText("x", 0, 100, 30, WHITE);
@@ -369,42 +379,43 @@ void world::exit_editor_mode()
 
 	SetCameraMode(*(cam->rayCam), CAMERA_CUSTOM); // Set a free camera mode
 
-	currentlySelectedEntt = nullptr;
+	editorCurrentlySelectedEntt = nullptr;
 
 	// START WORLD AGAIN FROM THE BEGINNING
 }
 
 void world::update_world_editor()
 {
-
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) editor_try_select_entt();
+	editor_check_against_gizmo();
+	
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && editorInfo.canSelectEntt) editor_try_select_entt();
 
 	if (IsKeyPressed(KEY_TAB))
 	{
-		currentlyEditingAxis = currentlyEditingAxis + 1;
-		if (currentlyEditingAxis == 3) currentlyEditingAxis = 0;
+		editorCurrentlyEditingAxis = editorCurrentlyEditingAxis + 1;
+		if (editorCurrentlyEditingAxis == 3) editorCurrentlyEditingAxis = 0;
 	}
 
 	//Will be removed once we got editor gui
-	if (currentlySelectedEntt != NULL)
+	if (editorCurrentlySelectedEntt != NULL)
 	{
-		DrawText(currentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
+		DrawText(editorCurrentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
 
 		if (IsKeyDown(KEY_W))
 		{
-			editor_move_entt(currentlyEditingAxis, 0.05f);
+			editor_move_entt(editorCurrentlyEditingAxis, 0.05f);
 		}
 		if (IsKeyDown(KEY_S))
 		{
-			editor_move_entt(currentlyEditingAxis, -0.05f);
+			editor_move_entt(editorCurrentlyEditingAxis, -0.05f);
 		}
 		if (IsKeyDown(KEY_A))
 		{
-			editor_rotate_entt(currentlyEditingAxis, 1.0f);
+			editor_rotate_entt(editorCurrentlyEditingAxis, 1.0f);
 		}
 		if (IsKeyDown(KEY_D))
 		{
-			editor_rotate_entt(currentlyEditingAxis, -1.0f);
+			editor_rotate_entt(editorCurrentlyEditingAxis, -1.0f);
 		}
 
 
@@ -414,24 +425,24 @@ void world::update_world_editor()
 
 void world::editor_move_entt(int axis, float val)
 {
-	if (currentlySelectedEntt == nullptr) return;
+	if (editorCurrentlySelectedEntt == nullptr) return;
 
 	if (axis == 0)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
-		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
+		editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 1)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
-		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
+		editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 2)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
-		currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
+		editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
 
 	}
 
@@ -439,27 +450,27 @@ void world::editor_move_entt(int axis, float val)
 
 void world::editor_rotate_entt(int axis, float val)
 {
-	if (currentlySelectedEntt == nullptr) return;
+	if (editorCurrentlySelectedEntt == nullptr) return;
 
 	if (axis == 0)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
 
-		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x + val, t.rot.y, t.rot.z });
+		editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x + val, t.rot.y, t.rot.z });
 
 	}
 	if (axis == 1)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
 
-		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y + val, t.rot.z });
+		editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y + val, t.rot.z });
 
 	}
 	if (axis == 2)
 	{
-		entt_transform t = currentlySelectedEntt->enttTransform;
+		entt_transform t = editorCurrentlySelectedEntt->enttTransform;
 
-		currentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y, t.rot.z + val });
+		editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y, t.rot.z + val });
 
 	}
 
@@ -479,18 +490,158 @@ void world::editor_try_select_entt()
 	{
 		if (entityArray[i] != NULL)
 		{
-			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			//if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			//if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
-			if (currentlySelectedEntt != nullptr) break;
+			if (editorCurrentlySelectedEntt != nullptr) break;
 			else continue;
 		}
 	}
 };
 
+void world::editor_draw_gizmo(Vector3 inCenterPos)
+{
+	Vector3 v{ 1.0f, 0.0f, 0.0f };
+	
+	Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
+	Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD*90.0f });
+	Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+	editorGizmoMoveAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
 
+	Matrix matScaleY = MatrixScale(1.0f, 1.0f, 1.0f);
+	Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f , 0.0f });
+	Matrix matTranslationY = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+	editorGizmoMoveAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
+
+	Matrix matScaleZ = MatrixScale(1.0f, 1.0f, 1.0f);
+	Matrix matRotationZ = MatrixRotateXYZ(Vector3{ DEG2RAD*90.0f, 0.0f , 0.0f });
+	Matrix matTranslationZ = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+	editorGizmoMoveAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
+
+	if (editorInfo.selectingGizmoMoveAxisX == false)
+	{
+		DrawModel(editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+	}
+	else
+	{
+		DrawModel(editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
+	}
+
+	if (editorInfo.selectingGizmoMoveAxisY == false)
+	{
+		DrawModel(editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
+	}
+	else
+	{
+		DrawModel(editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
+	}
+
+	if (editorInfo.selectingGizmoMoveAxisZ == false)
+	{
+		DrawModel(editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
+	}
+	else
+	{
+		DrawModel(editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
+	}
+
+}
+
+void world::editor_check_against_gizmo()
+{
+	if (!isInEditorMode) return;
+	
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	{
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+			
+
+		for (int m = 0; m < editorGizmoMoveAxisX.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, editorGizmoMoveAxisX.meshes[m], editorGizmoMoveAxisX.transform);
+			if (meshHitInfo.hit)
+			{
+				editorInfo.selectingGizmoMoveAxisX = true;
+				editorInfo.canSelectEntt = false;
+
+				break;
+				return;
+			}
+			else
+			{
+				editorInfo.selectingGizmoMoveAxisX = false;
+				editorInfo.canSelectEntt = true;
+					
+			}
+		}
+
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		collision = { 0 };
+		collision.hit = false;
+		meshHitInfo = { 0 };
+		for (int m = 0; m < editorGizmoMoveAxisY.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, editorGizmoMoveAxisY.meshes[m], editorGizmoMoveAxisY.transform);
+			if (meshHitInfo.hit)
+			{
+				editorInfo.selectingGizmoMoveAxisY = true;
+				editorInfo.canSelectEntt = false;
+
+				break;
+			}
+			else
+			{
+				editorInfo.selectingGizmoMoveAxisY = false;
+				editorInfo.canSelectEntt = true;
+					
+			}
+		}
+			
+			
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		collision = { 0 };
+		collision.hit = false;
+		meshHitInfo = { 0 };
+		for (int m = 0; m < editorGizmoMoveAxisZ.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, editorGizmoMoveAxisZ.meshes[m], editorGizmoMoveAxisZ.transform);
+			if (meshHitInfo.hit)
+			{
+				editorInfo.selectingGizmoMoveAxisZ = true;
+				editorInfo.canSelectEntt = false;
+
+				break;
+			}
+			else
+			{
+				editorInfo.selectingGizmoMoveAxisZ = false;
+				editorInfo.canSelectEntt = true;
+					
+			}
+		}
+			
+
+
+
+	}
+	else
+	{
+		editorInfo.selectingGizmoMoveAxisX = false;
+		editorInfo.selectingGizmoMoveAxisY = false;
+		editorInfo.selectingGizmoMoveAxisZ = false;
+		editorInfo.canSelectEntt = true;
+	}
+
+
+
+}
 
 #else
 
@@ -499,6 +650,8 @@ void world::enter_editor_mode() {};
 void world::exit_editor_mode() {};
 void world::update_world_editor() {};
 void world::editor_try_select_entt() {};
+void world::editor_draw_gizmo(Vector3 i) {};
+void world::editor_check_against_gizmo() {};
 
 
 #endif

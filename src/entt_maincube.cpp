@@ -55,7 +55,7 @@ void entt_maincube::on_destroy()
 void entt_maincube::on_draw_3d()
 {
 	//rlEnableFrontfaceCulling();
-	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
+	if (containingWorld->editorCurrentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
 		DrawModelWires(cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
@@ -115,7 +115,7 @@ void entt_maincube::on_update()
 	//entt_transform newI = collisionBox->get_updated_spatial_props();
 	//update_spatial_props(newI.pos, newI.scale, Vector3Add(newI.rot, difference));
 
-	if (containingWorld->currentlySelectedEntt == this && containingWorld->isInEditorMode)
+	if (containingWorld->editorCurrentlySelectedEntt == this && containingWorld->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_X))
 		{

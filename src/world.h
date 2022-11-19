@@ -10,10 +10,18 @@
 
 ;
 #include "PxPhysicsAPI.h"
+#include "graphene.h"
 using namespace physx;
 
 struct game_instance;
 
+struct editor_info
+{
+	bool canSelectEntt = true;
+	bool selectingGizmoMoveAxisX = false;
+	bool selectingGizmoMoveAxisY = false;
+	bool selectingGizmoMoveAxisZ = false;
+};
 
 ;
 //(Levente): The world houses the main entity array plus standard configuration you would want. Loading worlds is taken care of by the game instance.
@@ -39,7 +47,8 @@ struct world
 	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 2];
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
-	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor.
+	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor. 
+	// This is because of a limitation arising from raycamera.h
 	Vector3 gameCameraPosition;
 
 	//(Levente): The make functions make the data structures and also do whatever is neccessary at that point in gameplay. Usually registering to arrays.
@@ -49,7 +58,7 @@ struct world
 	bool cameraSwitchedLastFrame = false;
 
 	// Editor functions
-	entt* currentlySelectedEntt = nullptr;
+	entt* editorCurrentlySelectedEntt = nullptr;
 	Ray cursorSelectionRay = { 0 };
 	void editor_try_select_entt();
 	void editor_move_entt(int axis, float val);
@@ -58,7 +67,14 @@ struct world
 	void enter_editor_mode();
 	void exit_editor_mode();
 	bool isInEditorMode = false;
-	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
+	int editorCurrentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
+	Model editorGizmoMoveAxisX{};
+	Model editorGizmoMoveAxisY{};
+	Model editorGizmoMoveAxisZ{};
+	Texture editorGizmoMoveAxisMat{};
+	void editor_draw_gizmo(Vector3 inCenterPos);
+	void editor_check_against_gizmo();
+	editor_info editorInfo;
 
 	void update();
 	void draw_all();
