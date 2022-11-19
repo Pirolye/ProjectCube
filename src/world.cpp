@@ -400,11 +400,11 @@ void world::update_world_editor()
 		}
 		if (IsKeyDown(KEY_A))
 		{
-			editor_rotate_entt(currentlyEditingAxis, 10.0f);
+			editor_rotate_entt(currentlyEditingAxis, 1.0f);
 		}
 		if (IsKeyDown(KEY_D))
 		{
-			editor_rotate_entt(currentlyEditingAxis, -10.0f);
+			editor_rotate_entt(currentlyEditingAxis, -1.0f);
 		}
 
 

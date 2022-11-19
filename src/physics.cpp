@@ -7,6 +7,8 @@
 ;
 #include <iostream>
 
+#include "graphene.h"
+
 dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vector3 inInitialRot, PxScene* inContainingPhysicsSpace, world* inContainingWorld)
 {
 	containingPhysicsSpace = inContainingPhysicsSpace;
@@ -112,23 +114,46 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 	
+	graphene_quaternion_t* gq = &graphene_quaternion_t{}; // = graphene_quaternion_init_identity(gq);
+	gq = graphene_quaternion_init(gq, newT.q.x, newT.q.y, newT.q.z, newT.q.w);
+	
+	float x = 0.0f;// = float{};
+	float y = 0.0f;// = float{};
+	float z = 0.0f;// = float{};
+
+	graphene_quaternion_to_angles(gq, &x, &y, &z);
+
+	float x1 = ceil(x * 100.0f) / 100.0f;
+	float y1 = ceil(y * 100.0f) / 100.0f;
+	float z1 = ceil(z * 100.0f) / 100.0f;
+
+	t.rot.x = x1;
+	t.rot.y = y1;
+	t.rot.z = z1;
+
+	//delete x, y, z;
+
 	/*
-	t.rot.x = RAD2DEG * newT.q.getBasisVector0().x;
-	t.rot.y = RAD2DEG * newT.q.getBasisVector1().y;
-	t.rot.z = RAD2DEG * newT.q.getBasisVector2().z;
+	float x = RAD2DEG * (newT.q.getBasisVector0().x + newT.q.getBasisVector0().y + newT.q.getBasisVector0().z);
+
+	t.rot.x = newT.q.getBasisVector0().x;
+	t.rot.y = newT.q.getBasisVector1().y;
+	t.rot.z = newT.q.getBasisVector2().z;
 	*/
 
+	/*
 	Quaternion q1 = QuaternionIdentity();
 	q1.x = newT.q.x;
 	q1.y = newT.q.y;
 	q1.z = newT.q.z;
 	q1.w = newT.q.w;
+	*/
 
-	Vector3 xyzRad = QuaternionToEuler(q1);
+	//Vector3 xyzRad = QuaternionToEuler(q1);
 
-	t.rot.x = xyzRad.x * RAD2DEG;
-	t.rot.y = xyzRad.y * RAD2DEG;
-	t.rot.z = xyzRad.z * RAD2DEG;
+	//t.rot.x = xyzRad.x * RAD2DEG;
+	//t.rot.y = xyzRad.y * RAD2DEG;
+	//t.rot.z = xyzRad.z * RAD2DEG;
 
 	/*
 	float angle = 0.0f;

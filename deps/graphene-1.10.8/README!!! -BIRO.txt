@@ -1,0 +1,1 @@
+i manually copied the build .h files from _build because vs didn't recognize the folder I provided it... death to microsoft!
