@@ -191,7 +191,7 @@ void world::editor_try_select_entt()
 		{
 			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			//if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) editorCurrentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
 			if (editorCurrentlySelectedEntt != nullptr) break;
@@ -199,6 +199,17 @@ void world::editor_try_select_entt()
 		}
 	}
 };
+
+/*
+* 
+* BIRO: About gizmos. We draw each model separately and adjust rotation. When the left mouse is held down, we raycast against them. If we hit one of them,
+*       a variable is set indicating we are holding onto one. When we do that, we raycast each frame to get the delta between last frame's mouse pos against the helper mesh 
+*		(which is transformed behind the gizmo model we're holding) and the current frame's. We then apply this delta to the position of the object on the axis we're
+*		were moving on. 
+* 
+*		This is probably really slow, but it doesn't use and trigonometry and such, so it's easy to understand and maintain.
+* 
+*/
 
 void world::editor_draw_gizmo(Vector3 inCenterPos)
 {
@@ -252,15 +263,12 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 {
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
-
+		//if (editorInfo.selectingGizmoMoveAxisY || editorInfo.selectingGizmoMoveAxisZ) return;
 		RayCollision collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
 		RayCollision meshHitInfo = { 0 };
-
 		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-
-
 		for (int m = 0; m < editorGizmoMoveAxisX.meshCount; m++)
 		{
 			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, editorGizmoMoveAxisX.meshes[m], editorGizmoMoveAxisX.transform);
@@ -274,12 +282,21 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			}
 			else
 			{
-				editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && editorInfo.selectingGizmoMoveAxisX) 
+				{
+					editorInfo.selectingGizmoMoveAxisX = true;
+					editorInfo.canSelectEntt = false;
+
+				}
+				else
+				{
+					editorInfo.selectingGizmoMoveAxisX = false;
+				}
 
 			}
 		}
 
+		//if (editorInfo.selectingGizmoMoveAxisX || editorInfo.selectingGizmoMoveAxisZ) return;
 		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 		collision = { 0 };
 		collision.hit = false;
@@ -297,13 +314,22 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			}
 			else
 			{
-				editorInfo.selectingGizmoMoveAxisY = false;
-				//editorInfo.canSelectEntt = true;
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && editorInfo.selectingGizmoMoveAxisY)
+				{
+					editorInfo.selectingGizmoMoveAxisY = true;
+					editorInfo.canSelectEntt = false;
+
+				}
+				else
+				{
+					editorInfo.selectingGizmoMoveAxisY = false;
+				}
+					//editorInfo.selectingGizmoMoveAxisY = false;
 
 			}
 		}
 
-
+		//if (editorInfo.selectingGizmoMoveAxisY || editorInfo.selectingGizmoMoveAxisX) return;
 		cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 		collision = { 0 };
 		collision.hit = false;
@@ -321,14 +347,20 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			}
 			else
 			{
-				editorInfo.selectingGizmoMoveAxisZ = false;
-				//editorInfo.canSelectEntt = true;
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && editorInfo.selectingGizmoMoveAxisZ)
+				{
+					editorInfo.selectingGizmoMoveAxisZ = true;
+					editorInfo.canSelectEntt = false;
+
+				}
+				else
+				{
+					editorInfo.selectingGizmoMoveAxisZ = false;
+				}
+					//editorInfo.selectingGizmoMoveAxisZ = false;
 
 			}
 		}
-
-
-
 
 	}
 	else
@@ -349,6 +381,12 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove)
 {
 	canMoveCamera = false;
+
+	//(Levente): When moving, we transform the helper behind the object so that the ray hits it perpendicular to the axis. Eg. On the X axis,
+	//			 it won't be position ONTO the axis, but behind it,(since an axis (here: X) is 1D; normally we imagine it as sprawling across
+	//           the map, but it's actually a straight line in +x and -x) since logically that's where the mouse's ray end up.
+	//
+	//			 For each axis, we do 2 casts, to get starting pos and ending pos = small increments = logical.
 
 	if (inAxis == 0)
 	{
@@ -376,15 +414,8 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 			if (meshHitInfo.hit)
 			{
 				prevFramePointX = meshHitInfo.point.x;
-
 				break;
 				return;
-			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
 			}
 		}
 
@@ -400,34 +431,11 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				/*
-				if (diff < 0.0f)
-				{
-					newPos = Vector3{ enttToMove->enttTransform.pos.x + diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-					//diff = fabs(diff);
-				}
-				else
-				{
-
-				}*/
-
 				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
 
 				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
-
-
-				//float diff = fabs(enttToMove->enttTransform.pos.x - meshHitInfo.point.x);
-				//float diff = fabs(meshHitInfo.point.x - enttToMove->enttTransform.pos.x);
-
-
 				break;
 				return;
-			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
 			}
 		}
 	}
@@ -462,12 +470,6 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 				break;
 				return;
 			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
-			}
 		}
 
 
@@ -481,35 +483,11 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 				float diff = currentFramePointY - prevFramePointY;
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
-
-				/*
-				if (diff < 0.0f)
-				{
-					newPos = Vector3{ enttToMove->enttTransform.pos.x + diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-					//diff = fabs(diff);
-				}
-				else
-				{
-
-				}*/
-
 				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y - diff, enttToMove->enttTransform.pos.z };
 
 				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
-
-
-				//float diff = fabs(enttToMove->enttTransform.pos.x - meshHitInfo.point.x);
-				//float diff = fabs(meshHitInfo.point.x - enttToMove->enttTransform.pos.x);
-
-
 				break;
 				return;
-			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
 			}
 		}
 	}
@@ -543,12 +521,6 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 				break;
 				return;
 			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
-			}
 		}
 
 
@@ -563,34 +535,11 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				/*
-				if (diff < 0.0f)
-				{
-					newPos = Vector3{ enttToMove->enttTransform.pos.x + diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-					//diff = fabs(diff);
-				}
-				else
-				{
-
-				}*/
-
 				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z - diff };
 
 				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
-
-
-				//float diff = fabs(enttToMove->enttTransform.pos.x - meshHitInfo.point.x);
-				//float diff = fabs(meshHitInfo.point.x - enttToMove->enttTransform.pos.x);
-
-
 				break;
 				return;
-			}
-			else
-			{
-				//editorInfo.selectingGizmoMoveAxisX = false;
-				//editorInfo.canSelectEntt = true;
-
 			}
 		}
 	}
