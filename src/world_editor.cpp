@@ -285,7 +285,7 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisX) 
 				{
 					worldEditor.selectingGizmoMoveAxisX = true;
-					worldEditor.selectingGizmoMoveAxisY = false;
+					worldEditor.selectingGizmoMoveAxisY = false; // This is so that you don't grab onto another gizmo when grabbing this
 					worldEditor.selectingGizmoMoveAxisZ = false;
 					worldEditor.canSelectEntt = false;
 
