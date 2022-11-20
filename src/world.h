@@ -11,16 +11,38 @@
 ;
 #include "PxPhysicsAPI.h"
 #include "graphene.h"
+
 using namespace physx;
 
 struct game_instance;
 
-struct editor_info
+struct world_editor
 {
+	bool isInEditorMode = false;
+	int editorCurrentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
+
+	entt* editorCurrentlySelectedEntt = nullptr;
+
 	bool canSelectEntt = true;
 	bool selectingGizmoMoveAxisX = false;
 	bool selectingGizmoMoveAxisY = false;
 	bool selectingGizmoMoveAxisZ = false;
+
+	Ray cursorSelectionRay = { 0 };	
+	
+	Model editorGizmoMoveAxisX{};
+	Model editorGizmoMoveAxisY{};
+	Model editorGizmoMoveAxisZ{};
+
+	Model editorGizmoMoveAxisXY{};
+	Model editorGizmoMoveAxisYZ{};
+	Model editorGizmoMoveAxisZX{};
+	
+	Texture editorGizmoMoveAxisMat{};
+	
+	Mesh editorGizmoHelperMesh{};
+	Model editorGizmoHelperModel{};
+
 };
 
 ;
@@ -59,8 +81,7 @@ struct world
 	bool cameraSwitchedLastFrame = false;
 
 	// Editor functions
-	entt* editorCurrentlySelectedEntt = nullptr;
-	Ray cursorSelectionRay = { 0 };
+	world_editor worldEditor{};
 	void editor_try_select_entt();
 	void editor_move_entt(int axis, float val);
 	void editor_rotate_entt(int axis, float val);
@@ -69,18 +90,9 @@ struct world
 	void draw_world_editor_2d();
 	void enter_editor_mode();
 	void exit_editor_mode();
-	bool isInEditorMode = false;
-	int editorCurrentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
-	Model editorGizmoMoveAxisX{};
-	Model editorGizmoMoveAxisY{};
-	Model editorGizmoMoveAxisZ{};
-	Texture editorGizmoMoveAxisMat{};
 	void editor_draw_gizmo(Vector3 inCenterPos);
 	void editor_check_against_gizmo(Vector3 inGizmoCenterPos);
-	editor_info editorInfo;
 	void editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
-	Mesh editorGizmoHelperMesh{};
-	Model editorGizmoHelperModel{};
 
 	void update();
 	void draw_all();

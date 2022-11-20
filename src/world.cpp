@@ -51,16 +51,25 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 	}
 
-	editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
-	editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
-	editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
-	editorGizmoMoveAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
-	editorGizmoMoveAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
-	editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
-	editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = editorGizmoMoveAxisMat;
+#ifdef DEBUG
+	worldEditor.editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisXY = LoadModel("editor/gizmo_move_axis_combined.obj");
+	worldEditor.editorGizmoMoveAxisYZ = LoadModel("editor/gizmo_move_axis_combined.obj");
+	worldEditor.editorGizmoMoveAxisZX = LoadModel("editor/gizmo_move_axis_combined.obj");
 
-	editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
-	editorGizmoHelperModel = LoadModelFromMesh(editorGizmoHelperMesh);
+	worldEditor.editorGizmoMoveAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
+	worldEditor.editorGizmoMoveAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoMoveAxisMat;
+	worldEditor.editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoMoveAxisMat;
+	worldEditor.editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoMoveAxisMat;
+
+	worldEditor.editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
+	worldEditor.editorGizmoHelperModel = LoadModelFromMesh(worldEditor.editorGizmoHelperMesh);
+
+#else
+#endif
+
 
 	run_script_on_init();
 
@@ -233,12 +242,12 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 void world::update()
 {
 	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/A camera should always exist at entity array index 0!");
-	if(isInEditorMode && canMoveCamera) UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
+	if(worldEditor.isInEditorMode && canMoveCamera) UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
 
 	if (GetFrameTime() > 0)
 	{
 		
-		if (!isInEditorMode) 
+		if (!worldEditor.isInEditorMode) 
 		{
 			gScene->simulate(1.0f / gameInstance->targetFPS);
 			gScene->fetchResults(true);
@@ -260,14 +269,14 @@ void world::update()
 	if (IsKeyPressed(KEY_F1))
 	{
 		#ifdef DEBUG 
-		if (isInEditorMode) exit_editor_mode();
+		if (worldEditor.isInEditorMode) exit_editor_mode();
 		else enter_editor_mode();
 		#else
 		
 		#endif
 	}
 
-	if(isInEditorMode) update_world_editor();
+	if(worldEditor.isInEditorMode) update_world_editor();
 
 	run_script_on_update();
 
@@ -287,7 +296,7 @@ void world::draw_all()
 		}
 	}
 
-	if (isInEditorMode) draw_world_editor_3d();
+	if (worldEditor.isInEditorMode) draw_world_editor_3d();
 
 	EndMode3D();
 
@@ -299,7 +308,7 @@ void world::draw_all()
 		}
 	}
 
-	if (isInEditorMode) draw_world_editor_2d();
+	if (worldEditor.isInEditorMode) draw_world_editor_2d();
 
 	EndDrawing();
 

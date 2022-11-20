@@ -55,7 +55,7 @@ void entt_camera::on_draw_3d()
 {
 	ClearBackground(BLACK);
 	
-	if (containingWorld->isInEditorMode)
+	if (containingWorld->worldEditor.isInEditorMode)
 	{
 		DrawGrid(10, 1.0f);
 	}
