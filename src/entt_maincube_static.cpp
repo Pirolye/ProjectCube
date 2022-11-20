@@ -16,23 +16,6 @@ void entt_maincube_static::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
-	/*
-	//(Levente): All of this will be made into a separate header!
-	bodyDef.bodyType = eDynamicBody;
-	body = containingWorld->physicsSpace->CreateBody(bodyDef);
-
-	q3BoxDef boxDef; // See q3Box.h for settings details
-	q3Transform localSpace; // Contains position and orientation, see q3Transform.h for details
-	q3Identity(localSpace); // Specify the origin, and identity orientation
-
-	// Create a box at the origin with width, height, depth = (1.0, 1.0, 1.0)
-	// and add it to a rigid body. The transform is defined relative to the owning body
-	boxDef.Set(localSpace, q3Vec3(2.0, 2.0, 2.0));
-	body->AddBox(boxDef);
-
-	body->SetToSleep();
-	*/
-
 	collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->gScene, containingWorld);
 
 	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f });
@@ -71,11 +54,6 @@ void entt_maincube_static::on_draw_2d()
 
 void entt_maincube_static::on_update()
 {
-	//q3Transform pos = body->GetTransform();
-	//update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
-
-	//collisionBox->update();
-
 	update_spatial_props(collisionBox->get_updated_spatial_props().pos, collisionBox->get_updated_spatial_props().scale, collisionBox->get_updated_spatial_props().rot);
 
 	if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)

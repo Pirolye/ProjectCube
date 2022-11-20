@@ -285,6 +285,8 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisX) 
 				{
 					worldEditor.selectingGizmoMoveAxisX = true;
+					worldEditor.selectingGizmoMoveAxisY = false;
+					worldEditor.selectingGizmoMoveAxisZ = false;
 					worldEditor.canSelectEntt = false;
 
 				}
@@ -316,6 +318,8 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisY)
 				{
 					worldEditor.selectingGizmoMoveAxisY = true;
+					worldEditor.selectingGizmoMoveAxisX = false;
+					worldEditor.selectingGizmoMoveAxisZ = false;
 					worldEditor.canSelectEntt = false;
 
 				}
@@ -347,6 +351,8 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisZ)
 				{
 					worldEditor.selectingGizmoMoveAxisZ = true;
+					worldEditor.selectingGizmoMoveAxisX = false;
+					worldEditor.selectingGizmoMoveAxisY = false;
 					worldEditor.canSelectEntt = false;
 
 				}
