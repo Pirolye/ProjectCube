@@ -3,7 +3,7 @@
 
 using namespace physx;
 
-game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int inWindowHeight)
+game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int inWindowHeight, float inTargetFPS)
 {
 	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
 
@@ -22,7 +22,9 @@ game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int i
 	windowHeight = inWindowHeight;
 
 	InitAudioDevice();      // Initialize audio device
-	SetTargetFPS(60);       // Set our game to run at 60 frames-per-second
+	SetTargetFPS(inTargetFPS); 
+
+	targetFPS = inTargetFPS;
 
 	persistentWorld = new world(this, gPhysics);
 
@@ -40,6 +42,8 @@ void game_instance::update()
 
 void game_instance::draw()
 {
+	assert(persistentWorld != NULL); assert(persistentWorld != nullptr);
+
 	persistentWorld->draw_all();
 };
 

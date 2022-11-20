@@ -50,6 +50,7 @@ struct world
 	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor. 
 	// This is because of a limitation arising from raycamera.h
 	Vector3 gameCameraPosition;
+	bool canMoveCamera = false;
 
 	//(Levente): The make functions make the data structures and also do whatever is neccessary at that point in gameplay. Usually registering to arrays.
 	entt* make_desired_entt(entts inDesiredEntity);
@@ -64,6 +65,8 @@ struct world
 	void editor_move_entt(int axis, float val);
 	void editor_rotate_entt(int axis, float val);
 	void update_world_editor();
+	void draw_world_editor_3d();
+	void draw_world_editor_2d();
 	void enter_editor_mode();
 	void exit_editor_mode();
 	bool isInEditorMode = false;

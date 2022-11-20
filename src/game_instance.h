@@ -27,7 +27,9 @@ struct game_instance
 
 	world* persistentWorld;
 
-	game_instance(std::string inDisplayName, int inWindowWidth, int inWindowHeight);
+	float targetFPS;
+
+	game_instance(std::string inDisplayName, int inWindowWidth, int inWindowHeight, float inTargetFPS);
 	~game_instance() {};
 
 	void update();
