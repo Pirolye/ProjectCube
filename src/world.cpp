@@ -27,7 +27,7 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 	assert(gameInstance != nullptr);
 
 	name = "debug";
-	gameCameraPosition = Vector3{ -5.0f, 0.0f, 0.0f };
+	gameCameraPosition = Vector3{ 10.0f, 0.0f, 0.0f };
 
 	globalPhysics = inPhysicsMemAddress; // (Levente): We do this because for some reason the program
 										 // can't read gPhysics static var properly. (Even though it can read
@@ -233,7 +233,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 void world::update()
 {
 	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/a camera should always exist at entity array index 0!");
-	UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
+	if(isInEditorMode) UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam);
 
 	cameraSwitchedLastFrame = false;
 	if (GetFrameTime() > 0)
@@ -288,7 +288,7 @@ void world::draw_all()
 		}
 	}
 
-	DrawModel(editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
+	//DrawModel(editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	if (isInEditorMode && editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(editorCurrentlySelectedEntt->enttTransform.pos);
 
 	EndMode3D();
@@ -366,13 +366,13 @@ void world::enter_editor_mode()
 
 	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
 
-	cam->rayCam->position = Vector3{0.0f, 0.0f, 0.0f}; // Camera position
+	cam->rayCam->position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
 	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
 	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
 	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode(*(cam->rayCam), CAMERA_FREE); // Set a free camera mode
+	SetCameraMode((*cam->rayCam), CAMERA_FREE); // Set a free camera mode
 
 }
 
@@ -382,13 +382,13 @@ void world::exit_editor_mode()
 
 	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
 
-	cam->rayCam->position = gameCameraPosition; // Camera position
+	cam->rayCam->position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
 	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
 	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
 	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode(*(cam->rayCam), CAMERA_CUSTOM); // Set a free camera mode
+	SetCameraMode((*cam->rayCam), CAMERA_FREE); // Set a free camera mode
 
 	editorCurrentlySelectedEntt = nullptr;
 
