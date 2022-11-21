@@ -55,39 +55,6 @@ dynamic_body::~dynamic_body()
 	//containingPhysicsSpace->RemoveBody(body);
 }
 
-
-Vector3 toEuler(double x, double y, double z, double angle) {
-	double s = sinf(angle);
-	double c = cosf(angle);
-	double t = 1 - c;
-
-	Vector3 final0 = Vector3Zero();
-
-	//if axis is not already normalised then uncomment this
-	double magnitude = sqrtf(x*x + y*y + z*z);
-	if (magnitude == 0) return final0;
-	x /= magnitude;
-	y /= magnitude;
-	z /= magnitude;
-	if ((x * y * t + z * s) > 0.998) { // north pole singularity detected
-		final0.y = 2 * atan2f(x * sinf(angle / 2), cosf(angle / 2));
-		final0.z = PI / 2;
-		final0.x = 0;
-		return final0;
-	}
-	if ((x * y * t + z * s) < -0.998) { // south pole singularity detected
-		final0.y = -2 * atan2f(x * sinf(angle / 2), cosf(angle / 2));
-		final0.z = -PI / 2;
-		final0.x = 0;
-		return final0;
-	}
-	final0.y = atan2f(y * s - x * z * t, 1 - (y * y + z * z) * t);
-	final0.z = asinf(x * y * t + z * s);
-	final0.x = atan2f(x * s - y * z * t, 1 - (x * x + z * z) * t);
-	return final0;
-}
-
-
 entt_transform dynamic_body::get_updated_spatial_props()
 {
 	PxTransform newT = rigidDynamic->getGlobalPose();

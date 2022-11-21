@@ -19,7 +19,7 @@ struct game_instance;
 struct world_editor
 {
 	bool isInEditorMode = false;
-	int editorCurrentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z
+	int editorCurrentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z; 3 = xy, 4 = yz. 5 = zx
 
 	entt* editorCurrentlySelectedEntt = nullptr;
 
@@ -27,6 +27,9 @@ struct world_editor
 	bool selectingGizmoMoveAxisX = false;
 	bool selectingGizmoMoveAxisY = false;
 	bool selectingGizmoMoveAxisZ = false;
+	bool selectingGizmoMoveAxisXY = false;
+	bool selectingGizmoMoveAxisYZ = false;
+	bool selectingGizmoMoveAxisZX = false;
 
 	Ray cursorSelectionRay = { 0 };	
 	
@@ -92,7 +95,7 @@ struct world
 	void exit_editor_mode();
 	void editor_draw_gizmo(Vector3 inCenterPos);
 	void editor_check_against_gizmo(Vector3 inGizmoCenterPos);
-	void editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
+	void editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
 
 	void update();
 	void draw_all();
