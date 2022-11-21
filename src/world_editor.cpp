@@ -334,7 +334,7 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 				{
 					worldEditor.selectingGizmoMoveAxisX = true;
 					worldEditor.selectingGizmoMoveAxisY = false; // This is so that you don't grab onto another gizmo when grabbing this
-					worldEditor.selectingGizmoMoveAxisZ = false;
+					worldEditor.selectingGizmoMoveAxisZ = false; // UPDATE: This may not work but I'm not testing it now. Has no practical implications
 					worldEditor.canSelectEntt = false;
 
 				}
@@ -423,6 +423,13 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisXY.meshes[m], worldEditor.editorGizmoMoveAxisXY.transform);
 			if (meshHitInfo.hit)
 			{
+				//(Levente): I needed to introduce extra measures to stop you from grabbing another axis when already grabbing one. The previous fix for this may not work now,
+				// but it's so difficult to reproduce if the actual transform code is in place that I won't try.
+				if (worldEditor.selectingGizmoMoveAxisYZ == true || worldEditor.selectingGizmoMoveAxisZX == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisXY = true;
 				worldEditor.canSelectEntt = false;
 
@@ -459,6 +466,11 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisYZ.meshes[m], worldEditor.editorGizmoMoveAxisYZ.transform);
 			if (meshHitInfo.hit)
 			{
+				if (worldEditor.selectingGizmoMoveAxisXY == true || worldEditor.selectingGizmoMoveAxisZX == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisYZ = true;
 				worldEditor.canSelectEntt = false;
 
@@ -495,6 +507,11 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisZX.meshes[m], worldEditor.editorGizmoMoveAxisZX.transform);
 			if (meshHitInfo.hit)
 			{
+				if (worldEditor.selectingGizmoMoveAxisYZ == true || worldEditor.selectingGizmoMoveAxisXY == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisZX = true;
 				worldEditor.canSelectEntt = false;
 
@@ -711,6 +728,166 @@ void world::editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt*
 			}
 		}
 	}
+	
+	if (inAxis == 3)
+	{
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, DEG2RAD * 90.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		worldEditor.editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 currentFramePointXY{ 0.0f, 0.0f };
+
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 prevFramePointXY{ 0.0f, 0.0f };
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				prevFramePointXY = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
+
+				break;
+				return;
+			}
+		}
+
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				currentFramePointXY = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
+
+				Vector2 diff = Vector2Subtract(currentFramePointXY, prevFramePointXY);
+
+				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff.x, enttToMove->enttTransform.pos.y - diff.y, enttToMove->enttTransform.pos.z };
+
+				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				break;
+				return;
+			}
+		}
+	}
+
+	if (inAxis == 4)
+	{
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f, DEG2RAD * 90.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		worldEditor.editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 currentFramePointYZ{ 0.0f, 0.0f };
+
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 prevFramePointYZ{ 0.0f, 0.0f };
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				prevFramePointYZ = Vector2{ meshHitInfo.point.y, meshHitInfo.point.z };
+
+				break;
+				return;
+			}
+		}
+
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				currentFramePointYZ = Vector2{ meshHitInfo.point.y, meshHitInfo.point.z };
+
+				Vector2 diff = Vector2Subtract(currentFramePointYZ, prevFramePointYZ);
+
+				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y - diff.x, enttToMove->enttTransform.pos.z - diff.y };
+
+				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				break;
+				return;
+			}
+		}
+	}
+
+	if (inAxis == 5)
+	{
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f, 0.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		worldEditor.editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 currentFramePointZX{ 0.0f, 0.0f };
+
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		Vector2 prevFramePointZX{ 0.0f, 0.0f };
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				prevFramePointZX = Vector2{ meshHitInfo.point.z, meshHitInfo.point.x };
+
+				break;
+				return;
+			}
+		}
+
+
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+			if (meshHitInfo.hit)
+			{
+				currentFramePointZX = Vector2{ meshHitInfo.point.z, meshHitInfo.point.x };
+
+				Vector2 diff = Vector2Subtract(currentFramePointZX, prevFramePointZX);
+
+				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff.y, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z - diff.x };
+
+				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				break;
+				return;
+			}
+		}
+	}
+
 
 	canMoveCamera = true;
 }
