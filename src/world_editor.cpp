@@ -452,43 +452,39 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 		collision.hit = false;
 		RayCollision meshHitInfo = { 0 };
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-		for (int m = 0; m < worldEditor.editorGizmoMoveAxisX.meshCount; m++)
-		{
-			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisX.meshes[m], worldEditor.editorGizmoMoveAxisX.transform);
-			if (meshHitInfo.hit)
-			{
-				if (worldEditor.selectingGizmoMoveAxisY == true 
-					|| worldEditor.selectingGizmoMoveAxisZ == true
-					|| worldEditor.selectingGizmoMoveAxisXY == true
-					|| worldEditor.selectingGizmoMoveAxisYZ == true
-					|| worldEditor.selectingGizmoMoveAxisZX == true)
-				{
-					break; return;
-				}
 
+		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisX.meshes[0], worldEditor.editorGizmoMoveAxisX.transform);
+		if (meshHitInfo.hit)
+		{
+			if (worldEditor.selectingGizmoMoveAxisY == true 
+				|| worldEditor.selectingGizmoMoveAxisZ == true
+				|| worldEditor.selectingGizmoMoveAxisXY == true
+				|| worldEditor.selectingGizmoMoveAxisYZ == true
+				|| worldEditor.selectingGizmoMoveAxisZX == true)
+			{
+
+			}
+
+			worldEditor.selectingGizmoMoveAxisX = true;
+			worldEditor.canSelectEntt = false;
+
+		}
+		else
+		{
+			//(Levente): Lovely thing here. Keep latching on even if we've left the mesh's bounding box.
+			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisX)
+			{
 				worldEditor.selectingGizmoMoveAxisX = true;
+				worldEditor.selectingGizmoMoveAxisY = false; // This is so that you don't grab onto another gizmo when grabbing this
+				worldEditor.selectingGizmoMoveAxisZ = false; // UPDATE: This may not work but I'm not testing it now. Has no practical implications
 				worldEditor.canSelectEntt = false;
 
-				break;
-				return;
 			}
 			else
 			{
-				//(Levente): Lovely thing here. Keep latching on even if we've left the mesh's bounding box.
-				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoMoveAxisX)
-				{
-					worldEditor.selectingGizmoMoveAxisX = true;
-					worldEditor.selectingGizmoMoveAxisY = false; // This is so that you don't grab onto another gizmo when grabbing this
-					worldEditor.selectingGizmoMoveAxisZ = false; // UPDATE: This may not work but I'm not testing it now. Has no practical implications
-					worldEditor.canSelectEntt = false;
-
-				}
-				else
-				{
-					worldEditor.selectingGizmoMoveAxisX = false;
-				}
-
+				worldEditor.selectingGizmoMoveAxisX = false;
 			}
+
 		}
 
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
@@ -752,43 +748,47 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 		collision.hit = false;
 		RayCollision meshHitInfo = { 0 };
 
-		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoRotateAxisX.meshes[0], worldEditor.editorGizmoRotateAxisX.transform);
-		if (meshHitInfo.hit)
+		for (int m = 0; m < worldEditor.editorGizmoRotateAxisX.meshCount; m++)
 		{
-			if (worldEditor.selectingGizmoMoveAxisX == true
-				|| worldEditor.selectingGizmoMoveAxisZ == true
-				|| worldEditor.selectingGizmoMoveAxisY == true
-				|| worldEditor.selectingGizmoMoveAxisXY == true
-				|| worldEditor.selectingGizmoMoveAxisYZ == true
-				|| worldEditor.selectingGizmoMoveAxisZX == true
-				|| worldEditor.selectingGizmoRotateAxisY == true
-				|| worldEditor.selectingGizmoRotateAxisZ == true)
+			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoRotateAxisX.meshes[m], worldEditor.editorGizmoRotateAxisX.transform);
+
+			if (meshHitInfo.hit)
 			{
-				
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisY == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true
+					|| worldEditor.selectingGizmoRotateAxisY == true
+					|| worldEditor.selectingGizmoRotateAxisZ == true)
+				{
+					break; return;
+				}
+				else
+				{
+					worldEditor.selectingGizmoRotateAxisX = true;
+					worldEditor.canSelectEntt = false;
+
+					break; return;
+
+				}
 			}
 			else
 			{
-				worldEditor.selectingGizmoRotateAxisX = true;
-				worldEditor.canSelectEntt = false;
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
+				{
+					editor_do_not_select_any_gizmo();
+					worldEditor.selectingGizmoRotateAxisX = true;
+					worldEditor.canSelectEntt = false;
 
-				
-
-			}
-		}
-		else
-		{
-			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
-			{
-				editor_do_not_select_any_gizmo();
-				worldEditor.selectingGizmoRotateAxisX = true;
-				worldEditor.canSelectEntt = false;
+				}
+				else
+				{
+					editor_do_not_select_any_gizmo();
+				}
 
 			}
-			else
-			{
-				editor_do_not_select_any_gizmo();
-			}
-
 		}
 	}
 	else
@@ -1153,56 +1153,75 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-		float currentFramePointX = 0.0f;
+		Vector2 currentFramePoint{};
 
 		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-		float prevFramePointX = 0.0f;
+		Vector2 prevFramePoint{};
 
-		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
-		if (meshHitInfo.hit)
+		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
 		{
-			prevFramePointX = meshHitInfo.point.x;
+			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+
+			if (meshHitInfo.hit)
+			{
+				prevFramePoint = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
+				break; return;
+
+			}
+
+			for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+			{
+				meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
+
+				if (meshHitInfo.hit)
+				{
+					currentFramePoint = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
+
+					/*
+												a <- center pos (alpha)
+												|\
+											  C	| \ B
+								   (beta)		|  \
+					   previous frame pos ->  b ---- c <- current frame mouse pos (gamma)
+												  A
+
+							A2 = A^2
+							B2 = B^2
+							C2 = C^2
+
+
+							------* <- pos prev
+							|    / <- wanted length
+							|  /
+							*/ /*  <- pos current
+
+					*/
+
+					float lengthPrev = absf(currentFramePoint.x - prevFramePoint.x);
+					float heightPrev = absf(currentFramePoint.y - prevFramePoint.y);
+
+					// A^2 = lengthPrev^2 + heightPrev^2
+
+					float A2 = (lengthPrev * lengthPrev) + (heightPrev * heightPrev);
+					float A = sqrf(A2); //(lengthPrev * lengthPrev) + (heightPrev * heightPrev);
+					float deltaCenterHalfA = 
+					float B2 = sqrf(A / 2)
+
+					float finalRad = acosf((a ^ 2 + b ^ 2 - c ^ 2) / (2ab))
+
+					/*
+					float diff = currentFramePointX - prevFramePointX;
+
+					Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+					newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+
+					enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+					*/
+				}
+			}
 
 		}
-
-		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
-		if (meshHitInfo.hit)
-		{
-			currentFramePointX = meshHitInfo.point.x;
-
-			/*
-										a <- center pos (alpha)
-										|\
-									  C	| \ B
-				           (beta)		|  \
-			   previous frame pos ->  b ---- c <- current frame mouse pos (gamma)
-										  A
-
-					A2 = A^2
-					B2 = B^2
-					C2 = C^2
-
-									
-					------* <- pos prev
-					|    / <- wanted length
-					|  /
-					*/ /*  <- pos current                           
-
-			*/
-			
-			float A =  
-
-			/*
-			float diff = currentFramePointX - prevFramePointX;
-
-			Vector3 newPos{ 0.0f, 0.0f, 0.0f };
-
-			newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-
-			enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
-			*/
-		}
-
 	}
 
 	canMoveCamera = true;
