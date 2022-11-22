@@ -14,6 +14,40 @@ BIRO: I decided to separate the standard world functions from the editor ones be
 
 #ifdef DEBUG
 
+bool world::editor_is_selecting_any_gizmo()
+{
+	if (worldEditor.selectingGizmoMoveAxisX
+		|| worldEditor.selectingGizmoMoveAxisY
+		|| worldEditor.selectingGizmoMoveAxisZ
+		|| worldEditor.selectingGizmoMoveAxisXY
+		|| worldEditor.selectingGizmoMoveAxisYZ
+		|| worldEditor.selectingGizmoMoveAxisZX 
+		|| worldEditor.selectingGizmoRotateAxisX 
+		|| worldEditor.selectingGizmoRotateAxisY 
+		|| worldEditor.selectingGizmoRotateAxisZ) 
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+
+}
+
+void world::editor_do_not_select_any_gizmo()
+{
+	worldEditor.selectingGizmoMoveAxisX = false;
+	worldEditor.selectingGizmoMoveAxisY = false;
+	worldEditor.selectingGizmoMoveAxisZ = false;
+	worldEditor.selectingGizmoMoveAxisXY = false;
+	worldEditor.selectingGizmoMoveAxisYZ = false;
+	worldEditor.selectingGizmoMoveAxisZX = false;
+	worldEditor.selectingGizmoRotateAxisX = false;
+	worldEditor.selectingGizmoRotateAxisY = false;
+	worldEditor.selectingGizmoRotateAxisZ = false;
+}
+
 void world::enter_editor_mode()
 {
 	worldEditor.isInEditorMode = true;
@@ -51,9 +85,46 @@ void world::exit_editor_mode()
 	// START WORLD AGAIN FROM THE BEGINNING
 }
 
+void world::init_world_editor()
+{
+	worldEditor.editorGizmoAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
+
+	worldEditor.editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
+	worldEditor.editorGizmoMoveAxisXY = LoadModel("editor/gizmo_move_axis_combined.obj");
+	worldEditor.editorGizmoMoveAxisYZ = LoadModel("editor/gizmo_move_axis_combined.obj");
+	worldEditor.editorGizmoMoveAxisZX = LoadModel("editor/gizmo_move_axis_combined.obj");
+
+	worldEditor.editorGizmoRotateAxisX = LoadModel("editor/gizmo_rotate_axis.obj");
+	worldEditor.editorGizmoRotateAxisY = LoadModel("editor/gizmo_rotate_axis.obj");
+	worldEditor.editorGizmoRotateAxisZ = LoadModel("editor/gizmo_rotate_axis.obj");
+	worldEditor.editorGizmoRotateAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoRotateAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoRotateAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+
+	worldEditor.editorGizmoMoveAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+
+	worldEditor.editorGizmoMoveAxisXY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoMoveAxisYZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+	worldEditor.editorGizmoMoveAxisZX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = worldEditor.editorGizmoAxisMat;
+
+	worldEditor.editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
+	worldEditor.editorGizmoHelperModel = LoadModelFromMesh(worldEditor.editorGizmoHelperMesh);
+
+}
+
 void world::update_world_editor()
 {
-	if (worldEditor.editorCurrentlySelectedEntt != nullptr) editor_check_against_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
+	if (worldEditor.editorCurrentlySelectedEntt != nullptr)
+	{
+		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
+		if (worldEditor.currentGizmoMode == 1) editor_check_against_rotate_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
+
+	}
+	
 
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canSelectEntt) editor_try_select_entt();
 
@@ -61,6 +132,23 @@ void world::update_world_editor()
 	{
 		worldEditor.currentlyEditingAxis = worldEditor.currentlyEditingAxis + 1;
 		if (worldEditor.currentlyEditingAxis == 3) worldEditor.currentlyEditingAxis = 0;
+	}
+	
+	// Set gizmo modes
+	if(!editor_is_selecting_any_gizmo()) 
+	{
+		if (IsKeyPressed(KEY_W))
+		{
+			worldEditor.currentGizmoMode = 0;
+		}
+		if (IsKeyPressed(KEY_E))
+		{
+			worldEditor.currentGizmoMode = 1;
+		}
+		if (IsKeyPressed(KEY_R))
+		{
+			worldEditor.currentGizmoMode = 2;
+		}
 	}
 
 	//Will be removed once we got editor gui
@@ -70,6 +158,7 @@ void world::update_world_editor()
 	{
 		DrawText(worldEditor.editorCurrentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
 
+		/*
 		if (IsKeyDown(KEY_W))
 		{
 			editor_move_entt(worldEditor.currentlyEditingAxis, 0.05f);
@@ -85,7 +174,7 @@ void world::update_world_editor()
 		if (IsKeyDown(KEY_D))
 		{
 			editor_rotate_entt(worldEditor.currentlyEditingAxis, -1.0f);
-		}
+		}*/
 
 
 	}
@@ -95,7 +184,7 @@ void world::update_world_editor()
 void world::draw_world_editor_3d()
 {
 	//(Levente): This will draw the model used to calculate the new position of the actor based on the raycasts. 
-	//DrawModel(worldEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
+	DrawModel(worldEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	
 	
 	if(worldEditor.editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
@@ -309,58 +398,52 @@ void world::editor_draw_gizmo(Vector3 inCenterPos)
 	{
 
 		Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
-		Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
-		Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-		worldEditor.editorGizmoMoveAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
+		Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * 180.0f, 0.0f });
+		Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y + 1.8f, inCenterPos.z - 0.5f);
+		worldEditor.editorGizmoRotateAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
 
 		Matrix matScaleY = MatrixScale(1.0f, 1.0f, 1.0f);
-		Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f , 0.0f });
-		Matrix matTranslationY = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-		worldEditor.editorGizmoMoveAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
+		Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * -90.0f, DEG2RAD * 90.0f , 0.0f });
+		Matrix matTranslationY = MatrixTranslate(inCenterPos.x + 0.2f, inCenterPos.y - 0.4f, inCenterPos.z - 2.4f);
+		worldEditor.editorGizmoRotateAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
 
 		Matrix matScaleZ = MatrixScale(1.0f, 1.0f, 1.0f);
-		Matrix matRotationZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , 0.0f });
-		Matrix matTranslationZ = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-		worldEditor.editorGizmoMoveAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
+		Matrix matRotationZ = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * 90.0f , 0.0f });
+		Matrix matTranslationZ = MatrixTranslate(inCenterPos.x + 0.2f, inCenterPos.y + 1.8f, inCenterPos.z);
+		worldEditor.editorGizmoRotateAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
 
-
-		DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
-		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE); //It should really be turkiz but the renderer bugs out and can't draw transparency properly for some reason when using custom colors for tinting
-		DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
-
-
-		if (worldEditor.selectingGizmoMoveAxisX == false)
+		if (worldEditor.selectingGizmoRotateAxisX == false)
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+			DrawModel(worldEditor.editorGizmoRotateAxisX, Vector3Zero(), 1.0f, RED);
 		}
 		else
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
+			DrawModel(worldEditor.editorGizmoRotateAxisX, Vector3Zero(), 1.0f, WHITE);
 		}
 
-		if (worldEditor.selectingGizmoMoveAxisY == false)
+		if (worldEditor.selectingGizmoRotateAxisY == false)
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
+			DrawModel(worldEditor.editorGizmoRotateAxisY, Vector3Zero(), 1.0f, GREEN);
 		}
 		else
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
+			DrawModel(worldEditor.editorGizmoRotateAxisY, Vector3Zero(), 1.0f, WHITE);
 		}
 
-		if (worldEditor.selectingGizmoMoveAxisZ == false)
+		if (worldEditor.selectingGizmoRotateAxisZ == false)
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
+			DrawModel(worldEditor.editorGizmoRotateAxisZ, Vector3Zero(), 1.0f, BLUE);
 		}
 		else
 		{
-			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
+			DrawModel(worldEditor.editorGizmoRotateAxisZ, Vector3Zero(), 1.0f, WHITE);
 		}
 	}
 
 
 }
 
-void world::editor_check_against_gizmo(Vector3 inCenterPos)
+void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 {
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
@@ -656,9 +739,73 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 	if (worldEditor.selectingGizmoMoveAxisZX && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(5, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
 
 
+
 }
 
-void world::editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt* enttToMove)
+void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
+{
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	{
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoRotateAxisX.meshes[0], worldEditor.editorGizmoRotateAxisX.transform);
+		if (meshHitInfo.hit)
+		{
+			if (worldEditor.selectingGizmoMoveAxisX == true
+				|| worldEditor.selectingGizmoMoveAxisZ == true
+				|| worldEditor.selectingGizmoMoveAxisY == true
+				|| worldEditor.selectingGizmoMoveAxisXY == true
+				|| worldEditor.selectingGizmoMoveAxisYZ == true
+				|| worldEditor.selectingGizmoMoveAxisZX == true
+				|| worldEditor.selectingGizmoRotateAxisY == true
+				|| worldEditor.selectingGizmoRotateAxisZ == true)
+			{
+				
+			}
+			else
+			{
+				worldEditor.selectingGizmoRotateAxisX = true;
+				worldEditor.canSelectEntt = false;
+
+				
+
+			}
+		}
+		else
+		{
+			if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
+			{
+				editor_do_not_select_any_gizmo();
+				worldEditor.selectingGizmoRotateAxisX = true;
+				worldEditor.canSelectEntt = false;
+
+			}
+			else
+			{
+				editor_do_not_select_any_gizmo();
+			}
+
+		}
+	}
+	else
+	{
+		editor_do_not_select_any_gizmo();
+
+		worldEditor.canSelectEntt = true;
+	}
+
+
+	if (worldEditor.selectingGizmoRotateAxisX && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(0, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+	if (worldEditor.selectingGizmoRotateAxisY && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(1, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+	if (worldEditor.selectingGizmoRotateAxisZ && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(2, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+
+}
+
+void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove)
 {
 	canMoveCamera = false;
 
@@ -666,7 +813,7 @@ void world::editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt*
 	//			 it won't be position ONTO the axis, but behind it,(since an axis (here: X) is 1D; normally we imagine it as sprawling across
 	//           the map, but it's actually a straight line in +x and -x) since logically that's where the mouse's ray end up.
 	//
-	//			 For each axis, we do 2 casts, to get starting pos and ending pos = small increments = logical.
+	//			 For each axis, we do 2 casts, to get starting pos and ending pos = small increments = smooth.
 
 	if (inAxis == 0)
 	{
@@ -987,11 +1134,90 @@ void world::editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt*
 	canMoveCamera = true;
 }
 
+void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove)
+{
+	canMoveCamera = false;
+
+	if (inAxis == 0)
+	{
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		worldEditor.editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		float currentFramePointX = 0.0f;
+
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		float prevFramePointX = 0.0f;
+
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+			prevFramePointX = meshHitInfo.point.x;
+
+		}
+
+		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+			currentFramePointX = meshHitInfo.point.x;
+
+			/*
+										a <- center pos (alpha)
+										|\
+									  C	| \ B
+				           (beta)		|  \
+			   previous frame pos ->  b ---- c <- current frame mouse pos (gamma)
+										  A
+
+					A2 = A^2
+					B2 = B^2
+					C2 = C^2
+
+									
+					------* <- pos prev
+					|    / <- wanted length
+					|  /
+					*/ /*  <- pos current                           
+
+			*/
+			
+			float A =  
+
+			/*
+			float diff = currentFramePointX - prevFramePointX;
+
+			Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+			newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+
+			enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+			*/
+		}
+
+	}
+
+	canMoveCamera = true;
+
+}
+
+
 #else
 
 void world::editor_move_entt(int axis, float val) {};
 void world::enter_editor_mode() {};
 void world::exit_editor_mode() {};
+void world::init_world_editor() {};
+void world::draw_world_editor_2d() {};
+void world::draw_world_editor_3d() {};
 void world::update_world_editor() {};
 void world::editor_try_select_entt() {};
 void world::editor_draw_gizmo(Vector3 i) {};

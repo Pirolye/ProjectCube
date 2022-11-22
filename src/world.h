@@ -77,7 +77,7 @@ struct world
 
 	//(Levente): Lighting is done inside the shaders of course, but lights are also entites in their own term. This means we have to manually update all shaders
 	//to notify them of any changes that might happened in lighting data.
-	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 2];
+	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64];
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor. 
@@ -96,14 +96,20 @@ struct world
 	void editor_try_select_entt();
 	void editor_move_entt(int axis, float val);
 	void editor_rotate_entt(int axis, float val);
+	void init_world_editor();
 	void update_world_editor();
 	void draw_world_editor_3d();
 	void draw_world_editor_2d();
 	void enter_editor_mode();
 	void exit_editor_mode();
 	void editor_draw_gizmo(Vector3 inCenterPos);
-	void editor_check_against_gizmo(Vector3 inGizmoCenterPos);
-	void editor_move_entt_gizmo(float inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
+	void editor_check_against_move_gizmo(Vector3 inGizmoCenterPos);
+	void editor_check_against_rotate_gizmo(Vector3 inGizmoCenterPos);
+	void editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
+	void editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate);
+	bool editor_is_selecting_any_gizmo();
+	void editor_do_not_select_any_gizmo();
+	//void editor_scale_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate); // We need entt transform overhaul for this!
 
 	void update();
 	void draw_all();

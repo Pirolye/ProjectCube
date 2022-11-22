@@ -6,7 +6,7 @@
 
 struct world;
 
-#define MAX_ENTITIES_IN_WORLD 360
+#define MAX_ENTITIES_IN_WORLD 1024
 
 enum entts {mainCube, cam, light, mainCube_Static};
 
