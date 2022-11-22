@@ -59,8 +59,8 @@ void world::update_world_editor()
 
 	if (IsKeyPressed(KEY_TAB))
 	{
-		worldEditor.editorCurrentlyEditingAxis = worldEditor.editorCurrentlyEditingAxis + 1;
-		if (worldEditor.editorCurrentlyEditingAxis == 3) worldEditor.editorCurrentlyEditingAxis = 0;
+		worldEditor.currentlyEditingAxis = worldEditor.currentlyEditingAxis + 1;
+		if (worldEditor.currentlyEditingAxis == 3) worldEditor.currentlyEditingAxis = 0;
 	}
 
 	//Will be removed once we got editor gui
@@ -72,19 +72,19 @@ void world::update_world_editor()
 
 		if (IsKeyDown(KEY_W))
 		{
-			editor_move_entt(worldEditor.editorCurrentlyEditingAxis, 0.05f);
+			editor_move_entt(worldEditor.currentlyEditingAxis, 0.05f);
 		}
 		if (IsKeyDown(KEY_S))
 		{
-			editor_move_entt(worldEditor.editorCurrentlyEditingAxis, -0.05f);
+			editor_move_entt(worldEditor.currentlyEditingAxis, -0.05f);
 		}
 		if (IsKeyDown(KEY_A))
 		{
-			editor_rotate_entt(worldEditor.editorCurrentlyEditingAxis, 1.0f);
+			editor_rotate_entt(worldEditor.currentlyEditingAxis, 1.0f);
 		}
 		if (IsKeyDown(KEY_D))
 		{
-			editor_rotate_entt(worldEditor.editorCurrentlyEditingAxis, -1.0f);
+			editor_rotate_entt(worldEditor.currentlyEditingAxis, -1.0f);
 		}
 
 
@@ -104,12 +104,12 @@ void world::draw_world_editor_3d()
 
 void world::draw_world_editor_2d()
 {
-	if(worldEditor.editorCurrentlyEditingAxis == 0) DrawText("x", 0, 100, 30, WHITE);
-	if(worldEditor.editorCurrentlyEditingAxis == 1) DrawText("y", 0, 100, 30, WHITE);
-	if(worldEditor.editorCurrentlyEditingAxis == 2) DrawText("z", 0, 100, 30, WHITE);
-	if(worldEditor.editorCurrentlyEditingAxis == 3) DrawText("xy", 0, 100, 30, WHITE);
-	if(worldEditor.editorCurrentlyEditingAxis == 4) DrawText("yz", 0, 100, 30, WHITE);
-	if(worldEditor.editorCurrentlyEditingAxis == 5) DrawText("zx", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 0) DrawText("x", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 1) DrawText("y", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 2) DrawText("z", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 3) DrawText("xy", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 4) DrawText("yz", 0, 100, 30, WHITE);
+	if(worldEditor.currentlyEditingAxis == 5) DrawText("zx", 0, 100, 30, WHITE);
 
 	if (worldEditor.selectingGizmoMoveAxisX) DrawText("Moving X gizmo", 0, 150, 30, WHITE);
 	if (worldEditor.selectingGizmoMoveAxisY) DrawText("Moving Y gizmo", 0, 150, 30, WHITE);
@@ -215,95 +215,148 @@ void world::editor_draw_gizmo(Vector3 inCenterPos)
 	Vector3 v{ 1.0f, 0.0f, 0.0f };
 	//Color c1{ 0, 255, 0, 100 };
 
-	Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
-	Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
-	Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-	worldEditor.editorGizmoMoveAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
-
-	Matrix matScaleY = MatrixScale(1.0f, 1.0f, 1.0f);
-	Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f , 0.0f });
-	Matrix matTranslationY = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-	worldEditor.editorGizmoMoveAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
-
-	Matrix matScaleZ = MatrixScale(1.0f, 1.0f, 1.0f);
-	Matrix matRotationZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , 0.0f });
-	Matrix matTranslationZ = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
-	worldEditor.editorGizmoMoveAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
-
-	Matrix matScaleXY = MatrixScale(0.8f, 0.8f, 0.8f);
-	Matrix matRotationXY = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f, 0.0f });
-	Matrix matTranslationXY = MatrixTranslate(inCenterPos.x + 1.5f, inCenterPos.y + 1.5f, inCenterPos.z);
-	worldEditor.editorGizmoMoveAxisXY.transform = MatrixMultiply(MatrixMultiply(matScaleXY, matRotationXY), matTranslationXY);
-
-	Matrix matScaleYZ = MatrixScale(0.8f, 0.8f, 0.8f);
-	Matrix matRotationYZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , DEG2RAD * 90.0f }); //WARNING: When rotating, we change the local coordinate system orientation, so we 
-																								// need to rotate on a different axis to get global coordinate system equivalent results
-	Matrix matTranslationYZ = MatrixTranslate(inCenterPos.x, inCenterPos.y + 1.5f, inCenterPos.z - 1.5f);
-	worldEditor.editorGizmoMoveAxisYZ.transform = MatrixMultiply(MatrixMultiply(matScaleYZ, matRotationYZ), matTranslationYZ);
-
-	Matrix matScaleZX = MatrixScale(0.8f, 0.8f, 0.8f);
-	Matrix matRotationZX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f , 0.0f });
-	Matrix matTranslationZX = MatrixTranslate(inCenterPos.x + 1.5f, inCenterPos.y, inCenterPos.z - 1.5f);
-	worldEditor.editorGizmoMoveAxisZX.transform = MatrixMultiply(MatrixMultiply(matScaleZX, matRotationZX), matTranslationZX);
-
-	DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
-	DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE); //It should really be turkiz but the renderer bugs out and can't draw transparency properly for some reason when using custom colors for tinting
-	DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
-
-
-	if (worldEditor.selectingGizmoMoveAxisX == false)
+	if (worldEditor.currentGizmoMode == 0)
 	{
-		DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+
+		Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
+		Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
+
+		Matrix matScaleY = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f , 0.0f });
+		Matrix matTranslationY = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
+
+		Matrix matScaleZ = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , 0.0f });
+		Matrix matTranslationZ = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
+
+		Matrix matScaleXY = MatrixScale(0.8f, 0.8f, 0.8f);
+		Matrix matRotationXY = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f, 0.0f });
+		Matrix matTranslationXY = MatrixTranslate(inCenterPos.x + 1.5f, inCenterPos.y + 1.5f, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisXY.transform = MatrixMultiply(MatrixMultiply(matScaleXY, matRotationXY), matTranslationXY);
+
+		Matrix matScaleYZ = MatrixScale(0.8f, 0.8f, 0.8f);
+		Matrix matRotationYZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , DEG2RAD * 90.0f }); //WARNING: When rotating, we change the local coordinate system orientation, so we 
+																									// need to rotate on a different axis to get global coordinate system equivalent results
+		Matrix matTranslationYZ = MatrixTranslate(inCenterPos.x, inCenterPos.y + 1.5f, inCenterPos.z - 1.5f);
+		worldEditor.editorGizmoMoveAxisYZ.transform = MatrixMultiply(MatrixMultiply(matScaleYZ, matRotationYZ), matTranslationYZ);
+
+		Matrix matScaleZX = MatrixScale(0.8f, 0.8f, 0.8f);
+		Matrix matRotationZX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f , 0.0f });
+		Matrix matTranslationZX = MatrixTranslate(inCenterPos.x + 1.5f, inCenterPos.y, inCenterPos.z - 1.5f);
+		worldEditor.editorGizmoMoveAxisZX.transform = MatrixMultiply(MatrixMultiply(matScaleZX, matRotationZX), matTranslationZX);
+
+		if (worldEditor.selectingGizmoMoveAxisX == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisY == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisZ == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisXY == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisYZ == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisZX == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, WHITE);
+		}
 	}
-	else
+	
+	
+	if (worldEditor.currentGizmoMode == 1)
 	{
-		DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
-	}
 
-	if (worldEditor.selectingGizmoMoveAxisY == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
-	}
+		Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
+		Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisX.transform = MatrixMultiply(MatrixMultiply(matScaleX, matRotationX), matTranslationX);
 
-	if (worldEditor.selectingGizmoMoveAxisZ == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
-	}
+		Matrix matScaleY = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationY = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f , 0.0f });
+		Matrix matTranslationY = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisY.transform = MatrixMultiply(MatrixMultiply(matScaleY, matRotationY), matTranslationY);
 
-	if (worldEditor.selectingGizmoMoveAxisXY == false)
-	{
+		Matrix matScaleZ = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotationZ = MatrixRotateXYZ(Vector3{ DEG2RAD * 90.0f, 0.0f , 0.0f });
+		Matrix matTranslationZ = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		worldEditor.editorGizmoMoveAxisZ.transform = MatrixMultiply(MatrixMultiply(matScaleZ, matRotationZ), matTranslationZ);
+
+
 		DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, WHITE);
-	}
-
-	if (worldEditor.selectingGizmoMoveAxisYZ == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, WHITE);
-	}
-
-	if (worldEditor.selectingGizmoMoveAxisZX == false)
-	{
+		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE); //It should really be turkiz but the renderer bugs out and can't draw transparency properly for some reason when using custom colors for tinting
 		DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
+
+
+		if (worldEditor.selectingGizmoMoveAxisX == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisY == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
+		}
+
+		if (worldEditor.selectingGizmoMoveAxisZ == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
+		}
 	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, WHITE);
-	}
+
 
 }
 
@@ -321,6 +374,15 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisX.meshes[m], worldEditor.editorGizmoMoveAxisX.transform);
 			if (meshHitInfo.hit)
 			{
+				if (worldEditor.selectingGizmoMoveAxisY == true 
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisX = true;
 				worldEditor.canSelectEntt = false;
 
@@ -355,6 +417,15 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisY.meshes[m], worldEditor.editorGizmoMoveAxisY.transform);
 			if (meshHitInfo.hit)
 			{
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisY = true;
 				worldEditor.canSelectEntt = false;
 
@@ -388,6 +459,15 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisZ.meshes[m], worldEditor.editorGizmoMoveAxisZ.transform);
 			if (meshHitInfo.hit)
 			{
+				if (worldEditor.selectingGizmoMoveAxisY == true
+					|| worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true)
+				{
+					break; return;
+				}
+
 				worldEditor.selectingGizmoMoveAxisZ = true;
 				worldEditor.canSelectEntt = false;
 
@@ -425,7 +505,12 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			{
 				//(Levente): I needed to introduce extra measures to stop you from grabbing another axis when already grabbing one. The previous fix for this may not work now,
 				// but it's so difficult to reproduce if the actual transform code is in place that I won't try.
-				if (worldEditor.selectingGizmoMoveAxisYZ == true || worldEditor.selectingGizmoMoveAxisZX == true)
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisY == true
+					//|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true)
 				{
 					break; return;
 				}
@@ -466,7 +551,12 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisYZ.meshes[m], worldEditor.editorGizmoMoveAxisYZ.transform);
 			if (meshHitInfo.hit)
 			{
-				if (worldEditor.selectingGizmoMoveAxisXY == true || worldEditor.selectingGizmoMoveAxisZX == true)
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisY == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					//|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true)
 				{
 					break; return;
 				}
@@ -507,7 +597,12 @@ void world::editor_check_against_gizmo(Vector3 inCenterPos)
 			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoMoveAxisZX.meshes[m], worldEditor.editorGizmoMoveAxisZX.transform);
 			if (meshHitInfo.hit)
 			{
-				if (worldEditor.selectingGizmoMoveAxisYZ == true || worldEditor.selectingGizmoMoveAxisXY == true)
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisY == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					/* || worldEditor.selectingGizmoMoveAxisZX == true*/)
 				{
 					break; return;
 				}
