@@ -12,7 +12,7 @@
 
 int main(int argc, char** argv)
 {
-	game_instance* currentInstance = new game_instance("Missing Cube", 1600, 900, 75.0);
+	game_instance* currentInstance = new game_instance("Missing Cube", 1600, 900, 75);
 
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key

@@ -1153,75 +1153,86 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-		Vector2 currentFramePoint{};
+		Vector3 currentFramePoint{};
 
 		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
-		Vector2 prevFramePoint{};
+		Vector3 prevFramePoint{};
 
-		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+
+		if (meshHitInfo.hit)
 		{
-			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
-
-			if (meshHitInfo.hit)
-			{
-				prevFramePoint = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
-				break; return;
-
-			}
-
-			for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
-			{
-				meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[m], worldEditor.editorGizmoHelperModel.transform);
-
-				if (meshHitInfo.hit)
-				{
-					currentFramePoint = Vector2{ meshHitInfo.point.x, meshHitInfo.point.y };
-
-					/*
-												a <- center pos (alpha)
-												|\
-											  C	| \ B
-								   (beta)		|  \
-					   previous frame pos ->  b ---- c <- current frame mouse pos (gamma)
-												  A
-
-							A2 = A^2
-							B2 = B^2
-							C2 = C^2
-
-
-							------* <- pos prev
-							|    / <- wanted length
-							|  /
-							*/ /*  <- pos current
-
-					*/
-
-					float lengthPrev = absf(currentFramePoint.x - prevFramePoint.x);
-					float heightPrev = absf(currentFramePoint.y - prevFramePoint.y);
-
-					// A^2 = lengthPrev^2 + heightPrev^2
-
-					float A2 = (lengthPrev * lengthPrev) + (heightPrev * heightPrev);
-					float A = sqrf(A2); //(lengthPrev * lengthPrev) + (heightPrev * heightPrev);
-					float deltaCenterHalfA = 
-					float B2 = sqrf(A / 2)
-
-					float finalRad = acosf((a ^ 2 + b ^ 2 - c ^ 2) / (2ab))
-
-					/*
-					float diff = currentFramePointX - prevFramePointX;
-
-					Vector3 newPos{ 0.0f, 0.0f, 0.0f };
-
-					newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-
-					enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
-					*/
-				}
-			}
+			prevFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 
 		}
+
+		meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+
+		if (meshHitInfo.hit)
+		{
+			currentFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
+
+			/*
+										a <- center pos (alpha)
+										|\
+										C	| \ B
+							(beta)		|  \
+				previous frame pos ->  b ---- c <- current frame mouse pos (gamma)
+											A
+
+					A2 = A^2
+					B2 = B^2
+					C2 = C^2
+
+
+					------* <- pos prev
+					|    / <- wanted length
+					|  /
+					*/ /*  <- pos current
+
+			*/
+
+			BeginDrawing();
+			BeginMode3D( *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+
+			float lengthPrev = abs(currentFramePoint.x - prevFramePoint.x);
+			float heightPrev = abs(currentFramePoint.y - prevFramePoint.y);
+
+			DrawLine3D(Vector3{ currentFramePoint.x, currentFramePoint.y, currentFramePoint.z }, Vector3{prevFramePoint.x, prevFramePoint.y, prevFramePoint.z}, BLACK);
+
+			// A^2 = lengthPrev^2 + heightPrev^2
+
+			float A2 = (lengthPrev * lengthPrev) + (heightPrev * heightPrev);
+			float A = sqrtf(A2); //(lengthPrev * lengthPrev) + (heightPrev * heightPrev);
+
+			// These variables are for a different triangle, one which I didn't draw on screen
+			Vector2 posAHalf = Vector2{ lengthPrev / 2.0f, heightPrev / 2.0f };
+			Vector2 posB = Vector2{ inGizmoCenterPos.x, posAHalf.y };
+			float A_to_B = abs(posAHalf.x - posB.x);
+			float B_to_C = posB.y - inGizmoCenterPos.y;
+					
+			float delta_Center_HalfA = sqrtf((A_to_B * A_to_B) + (B_to_C * B_to_C));
+
+			DrawLine3D(Vector3{ posAHalf.x, posAHalf.y, inGizmoCenterPos.z }, Vector3{ posB.x, posB.y, inGizmoCenterPos.z }, WHITE);
+
+			float B2 = sqrtf(A / 2);
+
+			//float finalRad = acosf((a ^ 2 + b ^ 2 - c ^ 2) / (2ab));
+
+			/*
+			float diff = currentFramePointX - prevFramePointX;
+
+			Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+
+			newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+
+			enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+			*/
+
+			EndMode3D();
+			EndDrawing();
+		}
+
 	}
 
 	canMoveCamera = true;
