@@ -1188,7 +1188,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			float b; // Between the center and the first frame
 			float c; // Between the center and the now frame
 
-			float cosAlpha; // Cosine at the vertex closest to the gizmo center (final applied rotation)
+			float cosAlpha; // Cosine at the vertex closest to the gizmo center
 			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
 
 			a = Vector2Distance(Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
@@ -1201,15 +1201,15 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			cosAlpha = ((c * c) - (a * a) - (b * b)) / ((-2) * a * b);
 			alpha = RAD2DEG*acosf(cosAlpha);
-
+			  
 			std::string alpha1 = std::to_string(alpha);
-			//Vector3 newPos{ 0.0f, 0.0f, 0.0f };			
-			//newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-			//enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+			Vector3 newRot{ 0.0f, 0.0f, 0.0f };			
+			if(GetMouseDelta().x != 0.0f && GetMouseDelta().y != 0.0f) newRot = Vector3{ enttToMove->enttTransform.rot.x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
 			
 
 			EndMode3D();
-
+			  
 			
 			DrawText(a1.c_str(), 150.0f, 150.0f, 24, WHITE);
 			DrawText(b1.c_str(), 150.0f, 174.0f, 24, WHITE);
