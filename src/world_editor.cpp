@@ -1154,7 +1154,6 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 		if (worldEditor.selectingInPrevFrame == false)
 		{
-			//worldEditor.firstFramePoint = Vector3Zero();
 			
 			Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y};
 			Ray cursorSelectionRayForFirstFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
@@ -1165,10 +1164,6 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 				worldEditor.firstFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 				worldEditor.selectingInPrevFrame = true;
 
-			}
-			else
-			{
-				//worldEditor.selectingInPrevFrame = false;
 			}
 
 
@@ -1189,15 +1184,37 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			DrawCubeV(worldEditor.firstFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, BLACK);
 			DrawCubeV(currentFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, WHITE);
 
-			float diff = 0.0f;//currentFramePointX - prevFramePointX;
+			float a; // This is between the first frame and the current frame
+			float b; // Between the center and the first frame
+			float c; // Between the center and the now frame
 
+			float cosAlpha; // Cosine at the vertex closest to the gizmo center (final applied rotation)
+			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
 
-			Vector3 newPos{ 0.0f, 0.0f, 0.0f };			
-			newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
-			enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+			a = Vector2Distance(Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
+			/*constant*/ b = Vector2Distance(Vector2{inGizmoCenterPos.y, inGizmoCenterPos.z}, Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z });
+			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
+
+			std::string a1 = std::to_string(a);
+			std::string b1 = std::to_string(b);
+			std::string c1 = std::to_string(c);
+
+			cosAlpha = ((c * c) - (a * a) - (b * b)) / ((-2) * a * b);
+			alpha = RAD2DEG*acosf(cosAlpha);
+
+			std::string alpha1 = std::to_string(alpha);
+			//Vector3 newPos{ 0.0f, 0.0f, 0.0f };			
+			//newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+			//enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
 			
 
 			EndMode3D();
+
+			
+			DrawText(a1.c_str(), 150.0f, 150.0f, 24, WHITE);
+			DrawText(b1.c_str(), 150.0f, 174.0f, 24, WHITE);
+			DrawText(c1.c_str(), 150.0f, 198.0f, 24, WHITE);
+			DrawText(alpha1.c_str(), 150.0f, 222.0f, 24, WHITE);
 			EndDrawing();
 		}
 		
