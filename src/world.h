@@ -32,6 +32,9 @@ struct world_editor
 	bool selectingGizmoMoveAxisYZ = false;
 	bool selectingGizmoMoveAxisZX = false;
 
+	bool selectingInPrevFrame = false;
+	Vector3 firstFramePoint = Vector3{ 0.0f, 0.0f, 0.0f };
+
 	Ray cursorSelectionRay = { 0 };	
 	
 	Model editorGizmoMoveAxisX{};
