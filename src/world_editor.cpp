@@ -1151,9 +1151,13 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		collision.hit = false;
 		RayCollision meshHitInfo = { 0 };
 
+		//FIRST METHOD
 
+		
 		if (worldEditor.selectingInPrevFrame == false)
 		{
+			
+			delete worldEditor.enttRot;
 			
 			Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y};
 			Ray cursorSelectionRayForFirstFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
@@ -1164,11 +1168,12 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 				worldEditor.firstFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 				worldEditor.selectingInPrevFrame = true;
 
+				worldEditor.enttRot = new Vector3{ enttToMove->enttTransform.rot.x, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+
 			}
 
 
 		}
-		
 		
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 		Vector3 currentFramePoint{};
@@ -1178,11 +1183,11 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		{
 			currentFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 
-			BeginDrawing();
-			BeginMode3D( *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+			//BeginDrawing();
+			//BeginMode3D( *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
-			DrawCubeV(worldEditor.firstFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, BLACK);
-			DrawCubeV(currentFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, WHITE);
+			//DrawCubeV(worldEditor.firstFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, BLACK);
+			//DrawCubeV(currentFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, WHITE);
 
 			float a; // This is between the first frame and the current frame
 			float b; // Between the center and the first frame
@@ -1192,7 +1197,10 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
 
 			a = Vector2Distance(Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
-			/*constant*/ b = Vector2Distance(Vector2{inGizmoCenterPos.y, inGizmoCenterPos.z}, Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z });
+			
+			//This should be constant
+			b = Vector2Distance(Vector2{inGizmoCenterPos.y, inGizmoCenterPos.z}, Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z });
+			
 			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
 
 			std::string a1 = std::to_string(a);
@@ -1204,21 +1212,67 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			  
 			std::string alpha1 = std::to_string(alpha);
 			Vector3 newRot{ 0.0f, 0.0f, 0.0f };			
-			if(GetMouseDelta().x != 0.0f && GetMouseDelta().y != 0.0f) newRot = Vector3{ enttToMove->enttTransform.rot.x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+			newRot = Vector3{ worldEditor.enttRot->x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
 			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
 			
 
-			EndMode3D();
+			//EndMode3D();
 			  
 			
-			DrawText(a1.c_str(), 150.0f, 150.0f, 24, WHITE);
-			DrawText(b1.c_str(), 150.0f, 174.0f, 24, WHITE);
-			DrawText(c1.c_str(), 150.0f, 198.0f, 24, WHITE);
-			DrawText(alpha1.c_str(), 150.0f, 222.0f, 24, WHITE);
-			EndDrawing();
+			//DrawText(a1.c_str(), 150.0f, 150.0f, 24, WHITE);
+			//DrawText(b1.c_str(), 150.0f, 174.0f, 24, WHITE);
+			//DrawText(c1.c_str(), 150.0f, 198.0f, 24, WHITE);
+			//DrawText(alpha1.c_str(), 150.0f, 222.0f, 24, WHITE);
+			//EndDrawing();
 		}
 		
+		
 
+		//SECOND METHOD
+
+		/*
+		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
+		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+
+		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y};
+		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayCurrentFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+			Vector3 currentFramePoint = meshHitInfo.point;
+
+			RayCollision meshHitInfoForPrevFrame = GetRayCollisionMesh(cursorSelectionRayPrevFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+
+			if (!meshHitInfoForPrevFrame.hit) return; //THIS MIGHT NOT BE GOOD
+
+			double a; // This is between the first frame and the current frame
+			double b; // Between the center and the first frame
+			double c; // Between the center and the now frame
+
+			double cosAlpha; // Cosine at the vertex closest to the gizmo center
+			double alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
+
+			a = Vector2Distance(Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
+
+			//This should be constant
+			b = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z });
+
+			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
+
+			cosAlpha = ((c * c) - (a * a) - (b * b)) / ((-2) * a * b);
+			alpha = RAD2DEG * acosf(cosAlpha);
+			std::string alpha1 = std::to_string(alpha);
+
+			BeginDrawing();
+			DrawText(alpha1.c_str(), 150.0f, 150.0f, 24, WHITE);
+			EndDrawing();
+
+			Vector3 newRot{ enttToMove->enttTransform.rot.x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
+
+		}
+		*/
 
 	}
 

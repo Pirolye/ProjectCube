@@ -34,6 +34,7 @@ struct world_editor
 
 	bool selectingInPrevFrame = false;
 	Vector3 firstFramePoint = Vector3{ 0.0f, 0.0f, 0.0f };
+	Vector3* enttRot;
 
 	Ray cursorSelectionRay = { 0 };	
 	

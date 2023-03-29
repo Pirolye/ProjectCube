@@ -224,8 +224,8 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	rigidDynamic->setGlobalPose(newT, false);
 
 }
-*/
-}
+
+
 void dynamic_body::enable()
 {
 	rigidDynamic->wakeUp();
