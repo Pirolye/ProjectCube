@@ -1153,7 +1153,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 		//FIRST METHOD
 
-		
+		/*
 		if (worldEditor.selectingInPrevFrame == false)
 		{
 			
@@ -1226,11 +1226,11 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			//EndDrawing();
 		}
 		
-		
+		*/
 
 		//SECOND METHOD
 
-		/*
+		
 		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
 		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
@@ -1246,12 +1246,12 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			if (!meshHitInfoForPrevFrame.hit) return; //THIS MIGHT NOT BE GOOD
 
-			double a; // This is between the first frame and the current frame
-			double b; // Between the center and the first frame
-			double c; // Between the center and the now frame
+			float a; // This is between the first frame and the current frame
+			float b; // Between the center and the first frame
+			float c; // Between the center and the now frame
 
-			double cosAlpha; // Cosine at the vertex closest to the gizmo center
-			double alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
+			float cosAlpha; // Cosine at the vertex closest to the gizmo center
+			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
 
 			a = Vector2Distance(Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
 
@@ -1260,19 +1260,29 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
 
-			cosAlpha = ((c * c) - (a * a) - (b * b)) / ((-2) * a * b);
-			alpha = RAD2DEG * acosf(cosAlpha);
+			alpha = 0.0f;
+
+			cosAlpha = ((a * a) - (c * c) - (b * b)) / ((-2) * c * b);
+
+			alpha = RAD2DEG*acosf(cosAlpha);
+				
+			if (GetMouseDelta().x > 0.0f && GetMouseDelta().y > 0.0f) alpha = alpha * (-1.0f);
+			if (GetMouseDelta().x < 0.0f && GetMouseDelta().y > 0.0f) alpha = alpha * (1.0f);
+			if (GetMouseDelta().x > 0.0f && GetMouseDelta().y < 0.0f) alpha = alpha * (-1.0f);
+			if (GetMouseDelta().x < 0.0f && GetMouseDelta().y < 0.0f) alpha = alpha * (1.0f);
+
+
 			std::string alpha1 = std::to_string(alpha);
 
 			BeginDrawing();
 			DrawText(alpha1.c_str(), 150.0f, 150.0f, 24, WHITE);
 			EndDrawing();
 
-			Vector3 newRot{ enttToMove->enttTransform.rot.x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+			Vector3 newRot{ enttToMove->enttTransform.rot.x + float(alpha), enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
 			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
 
 		}
-		*/
+		
 
 	}
 
