@@ -252,7 +252,7 @@ void world::update()
 		}
 	}
 
-	if (GetCharPressed() == 246)
+	if (IsKeyPressed(KEY_F1))
 	{
 		#ifdef DEBUG 
 		if (worldEditor.isInEditorMode) exit_editor_mode();

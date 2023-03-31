@@ -125,7 +125,6 @@ void world::update_world_editor()
 
 	}
 	
-
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canSelectEntt) editor_try_select_entt();
 
 	if (IsKeyPressed(KEY_TAB))
@@ -193,19 +192,6 @@ void world::draw_world_editor_3d()
 
 void world::draw_world_editor_2d()
 {
-	if(worldEditor.currentlyEditingAxis == 0) DrawText("x", 0, 100, 30, WHITE);
-	if(worldEditor.currentlyEditingAxis == 1) DrawText("y", 0, 100, 30, WHITE);
-	if(worldEditor.currentlyEditingAxis == 2) DrawText("z", 0, 100, 30, WHITE);
-	if(worldEditor.currentlyEditingAxis == 3) DrawText("xy", 0, 100, 30, WHITE);
-	if(worldEditor.currentlyEditingAxis == 4) DrawText("yz", 0, 100, 30, WHITE);
-	if(worldEditor.currentlyEditingAxis == 5) DrawText("zx", 0, 100, 30, WHITE);
-
-	if (worldEditor.selectingGizmoMoveAxisX) DrawText("Moving X gizmo", 0, 150, 30, WHITE);
-	if (worldEditor.selectingGizmoMoveAxisY) DrawText("Moving Y gizmo", 0, 150, 30, WHITE);
-	if (worldEditor.selectingGizmoMoveAxisZ) DrawText("Moving Z gizmo", 0, 150, 30, WHITE);
-	if (worldEditor.selectingGizmoMoveAxisXY) DrawText("Moving XY gizmo", 0, 150, 30, WHITE);
-	if (worldEditor.selectingGizmoMoveAxisYZ) DrawText("Moving YZ gizmo", 0, 150, 30, WHITE);
-	if (worldEditor.selectingGizmoMoveAxisZX) DrawText("Moving ZX gizmo", 0, 150, 30, WHITE);
 
 }
 
@@ -763,11 +749,61 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 					|| worldEditor.selectingGizmoRotateAxisY == true
 					|| worldEditor.selectingGizmoRotateAxisZ == true)
 				{
-					break; return;
+					break; 
+					return;
 				}
 				else
 				{
 					worldEditor.selectingGizmoRotateAxisX = true;
+					worldEditor.canSelectEntt = false;
+
+					break; 
+					return;
+
+				}
+			}
+			else
+			{
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
+				{
+					worldEditor.selectingGizmoRotateAxisX = true;
+					worldEditor.canSelectEntt = false;
+
+				}
+				else
+				{
+					worldEditor.selectingGizmoRotateAxisX = false;
+				}
+
+			}
+		}
+
+		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+		collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		meshHitInfo = { 0 };
+
+		for (int m = 0; m < worldEditor.editorGizmoRotateAxisY.meshCount; m++)
+		{
+			meshHitInfo = GetRayCollisionMesh(worldEditor.cursorSelectionRay, worldEditor.editorGizmoRotateAxisY.meshes[m], worldEditor.editorGizmoRotateAxisY.transform);
+
+			if (meshHitInfo.hit)
+			{
+				if (worldEditor.selectingGizmoMoveAxisX == true
+					|| worldEditor.selectingGizmoMoveAxisZ == true
+					|| worldEditor.selectingGizmoMoveAxisY == true
+					|| worldEditor.selectingGizmoMoveAxisXY == true
+					|| worldEditor.selectingGizmoMoveAxisYZ == true
+					|| worldEditor.selectingGizmoMoveAxisZX == true
+					|| worldEditor.selectingGizmoRotateAxisX == true
+					|| worldEditor.selectingGizmoRotateAxisZ == true)
+				{
+					break; return;
+				}
+				else
+				{
+					worldEditor.selectingGizmoRotateAxisY = true;
 					worldEditor.canSelectEntt = false;
 
 					break; return;
@@ -776,27 +812,26 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 			}
 			else
 			{
-				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
+				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisY)
 				{
-					editor_do_not_select_any_gizmo();
-					worldEditor.selectingGizmoRotateAxisX = true;
+					worldEditor.selectingGizmoRotateAxisY = true;
 					worldEditor.canSelectEntt = false;
 
 				}
 				else
 				{
-					editor_do_not_select_any_gizmo();
+					worldEditor.selectingGizmoRotateAxisY = false;
 				}
 
 			}
 		}
+
 	}
 	else
 	{
 		editor_do_not_select_any_gizmo();
 
 		worldEditor.canSelectEntt = true;
-		worldEditor.selectingInPrevFrame = false;
 	}
 
 
@@ -1156,9 +1191,9 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		/*
 		if (worldEditor.selectingInPrevFrame == false)
 		{
-			
+
 			delete worldEditor.enttRot;
-			
+
 			Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y};
 			Ray cursorSelectionRayForFirstFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
@@ -1174,7 +1209,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 
 		}
-		
+
 		worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 		Vector3 currentFramePoint{};
 
@@ -1197,10 +1232,10 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
 
 			a = Vector2Distance(Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
-			
+
 			//This should be constant
 			b = Vector2Distance(Vector2{inGizmoCenterPos.y, inGizmoCenterPos.z}, Vector2{ worldEditor.firstFramePoint.y, worldEditor.firstFramePoint.z });
-			
+
 			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ currentFramePoint.y, currentFramePoint.z });
 
 			std::string a1 = std::to_string(a);
@@ -1209,32 +1244,32 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			cosAlpha = ((c * c) - (a * a) - (b * b)) / ((-2) * a * b);
 			alpha = RAD2DEG*acosf(cosAlpha);
-			  
+
 			std::string alpha1 = std::to_string(alpha);
-			Vector3 newRot{ 0.0f, 0.0f, 0.0f };			
+			Vector3 newRot{ 0.0f, 0.0f, 0.0f };
 			newRot = Vector3{ worldEditor.enttRot->x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
 			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
-			
+
 
 			//EndMode3D();
-			  
-			
+
+
 			//DrawText(a1.c_str(), 150.0f, 150.0f, 24, WHITE);
 			//DrawText(b1.c_str(), 150.0f, 174.0f, 24, WHITE);
 			//DrawText(c1.c_str(), 150.0f, 198.0f, 24, WHITE);
 			//DrawText(alpha1.c_str(), 150.0f, 222.0f, 24, WHITE);
 			//EndDrawing();
 		}
-		
+
 		*/
 
 		//SECOND METHOD
 
-		
+
 		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
 		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
-		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y};
+		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
 
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayCurrentFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
@@ -1264,30 +1299,87 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			cosAlpha = ((a * a) - (c * c) - (b * b)) / ((-2) * c * b);
 
-			alpha = RAD2DEG*acosf(cosAlpha);
-				
-			if (GetMouseDelta().x > 0.0f && GetMouseDelta().y > 0.0f) alpha = alpha * (-1.0f);
-			if (GetMouseDelta().x < 0.0f && GetMouseDelta().y > 0.0f) alpha = alpha * (1.0f);
-			if (GetMouseDelta().x > 0.0f && GetMouseDelta().y < 0.0f) alpha = alpha * (-1.0f);
-			if (GetMouseDelta().x < 0.0f && GetMouseDelta().y < 0.0f) alpha = alpha * (1.0f);
+			alpha = RAD2DEG * acosf(cosAlpha);
 
-
-			std::string alpha1 = std::to_string(alpha);
-
-			BeginDrawing();
-			DrawText(alpha1.c_str(), 150.0f, 150.0f, 24, WHITE);
-			EndDrawing();
+			if (IsKeyDown(KEY_LEFT_SHIFT))
+			{
+				alpha = alpha * -1.0f;
+			}
 
 			Vector3 newRot{ enttToMove->enttTransform.rot.x + float(alpha), enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
 			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
 
 		}
-		
+
 
 	}
 
-	canMoveCamera = true;
+	if (inAxis == 1)
+	{
+		Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, 0.0f });
+		Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+		worldEditor.editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+
+		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
+		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+
+		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayCurrentFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+			Vector3 currentFramePoint = meshHitInfo.point;
+
+			RayCollision meshHitInfoForPrevFrame = GetRayCollisionMesh(cursorSelectionRayPrevFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
+
+			if (!meshHitInfoForPrevFrame.hit) return; //THIS MIGHT NOT BE GOOD
+
+			float a; // This is between the first frame and the current frame
+			float b; // Between the center and the first frame
+			float c; // Between the center and the now frame
+
+			float cosAlpha; // Cosine at the vertex closest to the gizmo center
+			float alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
+
+			a = Vector2Distance(Vector2{ meshHitInfoForPrevFrame.point.x, meshHitInfoForPrevFrame.point.z }, Vector2{ meshHitInfo.point.x, meshHitInfo.point.z });
+
+			//This should be constant
+			b = Vector2Distance(Vector2{ inGizmoCenterPos.x, inGizmoCenterPos.z }, Vector2{ meshHitInfoForPrevFrame.point.x, meshHitInfoForPrevFrame.point.z });
+
+			c = Vector2Distance(Vector2{ inGizmoCenterPos.x, inGizmoCenterPos.z }, Vector2{ meshHitInfo.point.x, meshHitInfo.point.z });
+
+			alpha = 0.0f;
+
+			cosAlpha = ((a * a) - (c * c) - (b * b)) / ((-2) * c * b);
+
+			alpha = RAD2DEG * acosf(cosAlpha);
+
+			if (IsKeyDown(KEY_LEFT_SHIFT))
+			{
+				alpha = alpha * -1.0f;
+			}
+
+			std::string a1 = std::to_string(alpha);
+
+			BeginDrawing();
+			DrawText(a1.c_str(), 150, 150, 24, WHITE);
+			EndDrawing();
+
+			Vector3 newRot{ enttToMove->enttTransform.rot.x, enttToMove->enttTransform.rot.y + alpha, enttToMove->enttTransform.rot.z };
+			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
+
+		}
+
+		canMoveCamera = true;
+
+	}
 }
 
 

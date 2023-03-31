@@ -39,14 +39,11 @@ entt_transform dynamic_body::get_updated_spatial_props()
 {
 	PxTransform newT = rigidDynamic->getGlobalPose();
 	
-	//std::cout << "get_updated_spatial_props begins..." << "\n";
-
 	t.pos.x = newT.p.x;
 	t.pos.y = newT.p.y;
 	t.pos.z = newT.p.z;
 	
-	
-	graphene_quaternion_t* gq = &graphene_quaternion_t{}; // = graphene_quaternion_init_identity(gq);
+	graphene_quaternion_t* gq = graphene_quaternion_alloc(); 
 	gq = graphene_quaternion_init(gq, newT.q.x, newT.q.y, newT.q.z, newT.q.w);
 	
 	float x = 0.0f;// = float{};
@@ -62,6 +59,8 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	t.rot.x = x1;
 	t.rot.y = y1;
 	t.rot.z = z1;
+
+	graphene_quaternion_free(gq);
 
 	//delete x, y, z;
 
@@ -196,9 +195,13 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	
 	Quaternion qa = QuaternionIdentity();
 
+	graphene_quaternion_t* gQ = graphene_quaternion_alloc();
+	graphene_quaternion_init_from_angles(gQ, t.rot.x, t.rot.y, t.rot.y);
+	
 	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
 
 	//(Levente): Shamelessly stolen from http://www.andre-gaschler.com/rotationconverter/
+	/*
 	float   c = cosf(a.x / 2.0);
 	float	d = cosf(a.y / 2.0);
 	float	e = cosf(a.z / 2.0);
@@ -210,13 +213,22 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	qa.y = c * g * e - f * d * h;
 	qa.z = c * d * h + f * g * e;
 	qa.w = c * d * e - f * g * h;
-	
+	*/
 
 	//std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
+	graphene_vec4_t* gV4 = graphene_vec4_alloc();
+	graphene_quaternion_to_vec4(gQ, gV4);
+
+	qa.x = graphene_vec4_get_x(gV4);
+	qa.y = graphene_vec4_get_y(gV4);
+	qa.z = graphene_vec4_get_z(gV4);
+	qa.w = graphene_vec4_get_w(gV4);
 
 	PxQuat q(qa.x, qa.y, qa.z, qa.w);
 
+	graphene_quaternion_free(gQ);
+	graphene_vec4_free(gV4);
 	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, (q));
 
 	//assert( (newT.isSane() == true) && "New spatial properties of dynamic rigid body must be sane! (PhysX)");
