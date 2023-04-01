@@ -21,7 +21,7 @@ struct entt_light : entt
 
 	void update_light_props(int inType, Vector3 inPosition, Vector3 inTarget, Color inColor);
 	
-	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, Vector3 inNewRotation) override;
+	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
 
 	virtual void on_make() override;
 	virtual void on_destroy() override;

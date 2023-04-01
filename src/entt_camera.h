@@ -20,7 +20,7 @@ struct entt_camera : entt
 	virtual void on_draw_3d() override;
 
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
-	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, Vector3 inNewRotation) override;
+	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
 
 }
 

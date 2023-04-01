@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include <string>
+#include "graphene.h"
 
 struct world;
 
@@ -12,8 +13,8 @@ enum entts {mainCube, cam, light, mainCube_Static};
 
 struct entt_transform
 {
-	Vector3 pos, rot, scale;
-	Quaternion q;
+	Vector3 pos, scale;
+	graphene_quaternion_t* rot;
 };
 
 struct entt
@@ -21,7 +22,7 @@ struct entt
 	std::string id;
 	world* containingWorld;
 
-	entt_transform enttTransform; // WARNING: Do not set manually! Always use functions!
+	entt_transform transform; // WARNING: Do not set manually! Always use functions!
 
 	entt() {};
 	~entt() {};
@@ -36,7 +37,9 @@ struct entt
 	
 	//(Levente): We always manually update all entites spatial properties because we need to apply it to whatever matrixes might exist plus it lets us control
 	//what component we want where.
-	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation) {};
+	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) {};
+	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale) {};
+	//virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale) {};
 	//virtual void update_spatial_props(entt_transform inNewEnttTransform) {};
 
 	//(Levente): Prototype of editor entity selection. Sends out a request to all entities to check for collisions between whatever they want to be selectable and the ray 

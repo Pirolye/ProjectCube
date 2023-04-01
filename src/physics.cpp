@@ -20,7 +20,8 @@ dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Ve
 
 
 	t.pos = inInitialPos;
-	t.rot = inInitialRot;
+	t.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_from_angles(t.rot, inInitialRot.x, inInitialRot.y, inInitialRot.z);
 	t.scale = inInitialDimensions;
 
 	containingPhysicsSpace->addActor(*rigidDynamic);
@@ -33,10 +34,21 @@ dynamic_body::dynamic_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Ve
 dynamic_body::~dynamic_body()
 {
 	//containingPhysicsSpace->RemoveBody(body);
+
+	graphene_quaternion_free(t.rot);
 }
 
-entt_transform dynamic_body::get_updated_spatial_props()
+void dynamic_body::get_updated_spatial_props()
 {
+	PxTransform physxReturns = rigidDynamic->getGlobalPose();
+
+	t.pos.x = physxReturns.p.x;
+	t.pos.y = physxReturns.p.y;
+	t.pos.z = physxReturns.p.z;
+
+	graphene_quaternion_init(t.rot, physxReturns.q.x, physxReturns.q.y, physxReturns.q.z, physxReturns.q.w);
+
+	/*
 	PxTransform newT = rigidDynamic->getGlobalPose();
 	
 	t.pos.x = newT.p.x;
@@ -63,6 +75,7 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	graphene_quaternion_free(gq);
 
 	//delete x, y, z;
+	*/
 
 	/*
 	float x = RAD2DEG * (newT.q.getBasisVector0().x + newT.q.getBasisVector0().y + newT.q.getBasisVector0().z);
@@ -113,7 +126,6 @@ entt_transform dynamic_body::get_updated_spatial_props()
 	//delete angle;
 	//delete axis;
 
-	return t;
 	
 	/*t.pos = Vector3{body->GetTransform().position.x, body->GetTransform().position.y, body->GetTransform().position.z};
 	
@@ -163,20 +175,25 @@ Quaternion quat_from_euler(float x, float y, float z)
 
 
 	*/
-/*
 
-}
-*/
 
-void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
+void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	//std::cout << "update_spatial_props begins...\n";
 
 	t.pos = inNewPos;
 	t.scale = inNewScale;
-	t.rot = inNewRot;
+	graphene_quaternion_init_from_quaternion(t.rot, inNewRot);
 
-	PxTransform oldT = rigidDynamic->getGlobalPose();
+	graphene_vec4_t* v4 = graphene_vec4_alloc(); graphene_quaternion_to_vec4(t.rot, v4);
+	
+	PxQuat q(graphene_vec4_get_x(v4), graphene_vec4_get_y(v4), graphene_vec4_get_z(v4), graphene_vec4_get_w(v4));
+	
+	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
+
+	rigidDynamic->setGlobalPose(phsyxTransformNew, false);
+
+	graphene_vec4_free(v4);
+
 	//Matrix m = MatrixIdentity();
 
 	//std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
@@ -191,15 +208,6 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 	qa.z = qa.x;
 	qa.w = cosf(t.rot.x / 2.0f) * cosf(t.rot.y / 2.0f) * cosf(t.rot.z / 2.0f) + sinf(t.rot.x / 2.0f) * sinf(t.rot.y / 2.0f) * sinf(t.rot.z / 2.0f);
 	*/
-
-	
-	Quaternion qa = QuaternionIdentity();
-
-	graphene_quaternion_t* gQ = graphene_quaternion_alloc();
-	graphene_quaternion_init_from_angles(gQ, t.rot.x, t.rot.y, t.rot.y);
-	
-	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
-
 	//(Levente): Shamelessly stolen from http://www.andre-gaschler.com/rotationconverter/
 	/*
 	float   c = cosf(a.x / 2.0);
@@ -217,24 +225,16 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Ve
 
 	//std::cout << "Calculated quat is " + std::to_string(qa.x) + " " << std::to_string(qa.y) + " " << std::to_string(qa.z) + " " << std::to_string(qa.w) + " " << "\n";
 
-	graphene_vec4_t* gV4 = graphene_vec4_alloc();
-	graphene_quaternion_to_vec4(gQ, gV4);
-
-	qa.x = graphene_vec4_get_x(gV4);
-	qa.y = graphene_vec4_get_y(gV4);
-	qa.z = graphene_vec4_get_z(gV4);
-	qa.w = graphene_vec4_get_w(gV4);
-
-	PxQuat q(qa.x, qa.y, qa.z, qa.w);
-
-	graphene_quaternion_free(gQ);
-	graphene_vec4_free(gV4);
-	PxTransform newT(t.pos.x, t.pos.y, t.pos.z, (q));
 
 	//assert( (newT.isSane() == true) && "New spatial properties of dynamic rigid body must be sane! (PhysX)");
 	
-	rigidDynamic->setGlobalPose(newT, false);
 
+}
+
+void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
+{
+	t.pos = inNewPos;
+	t.scale = inNewScale;
 }
 
 
@@ -256,14 +256,18 @@ void dynamic_body::disable()
 
 void dynamic_body::update()
 {
-	/*if (everEnable == false)
+	//Get the PhysX results
+	if (containingWorld->worldEditor.isInEditorMode == false)
 	{
-		disable();
-	}
-	else
-	{
+		PxTransform physxReturns = rigidDynamic->getGlobalPose();
 
-	}*/
+		t.pos.x = physxReturns.p.x;
+		t.pos.y = physxReturns.p.y;
+		t.pos.z = physxReturns.p.z;
+
+		graphene_quaternion_init(t.rot, physxReturns.q.x, physxReturns.q.y, physxReturns.q.z, physxReturns.q.w);
+
+	}
 }
 
 
@@ -285,49 +289,34 @@ static_body::static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vect
 
 
 	t.pos = inInitialPos;
-	t.rot = inInitialRot;
+	t.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_from_angles(t.rot, inInitialRot.x, inInitialRot.y, inInitialRot.z);
 	t.scale = inInitialDimensions;
 
 	containingPhysicsSpace->addActor(*rigidStatic);
 
 	disable();
-
-
-/*
-
-	t.pos = inInitialPos;
-	t.scale = inInitialDimensions;
-	t.rot = inInitialRot;
-
-	everEnable = !neverEnable;
-
-	containingPhysicsSpace = inContainingPhysicsSpace;
-
-	bodyDef.bodyType = eKinematicBody;
-	body = containingPhysicsSpace->CreateBody(bodyDef);
-
-	q3Identity(localSpace); // Specify the origin, and identity orientation
-
-	// Create a box at the origin with width, height, depth = (1.0, 1.0, 1.0)
-	// and add it to a rigid body. The transform is defined relative to the owning body
-	boxDef.Set(localSpace, q3Vec3(inInitialDimensions.x * 2.0f, inInitialDimensions.y * 2.0f, inInitialDimensions.z * 2.0f));
-	body->AddBox(boxDef);
-
-	body->SetTransform(q3Vec3(inInitialPos.x, inInitialPos.y, inInitialPos.z));
-	//body->SetTransform(q3Vec3(inInitialPos.x, inInitialPos.y, inInitialPos.z), AXIS, ANGLE);
-	//(Levente): q3's body only has a raylib type transform setter for the angle (axis, angle as arguments). Will have to experiment with it.
-
-	//disable();
-	*/
 }
 
 static_body::~static_body()
 {
 	//containingPhysicsSpace->RemoveBody(body);
+	graphene_quaternion_free(t.rot);
+
 }
 
-entt_transform static_body::get_updated_spatial_props()
+void static_body::get_updated_spatial_props()
 {
+	
+	PxTransform physxReturns = rigidStatic->getGlobalPose();
+
+	t.pos.x = physxReturns.p.x;
+	t.pos.y = physxReturns.p.y;
+	t.pos.z = physxReturns.p.z;
+
+	graphene_quaternion_init(t.rot, physxReturns.q.x, physxReturns.q.y, physxReturns.q.z, physxReturns.q.w);
+
+	/*
 	PxTransform newT = rigidStatic->getGlobalPose();
 
 	//std::cout << "get_updated_spatial_props begins..." << "\n";
@@ -352,6 +341,7 @@ entt_transform static_body::get_updated_spatial_props()
 	final = Vector3RotateByAxisAngle(pre_final, Vector3{ axis->x, axis->y, axis->z }, *angle);
 	*/
 
+	/*
 	graphene_quaternion_t* gq = &graphene_quaternion_t{}; // = graphene_quaternion_init_identity(gq);
 	gq = graphene_quaternion_init(gq, newT.q.x, newT.q.y, newT.q.z, newT.q.w);
 
@@ -420,7 +410,7 @@ entt_transform static_body::get_updated_spatial_props()
 	//delete angle;
 	//delete axis;
 
-	return t;
+	//return t;
 
 	/*t.pos = Vector3{body->GetTransform().position.x, body->GetTransform().position.y, body->GetTransform().position.z};
 
@@ -434,15 +424,22 @@ entt_transform static_body::get_updated_spatial_props()
 	return t;*/
 }
 
-void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRot)
+void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	//std::cout << "update_spatial_props begins...\n";
-
 	t.pos = inNewPos;
 	t.scale = inNewScale;
-	t.rot = inNewRot;
+	graphene_quaternion_init_from_quaternion(t.rot, inNewRot);
 
-	PxTransform oldT = rigidStatic->getGlobalPose();
+	graphene_vec4_t* v4 = graphene_vec4_alloc(); graphene_quaternion_to_vec4(t.rot, v4);
+
+	PxQuat q(graphene_vec4_get_x(v4), graphene_vec4_get_y(v4), graphene_vec4_get_z(v4), graphene_vec4_get_w(v4));
+
+	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
+
+	rigidStatic->setGlobalPose(phsyxTransformNew, false);
+
+	graphene_vec4_free(v4);
+
 	//Matrix m = MatrixIdentity();
 
 	//std::cout << "Input is " << std::to_string(t.rot.x) + " " << std::to_string(t.rot.y) + " " << std::to_string(t.rot.z) + " " << "\n";
@@ -458,7 +455,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 	qa.w = cosf(t.rot.x / 2.0f) * cosf(t.rot.y / 2.0f) * cosf(t.rot.z / 2.0f) + sinf(t.rot.x / 2.0f) * sinf(t.rot.y / 2.0f) * sinf(t.rot.z / 2.0f);
 	*/
 
-
+	/*
 	Quaternion qa = QuaternionIdentity();
 
 	Vector3 a = Vector3{ DEG2RAD * t.rot.x, DEG2RAD * t.rot.y, DEG2RAD * t.rot.z };
@@ -517,6 +514,13 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vec
 */
 }
 
+void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
+{
+	t.pos = inNewPos;
+	t.scale = inNewScale;
+}
+
+
 void static_body::enable()
 {
 	//rigidStatic->wakeUp()
@@ -531,12 +535,5 @@ void static_body::disable()
 
 void static_body::update()
 {
-	if (everEnable == false)
-	{
-		disable();
-	}
-	else
-	{
-
-	}
+	get_updated_spatial_props();
 }

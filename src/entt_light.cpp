@@ -31,17 +31,18 @@ void entt_light::on_make()
 		}
 	}
 
-	enttTransform.pos = Vector3Zero();
-	enttTransform.rot = Vector3Zero();
-	enttTransform.scale = Vector3{1.0f, 1.0f, 1.0f};
+	transform.pos = Vector3Zero();
+	transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(transform.rot);
+	transform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
+#ifdef DEBUG
 	debugModel = LoadModel("editor/point_light_model.obj");
+#endif
 }
 
 void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
 {
-	update_spatial_props(inPos, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero());
-	
 	for (int i2 = 0; i2 != 360; i2++)
 	{
 		if (rayLight[i2].enabled == true)
@@ -73,14 +74,16 @@ void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget,
 	}
 };
 
-void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
+void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	enttTransform.pos = inNewPos;
-	enttTransform.scale = inNewScale;
-	enttTransform.rot = inNewRotation;
+	transform.pos = inNewPos;
+	transform.scale = inNewScale;
+	transform.rot = inNewRot;
 
 	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ inNewRotation.x * DEG2RAD, inNewRotation.y * DEG2RAD, inNewRotation.z * DEG2RAD });
+	float x, y, z;
+	graphene_quaternion_to_radians(transform.rot, &x, &y, &z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
 	debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
@@ -89,7 +92,9 @@ void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vect
 
 void entt_light::on_destroy() 
 {
+#ifdef DEBUG
 	UnloadModel(debugModel);
+#endif
 };
 
 void entt_light::on_update() 

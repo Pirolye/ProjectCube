@@ -18,7 +18,9 @@ void entt_maincube_static::on_make()
 
 	collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->gScene, containingWorld);
 
-	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f });
+	transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(transform.rot);
+	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 
 }
 
@@ -54,7 +56,9 @@ void entt_maincube_static::on_draw_2d()
 
 void entt_maincube_static::on_update()
 {
-	update_spatial_props(collisionBox->get_updated_spatial_props().pos, collisionBox->get_updated_spatial_props().scale, collisionBox->get_updated_spatial_props().rot);
+	collisionBox->update();
+	
+	update_spatial_props(collisionBox->t.pos, collisionBox->t.scale, collisionBox->t.rot);
 
 	if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
 	{
@@ -66,22 +70,40 @@ void entt_maincube_static::on_update()
 	}
 }
 
-void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
+void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	enttTransform.pos = inNewPos;
-	enttTransform.scale = inNewScale;
-	enttTransform.rot = inNewRotation;
+	transform.pos = inNewPos;
+	transform.scale = inNewScale;
+	transform.rot = inNewRot;
 
-	Matrix matScale = MatrixScale(enttTransform.scale.x, enttTransform.scale.y, enttTransform.scale.z);
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x , DEG2RAD * enttTransform.rot.y , DEG2RAD * enttTransform.rot.z });
-	Matrix matTranslation = MatrixTranslate(enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z);
+	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	float x, y, z;
+	graphene_quaternion_to_radians(transform.rot, &x, &y, &z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
 
 	cubeModel.transform = MatrixIdentity();
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
+	collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRot);
 
 }
+
+void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
+{
+	transform.pos = inNewPos;
+	transform.scale = inNewScale;
+
+	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+
+	cubeModel.transform = MatrixIdentity();
+	cubeModel.transform = MatrixMultiply(matScale, matTranslation);
+
+	collisionBox->update_spatial_props(inNewPos, inNewScale);
+
+}
+
 
 /*
 *

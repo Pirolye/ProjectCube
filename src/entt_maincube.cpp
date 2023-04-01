@@ -20,26 +20,11 @@ void entt_maincube::on_make()
 	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	cubeModel.materials[0].shader = cubeShader;
 
-	/*
-	//(Levente): All of this will be made into a separate header!
-	bodyDef.bodyType = eDynamicBody;
-	body = containingWorld->physicsSpace->CreateBody(bodyDef);
-		
-	q3BoxDef boxDef; // See q3Box.h for settings details
-	q3Transform localSpace; // Contains position and orientation, see q3Transform.h for details
-	q3Identity(localSpace); // Specify the origin, and identity orientation
-
-	// Create a box at the origin with width, height, depth = (1.0, 1.0, 1.0)
-	// and add it to a rigid body. The transform is defined relative to the owning body
-	boxDef.Set(localSpace, q3Vec3(2.0, 2.0, 2.0));
-	body->AddBox(boxDef);
-
-	body->SetToSleep();
-	*/
-
 	collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->gScene, containingWorld);
 
-	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{0.0f, 0.0f, 0.0f});
+	transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(transform.rot);
+	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 
 }
 
@@ -48,6 +33,8 @@ void entt_maincube::on_destroy()
 	UnloadTexture(cubeTexture);
 	UnloadModel(cubeModel);
 	UnloadShader(cubeShader); // REVISIT!!!!
+
+	graphene_quaternion_free(transform.rot);
 
 	//delete body; WILL BE REVISITED
 }
@@ -70,6 +57,7 @@ void entt_maincube::on_draw_3d()
 
 void entt_maincube::on_draw_2d()
 {
+	/*
 	std::ostringstream getTheAddress;
 	getTheAddress << &(collisionBox->t.rot.x);
 	std::string b = getTheAddress.str();
@@ -93,9 +81,11 @@ void entt_maincube::on_draw_2d()
 	DrawText(a2.c_str(), 1000, 50 * std::stoi(std::to_string(id[14])), 24, WHITE);
 	*/
 
+	/*
 	DrawText(a.c_str(), 1000, 10, 24, WHITE);
 	DrawText(a1.c_str(), 1000, 30, 24, WHITE);
 	DrawText(a2.c_str(), 1000, 50, 24, WHITE);
+	*/
 
 
 }
@@ -107,8 +97,8 @@ void entt_maincube::on_update()
 	// phsyx object. In order to solve this, in addition to physics not being updated in editor mode already, we also disable the entt transform logic in the editor!
 	if (containingWorld->worldEditor.isInEditorMode == false)
 	{
-		entt_transform newT = collisionBox->get_updated_spatial_props();
-		update_spatial_props(newT.pos, newT.scale, newT.rot);
+		collisionBox->update();
+		update_spatial_props(collisionBox->t.pos, collisionBox->t.scale, collisionBox->t.rot);
 	}
 	
 	if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
@@ -121,15 +111,17 @@ void entt_maincube::on_update()
 	}
 }
 
-void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
+void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
 {
-	enttTransform.pos = inNewPos;
-	enttTransform.scale = inNewScale;
-	enttTransform.rot = inNewRotation;
+	transform.pos = inNewPos;
+	transform.scale = inNewScale;
+	graphene_quaternion_init_from_quaternion(transform.rot, inNewRotation);
 
-	Matrix matScale = MatrixScale(enttTransform.scale.x, enttTransform.scale.y, enttTransform.scale.z);
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * enttTransform.rot.x , DEG2RAD * enttTransform.rot.y , DEG2RAD * enttTransform.rot.z  });
-	Matrix matTranslation = MatrixTranslate(enttTransform.pos.x, enttTransform.pos.y, enttTransform.pos.z);
+	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	float x, y, z;
+	graphene_quaternion_to_radians(transform.rot, &x, &y, &z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 
 	cubeModel.transform = MatrixIdentity();
 	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
@@ -137,6 +129,21 @@ void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, V
 	collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
 
 }
+
+void entt_maincube::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
+{
+	transform.pos = inNewPos;
+	transform.scale = inNewScale;
+
+	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	cubeModel.transform = MatrixIdentity();
+	cubeModel.transform = MatrixMultiply(matScale, matTranslation);
+
+	collisionBox->update_spatial_props(inNewPos, inNewScale);
+
+}
+
 
 /*
 *

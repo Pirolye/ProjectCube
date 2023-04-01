@@ -120,8 +120,8 @@ void world::update_world_editor()
 {
 	if (worldEditor.editorCurrentlySelectedEntt != nullptr)
 	{
-		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
-		if (worldEditor.currentGizmoMode == 1) editor_check_against_rotate_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
+		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
+		if (worldEditor.currentGizmoMode == 1) editor_check_against_rotate_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
 
 	}
 	
@@ -183,10 +183,10 @@ void world::update_world_editor()
 void world::draw_world_editor_3d()
 {
 	//(Levente): This will draw the model used to calculate the new position of the actor based on the raycasts. 
-	DrawModel(worldEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
+	//DrawModel(worldEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	
 	
-	if(worldEditor.editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(worldEditor.editorCurrentlySelectedEntt->enttTransform.pos);
+	if(worldEditor.editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
 
 }
 
@@ -202,19 +202,19 @@ void world::editor_move_entt(int axis, float val)
 
 	if (axis == 0)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
+		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
 		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 1)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
+		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
 		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 2)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
+		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
 		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
 
 	}
@@ -223,30 +223,6 @@ void world::editor_move_entt(int axis, float val)
 
 void world::editor_rotate_entt(int axis, float val)
 {
-	if (worldEditor.editorCurrentlySelectedEntt == nullptr) return;
-
-	if (axis == 0)
-	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
-
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x + val, t.rot.y, t.rot.z });
-
-	}
-	if (axis == 1)
-	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
-
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y + val, t.rot.z });
-
-	}
-	if (axis == 2)
-	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->enttTransform;
-
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(t.pos, t.scale, Vector3{ t.rot.x, t.rot.y, t.rot.z + val });
-
-	}
-
 }
 
 

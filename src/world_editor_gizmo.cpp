@@ -621,9 +621,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z };
+				newPos = Vector3{ enttToMove->transform.pos.x - diff, enttToMove->transform.pos.y, enttToMove->transform.pos.z };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -673,9 +673,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 				float diff = currentFramePointY - prevFramePointY;
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
-				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y - diff, enttToMove->enttTransform.pos.z };
+				newPos = Vector3{ enttToMove->transform.pos.x, enttToMove->transform.pos.y - diff, enttToMove->transform.pos.z };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -725,9 +725,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z - diff };
+				newPos = Vector3{ enttToMove->transform.pos.x, enttToMove->transform.pos.y, enttToMove->transform.pos.z - diff };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -778,9 +778,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff.x, enttToMove->enttTransform.pos.y - diff.y, enttToMove->enttTransform.pos.z };
+				newPos = Vector3{ enttToMove->transform.pos.x - diff.x, enttToMove->transform.pos.y - diff.y, enttToMove->transform.pos.z };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -831,9 +831,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				newPos = Vector3{ enttToMove->enttTransform.pos.x, enttToMove->enttTransform.pos.y - diff.x, enttToMove->enttTransform.pos.z - diff.y };
+				newPos = Vector3{ enttToMove->transform.pos.x, enttToMove->transform.pos.y - diff.x, enttToMove->transform.pos.z - diff.y };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -884,9 +884,9 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 				Vector3 newPos{ 0.0f, 0.0f, 0.0f };
 
-				newPos = Vector3{ enttToMove->enttTransform.pos.x - diff.y, enttToMove->enttTransform.pos.y, enttToMove->enttTransform.pos.z - diff.x };
+				newPos = Vector3{ enttToMove->transform.pos.x - diff.y, enttToMove->transform.pos.y, enttToMove->transform.pos.z - diff.x };
 
-				enttToMove->update_spatial_props(newPos, enttToMove->enttTransform.scale, enttToMove->enttTransform.rot);
+				enttToMove->update_spatial_props(newPos, enttToMove->transform.scale, enttToMove->transform.rot);
 				break;
 				return;
 			}
@@ -930,7 +930,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 				worldEditor.firstFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 				worldEditor.selectingInPrevFrame = true;
 
-				worldEditor.enttRot = new Vector3{ enttToMove->enttTransform.rot.x, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
+				worldEditor.enttRot = new Vector3{ enttToMove->transform.rot.x, enttToMove->transform.rot.y, enttToMove->transform.rot.z };
 
 			}
 
@@ -974,8 +974,8 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 			std::string alpha1 = std::to_string(alpha);
 			Vector3 newRot{ 0.0f, 0.0f, 0.0f };
-			newRot = Vector3{ worldEditor.enttRot->x + alpha, enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
-			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
+			newRot = Vector3{ worldEditor.enttRot->x + alpha, enttToMove->transform.rot.y, enttToMove->transform.rot.z };
+			enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, newRot);
 
 
 			//EndMode3D();
@@ -1033,8 +1033,17 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 				alpha = alpha * -1.0f;
 			}
 
-			Vector3 newRot{ enttToMove->enttTransform.rot.x + float(alpha), enttToMove->enttTransform.rot.y, enttToMove->enttTransform.rot.z };
-			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
+			graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
+			graphene_quaternion_init_from_angles(rotInQuat, alpha, 0.0f, 0.0f);
+
+			graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
+
+			graphene_quaternion_multiply(enttToMove->transform.rot, rotInQuat, finalQ);
+
+			enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, finalQ);
+
+			graphene_quaternion_free(rotInQuat);
+			graphene_quaternion_free(finalQ);
 
 		}
 
@@ -1099,8 +1108,18 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			DrawText(a1.c_str(), 150, 150, 24, WHITE);
 			EndDrawing();
 
-			Vector3 newRot{ enttToMove->enttTransform.rot.x, enttToMove->enttTransform.rot.y + alpha, enttToMove->enttTransform.rot.z };
-			enttToMove->update_spatial_props(enttToMove->enttTransform.pos, enttToMove->enttTransform.scale, newRot);
+			graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
+			graphene_quaternion_init_from_angles(rotInQuat, 0.0f, alpha, 0.0f);
+
+			graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
+
+			graphene_quaternion_multiply(enttToMove->transform.rot, rotInQuat, finalQ);
+
+			enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, finalQ);
+
+			graphene_quaternion_free(rotInQuat);
+			graphene_quaternion_free(finalQ);
+
 
 		}
 

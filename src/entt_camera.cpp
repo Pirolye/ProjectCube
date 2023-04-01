@@ -12,6 +12,7 @@
 #include "rlgl.h"
 
 #include "stdlib.h"
+#include "graphene.h"
 
 /*
 
@@ -32,6 +33,9 @@ void entt_camera::on_make()
 	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
 	SetCameraMode((*rayCam), CAMERA_FREE); // Set a free camera mode
+
+	transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(transform.rot);
 	
 }
 
@@ -62,7 +66,7 @@ void entt_camera::on_draw_3d()
 
 }
 
-void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, Vector3 inNewRotation)
+void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
 {
 	
 
