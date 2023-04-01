@@ -1033,17 +1033,35 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 				alpha = alpha * -1.0f;
 			}
 
-			graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
-			graphene_quaternion_init_from_angles(rotInQuat, alpha, 0.0f, 0.0f);
+			if (IsKeyDown(KEY_LEFT_CONTROL))
+			{
+				graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
+				graphene_quaternion_init_from_angles(rotInQuat, alpha, 0.0f, 0.0f);
 
-			graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
+				graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
 
-			graphene_quaternion_multiply(enttToMove->transform.rot, rotInQuat, finalQ);
+				graphene_quaternion_multiply(rotInQuat, enttToMove->transform.rot, finalQ);
 
-			enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, finalQ);
+				enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, finalQ);
 
-			graphene_quaternion_free(rotInQuat);
-			graphene_quaternion_free(finalQ);
+				graphene_quaternion_free(rotInQuat);
+				graphene_quaternion_free(finalQ);
+
+			}
+			else
+			{
+				graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
+				graphene_quaternion_init_from_angles(rotInQuat, alpha, 0.0f, 0.0f);
+
+				graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
+
+				graphene_quaternion_multiply(enttToMove->transform.rot, rotInQuat, finalQ);
+
+				enttToMove->update_spatial_props(enttToMove->transform.pos, enttToMove->transform.scale, finalQ);
+
+				graphene_quaternion_free(rotInQuat);
+				graphene_quaternion_free(finalQ);
+			}
 
 		}
 
