@@ -102,19 +102,15 @@ void entt_maincube::on_draw_2d()
 
 void entt_maincube::on_update()
 {
-	//q3Transform pos = body->GetTransform();
-	//update_spatial_props(Vector3{ pos.position[0], pos.position[1], pos.position[2]}, enttTransform.scale, enttTransform.rot);
+
+	//(Levente): Not sure this is the way I want to go, but PhysX has a major issue currently where quaternion math fails in certain cases, such as the editor rotation gizmo applying its rotation to the 
+	// phsyx object. In order to solve this, in addition to physics not being updated in editor mode already, we also disable the entt transform logic in the editor!
+	if (containingWorld->worldEditor.isInEditorMode == false)
+	{
+		entt_transform newT = collisionBox->get_updated_spatial_props();
+		update_spatial_props(newT.pos, newT.scale, newT.rot);
+	}
 	
-	//collisionBox->update();
-
-	entt_transform newT = collisionBox->get_updated_spatial_props();
-
-	Vector3 difference = Vector3{ 0.02f, 0.02f, 0.02f };
-
-	update_spatial_props(newT.pos, newT.scale, newT.rot);
-	//entt_transform newI = collisionBox->get_updated_spatial_props();
-	//update_spatial_props(newI.pos, newI.scale, Vector3Add(newI.rot, difference));
-
 	if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_X))
