@@ -420,6 +420,8 @@ Matrix GetCameraProjectionMatrix(Camera *camera, float aspect)
 // Camera mode: CAMERA_FREE, CAMERA_FIRST_PERSON, CAMERA_THIRD_PERSON, CAMERA_ORBITAL or CUSTOM
 void UpdateCamera(Camera *camera, int mode)
 {
+    if (mode == CAMERA_CUSTOM) return;
+    
     Vector2 mousePositionDelta = GetMouseDelta();
 
     bool moveInWorldPlane = ((mode == CAMERA_FIRST_PERSON) || (mode == CAMERA_THIRD_PERSON));
@@ -479,7 +481,7 @@ void UpdateCameraPro(Camera *camera, Vector3 movement, Vector3 rotation, float z
     // rotation.z - roll
     // zoom - Move towards target
 
-    bool lockView = true;
+    bool lockView = false;
     bool rotateAroundTarget = false;
     bool rotateUp = false;
     bool moveInWorldPlane = true;

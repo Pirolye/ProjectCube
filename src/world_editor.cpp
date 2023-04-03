@@ -53,15 +53,6 @@ void world::enter_editor_mode()
 	worldEditor.isInEditorMode = true;
 	canMoveCamera = true;
 
-	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
-
-	cam->rayCam->position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
-	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
-	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
-
-	UpdateCamera(cam->rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
 
 }
 
@@ -72,13 +63,6 @@ void world::exit_editor_mode()
 
 	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
 
-	cam->rayCam->position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
-	cam->rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-	cam->rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
-	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
-
-	UpdateCamera(cam->rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
 
 	worldEditor.editorCurrentlySelectedEntt = nullptr;
 

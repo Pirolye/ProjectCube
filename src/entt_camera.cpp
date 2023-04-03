@@ -14,6 +14,7 @@
 
 #include "stdlib.h"
 #include "graphene.h"
+#include "assert.h"
 
 /*
 
@@ -33,10 +34,12 @@ void entt_camera::on_make()
 	rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	UpdateCamera(rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
+	UpdateCamera(rayCam, CAMERA_CUSTOM); // Set a free camera mode
 
 	transform.rot = graphene_quaternion_alloc();
 	graphene_quaternion_init_identity(transform.rot);
+
+	mode = 1;
 	
 }
 
@@ -64,6 +67,51 @@ void entt_camera::on_draw_3d()
 	{
 		DrawGrid(10, 1.0f);
 	}
+
+}
+
+void entt_camera::update_camera()
+{
+	Vector2 diff = GetMouseDelta(); // Vector2{ .x * CAMERA_MOUSE_MOVE_SENSITIVITY, GetMouseDelta().y * CAMERA_MOUSE_MOVE_SENSITIVITY };
+	
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	{
+		DisableCursor();
+
+		Vector3 prev{};
+		graphene_quaternion_to_angles(transform.rot, &prev.x, &prev.y, &prev.z);
+
+		graphene_quaternion_t* modifQ = graphene_quaternion_alloc(); graphene_quaternion_init_from_angles(modifQ, diff.x, diff.y, 0.0f);
+
+		graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
+		graphene_quaternion_multiply(transform.rot, modifQ, finalQ);
+	
+		graphene_quaternion_init_from_quaternion(transform.rot, finalQ);
+
+		float x, y, z;
+		graphene_quaternion_to_angles(transform.rot, &x, &y, &z);
+
+		Vector3 finalRot{ x - prev.x, y - prev.y, 0.0f };
+		Vector3 finalMove{  };
+
+		if (prev.y < -65.0f)
+		{
+			finalRot = Vector3{ finalRot.x, 0.0f, 0.0f };
+		}
+
+		UpdateCameraPro(rayCam, finalMove, finalRot, 0.0f);
+
+		graphene_quaternion_free(finalQ);
+		graphene_quaternion_free(modifQ);
+	}
+	if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+	{
+		EnableCursor();
+	}
+
+
+
+
 
 }
 

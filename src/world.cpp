@@ -228,7 +228,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 void world::update()
 {
 	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/A camera should always exist at entity array index 0!");
-	if(worldEditor.isInEditorMode && canMoveCamera) UpdateCamera(dynamic_cast<entt_camera*>(entityArray[0])->rayCam, CAMERA_FIRST_PERSON);
+	if(worldEditor.isInEditorMode && canMoveCamera) dynamic_cast<entt_camera*>(entityArray[0])->update_camera();
 
 	if (GetFrameTime() > 0)
 	{
