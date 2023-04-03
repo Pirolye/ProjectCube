@@ -61,7 +61,7 @@ void world::enter_editor_mode()
 	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode((*cam->rayCam), CAMERA_FREE); // Set a free camera mode
+	UpdateCamera(cam->rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
 
 }
 
@@ -78,7 +78,7 @@ void world::exit_editor_mode()
 	cam->rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	cam->rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode((*cam->rayCam), CAMERA_FREE); // Set a free camera mode
+	UpdateCamera(cam->rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
 
 	worldEditor.editorCurrentlySelectedEntt = nullptr;
 

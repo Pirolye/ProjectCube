@@ -5,6 +5,7 @@
 ;
 #include "raymath.h"
 
+;
 #define CAMERA_IMPLEMENTATION
 #include "rcamera.h"
 
@@ -32,7 +33,7 @@ void entt_camera::on_make()
 	rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	SetCameraMode((*rayCam), CAMERA_FREE); // Set a free camera mode
+	UpdateCamera(rayCam, CAMERA_FIRST_PERSON); // Set a free camera mode
 
 	transform.rot = graphene_quaternion_alloc();
 	graphene_quaternion_init_identity(transform.rot);
