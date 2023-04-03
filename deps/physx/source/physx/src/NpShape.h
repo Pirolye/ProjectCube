@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -86,15 +86,11 @@ public:
 	virtual			PxFilterData				getQueryFilterData() const	PX_OVERRIDE;
 	virtual			void						setMaterials(PxMaterial*const* materials, PxU16 materialCount)	PX_OVERRIDE;
 	virtual			void						setSoftBodyMaterials(PxFEMSoftBodyMaterial*const* materials, PxU16 materialCount)	PX_OVERRIDE;
-#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	virtual			void						setClothMaterials(PxFEMClothMaterial*const* materials, PxU16 materialCount)	PX_OVERRIDE;
-#endif
 	virtual			PxU16						getNbMaterials()															const	PX_OVERRIDE;
 	virtual			PxU32						getMaterials(PxMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex=0)	const	PX_OVERRIDE;
 	virtual			PxU32						getSoftBodyMaterials(PxFEMSoftBodyMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0)	const	PX_OVERRIDE;
-#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	virtual			PxU32						getClothMaterials(PxFEMClothMaterial** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0)	const	PX_OVERRIDE;
-#endif
 	virtual			PxBaseMaterial*				getMaterialFromInternalFaceIndex(PxU32 faceIndex)							const	PX_OVERRIDE;
 	virtual			void						setContactOffset(PxReal)	PX_OVERRIDE;
 	virtual			PxReal						getContactOffset() const	PX_OVERRIDE;

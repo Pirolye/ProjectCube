@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -40,7 +40,8 @@
 #include "GuHeightFieldData.h"
 
 //#define PX_HEIGHTFIELD_VERSION 0
-#define PX_HEIGHTFIELD_VERSION 1  // tiled version that was needed for PS3 only has been removed
+//#define PX_HEIGHTFIELD_VERSION 1  // tiled version that was needed for PS3 only has been removed
+#define PX_HEIGHTFIELD_VERSION 2  // some floats are now integers
 
 namespace physx
 {

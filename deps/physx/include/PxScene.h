@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -68,10 +68,8 @@ typedef PxU8 PxDominanceGroup;
 class PxPvdSceneClient;
 
 class PxSoftBody;
-#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
-	class PxFEMCloth;
-	class PxHairSystem;
-#endif
+class PxFEMCloth;
+class PxHairSystem;
 
 /**
 \brief Expresses the dominance relationship of a contact.
@@ -537,11 +535,9 @@ class PxScene : public PxSceneSQSystem
 	*/
 	virtual	PxU32				getParticleSystems(PxParticleSolverType::Enum type, PxParticleSystem** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
 
-	
-#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
-
 	/**
 	\brief Retrieve the number of FEM cloths in the scene.
+	\warning Feature under development, only for internal usage.
 
 	\return the number of FEM cloths.
 
@@ -551,6 +547,7 @@ class PxScene : public PxSceneSQSystem
 
 	/**
 	\brief Retrieve an array of all the FEM cloths in the scene.
+	\warning Feature under development, only for internal usage.
 
 	\param[out] userBuffer The buffer to write the FEM cloth pointers to
 	\param[in] bufferSize Size of the provided user buffer
@@ -561,6 +558,7 @@ class PxScene : public PxSceneSQSystem
 
 	/**
 	\brief Retrieve the number of hair systems in the scene.
+	\warning Feature under development, only for internal usage.
 	\return the number of hair systems
 	@see getActors()
 	*/
@@ -568,6 +566,7 @@ class PxScene : public PxSceneSQSystem
 
 	/**
 	\brief Retrieve an array of all the hair systems in the scene.
+	\warning Feature under development, only for internal usage.
 
 	\param[out] userBuffer The buffer to write the actor pointers to
 	\param[in] bufferSize Size of the provided user buffer
@@ -575,7 +574,6 @@ class PxScene : public PxSceneSQSystem
 	\return Number of actors written to the buffer
 	*/
 	virtual	PxU32				getHairSystems(PxHairSystem** userBuffer, PxU32 bufferSize, PxU32 startIndex = 0) const = 0;
-#endif
 
 	/**
 	\brief Returns the number of articulations in the scene.

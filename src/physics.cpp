@@ -235,6 +235,17 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
 {
 	t.pos = inNewPos;
 	t.scale = inNewScale;
+
+	graphene_vec4_t* v4 = graphene_vec4_alloc(); graphene_quaternion_to_vec4(t.rot, v4);
+
+	PxQuat q(graphene_vec4_get_x(v4), graphene_vec4_get_y(v4), graphene_vec4_get_z(v4), graphene_vec4_get_w(v4));
+
+	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
+
+	rigidDynamic->setGlobalPose(phsyxTransformNew, false);
+
+	graphene_vec4_free(v4);
+
 }
 
 

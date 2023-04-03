@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -54,8 +54,6 @@ namespace physx
 			ArticulationJointCore(const PxEMPTY&) : jointDirtyFlag(PxEmpty) 
 			{ 
 				PX_COMPILE_TIME_ASSERT(sizeof(PxArticulationMotions) == sizeof(PxU8)); 
-				PxMemSet(dofIds, 0, sizeof(dofIds));
-				PxMemSet(invDofIds, 0, sizeof(invDofIds));
 			}
 			//~PX_SERIALIZATION
 

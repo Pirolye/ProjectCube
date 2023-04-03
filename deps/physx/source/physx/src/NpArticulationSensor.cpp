@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -36,6 +36,23 @@ using namespace physx;
 
 namespace physx
 {
+
+// PX_SERIALIZATION
+
+void NpArticulationSensor::resolveReferences(PxDeserializationContext& context)
+{	
+	context.translatePxBase(mLink);
+}
+
+NpArticulationSensor* NpArticulationSensor::createObject(PxU8*& address, PxDeserializationContext& context)
+{
+	NpArticulationSensor* obj = PX_PLACEMENT_NEW(address, NpArticulationSensor(PxBaseFlags(0)));
+	address += sizeof(NpArticulationSensor);	
+	obj->importExtraData(context);
+	obj->resolveReferences(context);
+	return obj;
+}
+//~PX_SERIALIZATION
 
 NpArticulationSensor::NpArticulationSensor(PxArticulationLink* link, const PxTransform& relativePose) : 
 	PxArticulationSensor(PxConcreteType::eARTICULATION_SENSOR, PxBaseFlag::eOWNS_MEMORY),
@@ -66,7 +83,8 @@ void NpArticulationSensor::release()
 	sensors.replaceWithLast(mHandle);
 	this->~NpArticulationSensor();
 
-	PX_FREE_THIS;
+	if(getBaseFlags() & PxBaseFlag::eOWNS_MEMORY)
+		PX_FREE_THIS;
 }
 
 PxSpatialForce NpArticulationSensor::getForces() const

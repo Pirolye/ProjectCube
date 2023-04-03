@@ -88,6 +88,8 @@ void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, grap
 
 	debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
+	update_light_props(this->rayLight->type, transform.pos, Vector3Zero(), this->rayLight->color);
+
 }
 
 void entt_light::on_destroy() 

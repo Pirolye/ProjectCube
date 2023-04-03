@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -131,10 +131,6 @@ namespace physx
 		virtual void					detachShape();
 
 		virtual void					release();
-
-		virtual	bool					isKindOf(const char* name) const { return !::strcmp("PxFEMCloth", name) || PxBase::isKindOf(name); }
-
-		virtual	const char*				getConcreteTypeName() const { return "PxFEMCloth"; }
 
 		PX_FORCE_INLINE	const Sc::FEMClothCore&	getCore() const { return mCore; }
 		PX_FORCE_INLINE	Sc::FEMClothCore&		getCore() { return mCore; }

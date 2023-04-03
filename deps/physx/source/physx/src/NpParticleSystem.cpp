@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -1121,38 +1121,6 @@ namespace physx
 		{
 			PxGetFoundation().error(PxErrorCode::eINVALID_PARAMETER, PX_FL, "NpCustomParticleSystem:addParticleBuffer(): the provided buffer type is not supported by this type of particle system.");
 		}
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////
-	void NpParticlePhase::setFlags(PxParticlePhaseFlags flags)
-	{
-		mPhase = (mPhase & (~PxParticlePhaseFlag::eParticlePhaseFlagsMask)) | PxU32(flags);
-	}
-	void NpParticlePhase::setFlag(PxParticlePhaseFlag::Enum flag, bool enabled)
-	{
-		if (enabled)
-			mPhase |= flag;
-		else
-			mPhase &= (~flag);
-	}
-
-	PxParticlePhaseFlags NpParticlePhase::getFlags() const
-	{
-		return PxParticlePhaseFlags(mPhase & PxParticlePhaseFlag::eParticlePhaseFlagsMask);
-	}
-
-	PxParticleMaterial* NpParticlePhase::getMaterial() const
-	{
-		return mMaterial;
-	}
-	void NpParticlePhase::setMaterial(PxParticleMaterial* material)
-	{
-		//Acquire and release materials as required
-		material->acquireReference();
-		if(mMaterial)
-			mMaterial->release();
-
-		mMaterial = material;
 	}
 
 	PxU32 NpCustomParticleSystem::createPhase(PxParticleMaterial* material, const PxParticlePhaseFlags flags)

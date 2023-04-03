@@ -1,3 +1,106 @@
+# v5.1.3
+
+## General
+
+### Added:
+
+*  Support for Microsoft Visual Studio 2022 for Windows builds.
+
+### Fixed
+
+* Changing the materials of a shape did not work when using GPU dynamics.
+
+## Rigid Body
+
+### Fixed
+
+* A rare bug involving GPU aggregates, in which newly created actors could freely move through existing actors, has been fixed.
+
+## Joints
+
+### Fixed
+
+* The D6 joint's twist drive was using the wrong actor's axis (B instead of A). This has been fixed, and it could affect joint setups in existing scenes. To fix this in existing content it might be enough to flip the joint frames of involved actors, but this may not be possible depending on which other features (joint limits, etc) have been setup for the same joint. In the worst case it might be necessary to re-tune these joints.
+
+## Soft Body
+
+### Fixed
+
+* Rendering for tetmeshes in snippets had some tet faces inverted. This has been fixed.
+* The voxel tetmesher won't crash anymore when called with zero elements as input.
+* A bug in collision computation between a soft body and a scaled triangle mesh has been fixed.
+
+## Particles
+
+### Fixed
+
+* The Poisson Sampler will not cause number overflows and crashes anymore when called with parameters that lead to too many samples.
+
+## Pvd
+
+### Fixed
+
+* Fixed a potential crash bug when contact points are recorded through OmniPVD.
+
+
+# v5.1.2
+
+## General
+
+### Fixed:
+
+* Binary serialization of materials' userData.
+* Fixed precision issue in index computation in Gu::HeightField::computeCellCoordinates [Issue #52](https://github.com/NVIDIA-Omniverse/PhysX/issues/52)
+* Performance for SnippetCustomGeometry is now much better, particularly on Linux
+* Compiler errors on Linux - [Issue #25](https://github.com/NVIDIA-Omniverse/PhysX/issues/25)
+
+## Cooking
+
+### Fixed
+
+* A bug that generated non-GPU compatible convex meshes even though GPU compatibility was requested.
+
+
+# v5.1.1
+
+## General
+
+### Changed:
+
+* Be aware that due to reorganization of some virtual functions in the public interface the binary data layout has changed from v5.1.0. Linking code that includes the headers of v5.1.1 against binaries that have been built with an older version will likely cause problems.
+
+### Added:
+
+* Support for spatial and fixed tendon serialization.
+
+### Fixed:
+
+* Binary serialization of articulations had a bug, which got fixed.
+* Includes [PR #8: Download bootstrap packages using TLS](https://github.com/NVIDIA-Omniverse/PhysX/pull/8/)
+
+## Rigid Body
+
+### Fixed
+
+* A crash when colliding an SDF mesh against a sphere
+
+## Particle Systems
+
+### Fixed
+
+* Particle systems now support is<> type conversion.
+
+### Removed
+
+* The PxParticlePhase class has been removed. It was unused.
+
+## Vehicles2
+
+### Changed:
+
+* SnippetVehicle2Multithreading is now using custom profiling code to provide timings in release builds too.
+
+
 # v5.1.0
 
 ## Supported Platforms

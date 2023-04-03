@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 
 #ifndef NP_HAIR_SYSTEM_H
 #define NP_HAIR_SYSTEM_H
@@ -149,8 +149,6 @@ namespace physx
 		virtual void				release() PX_OVERRIDE;
 
 		virtual PxActorType::Enum	getType() const PX_OVERRIDE { return PxActorType::eHAIRSYSTEM; }
-		virtual bool				isKindOf(const char* name) const PX_OVERRIDE { return !::strcmp("PxHairSystem", name) || PxBase::isKindOf(name); }
-		virtual const char*			getConcreteTypeName() const PX_OVERRIDE { return "PxHairSystem"; }
 
 		virtual PxBounds3			getWorldBounds(float inflation = 1.01f) const PX_OVERRIDE;
 

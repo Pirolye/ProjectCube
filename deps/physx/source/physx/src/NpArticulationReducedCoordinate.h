@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -39,6 +39,7 @@
 
 #include "NpArticulationLink.h"
 #include "NpArticulationJointReducedCoordinate.h"
+#include "NpArticulationTendon.h"
 #include "ScArticulationCore.h"
 
 namespace physx
@@ -66,10 +67,8 @@ namespace physx
 														NpArticulationReducedCoordinate(PxBaseFlags baseFlags)
 														: PxArticulationReducedCoordinate(baseFlags),
 															NpBase(PxEmpty), mCore(PxEmpty),
-															mArticulationLinks(PxEmpty), mLoopJoints(PxEmpty)
+															mArticulationLinks(PxEmpty), mLoopJoints(PxEmpty), mSpatialTendons(PxEmpty), mFixedTendons(PxEmpty), mSensors(PxEmpty)
 														{
-															mSpatialTendons.reserve(50);
-															mFixedTendons.reserve(50);
 														}
 		
 					void								preExportDataReset();

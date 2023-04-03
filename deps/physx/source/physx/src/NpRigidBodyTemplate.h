@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -713,6 +713,10 @@ PX_FORCE_INLINE void NpRigidBodyTemplate<APIClass>::setRigidBodyFlagsInternal(co
 	}
 
 	scSetFlags(filteredNewFlags);
+#if PX_SUPPORT_OMNI_PVD
+	PxActor* actor = static_cast<PxActor*>(this);
+	OMNI_PVD_SET(actor, rigidBodyFlags, *actor, filteredNewFlags)
+#endif
 
 	// PT: the SQ update should be done after the scSetFlags() call
 	if(mustUpdateSQ)

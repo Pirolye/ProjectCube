@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.   
 
@@ -73,6 +73,26 @@ struct PxGpuParticleBufferIndexPair
 	PxU32 		systemIndex; // gpu particle system index	
 	PxU32		bufferIndex; // particle buffer unique id
 };
+
+/**
+\brief Identifies per-particle behavior for a PxParticleSystem.
+
+See #PxParticleSystem::createPhase().
+*/
+struct PxParticlePhaseFlag
+{
+	enum Enum
+	{
+		eParticlePhaseGroupMask = 0x000fffff,			//!< Bits [ 0, 19] represent the particle group for controlling collisions
+		eParticlePhaseFlagsMask = 0xfff00000,			//!< Bits [20, 23] hold flags about how the particle behave 
+
+		eParticlePhaseSelfCollide = 1 << 20,			//!< If set this particle will interact with particles of the same group
+		eParticlePhaseSelfCollideFilter = 1 << 21,		//!< If set this particle will ignore collisions with particles closer than the radius in the rest pose, this flag should not be specified unless valid rest positions have been specified using setRestParticles()
+		eParticlePhaseFluid = 1 << 22					//!< If set this particle will generate fluid density constraints for its overlapping neighbors
+	};
+};
+
+typedef PxFlags<PxParticlePhaseFlag::Enum, PxU32> PxParticlePhaseFlags;
 	
 #if !PX_DOXYGEN
 } // namespace physx

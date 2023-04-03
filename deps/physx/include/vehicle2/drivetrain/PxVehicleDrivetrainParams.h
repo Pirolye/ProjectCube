@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -651,6 +651,8 @@ struct PxVehicleMultiWheelDriveDifferentialParams
 		}
 		PX_CHECK_AND_RETURN_VAL(aveWheelSpeedSum >= 0.99f && aveWheelSpeedSum <= 1.01f, "Sum of PxVehicleMultiWheelDriveDifferentialParams.aveWheelSpeedRatios[i] must be 1.0.", false);
 		PX_CHECK_AND_RETURN_VAL(torqueRatioSum >= 0.99f && torqueRatioSum <= 1.01f, "Sum of PxVehicleMultiWheelDriveDifferentialParams.torqueRatios[i] must be 1.0.", false);
+		PX_UNUSED(aveWheelSpeedSum);
+		PX_UNUSED(torqueRatioSum);
 		return true;
 	}
 };

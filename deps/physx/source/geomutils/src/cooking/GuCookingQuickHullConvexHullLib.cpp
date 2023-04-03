@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -1235,7 +1235,7 @@ namespace local
 		calculateHorizon(eyeVtx->point, NULL, eyeFace, mHorizon, mRemovedFaces);
 
 		// check if we dont hit the polygons hard limit
-		if (mNumHullFaces + mHorizon.size() > 255)
+		if (mNumHullFaces + mHorizon.size() > mConvexDesc.polygonLimit)
 		{
 			// make the faces visible again and quit 
 			for (PxU32 i = 0; i < mRemovedFaces.size(); i++)
@@ -1900,7 +1900,7 @@ PxConvexMeshCookingResult::Enum QuickHullConvexHullLib::createConvexHull()
 	// if hull was cropped we already have a compatible mesh, if not check 
 	// the max verts per face
 	if((mConvexMeshDesc.flags & PxConvexFlag::eGPU_COMPATIBLE) && !mCropedConvexHull &&
-		res == PxConvexMeshCookingResult::eSUCCESS)
+		(res == PxConvexMeshCookingResult::eSUCCESS || res == PxConvexMeshCookingResult::ePOLYGONS_LIMIT_REACHED))
 	{
 		PX_ASSERT(mQuickHull);
 		// if we hit the vertex per face limit, expand the hull by cropping OBB

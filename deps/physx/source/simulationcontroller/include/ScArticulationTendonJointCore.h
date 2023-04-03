@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -42,6 +42,12 @@ namespace physx
 		class ArticulationTendonJointCore
 		{
 		public:
+
+			// PX_SERIALIZATION
+			ArticulationTendonJointCore(const PxEMPTY) : mTendonSim(NULL) {}
+			void preExportDataReset() { }
+			static void getBinaryMetaData(PxOutputStream& stream);
+			//~PX_SERIALIZATION
 
 			ArticulationTendonJointCore()
 			{
@@ -70,7 +76,6 @@ namespace physx
 			PxU32								mLLLinkIndex;
 			ArticulationTendonJointCore*		mParent;
 			PxU32								mLLTendonJointIndex;
-			//Dy::ArticulationTendonJoint*		mLLTendonJoint;
 			Sc::ArticulationFixedTendonSim*		mTendonSim;
 		};
 	}//namespace Sc

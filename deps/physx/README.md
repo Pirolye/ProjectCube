@@ -1,6 +1,6 @@
 # NVIDIA PhysX SDK 5
 
-Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -37,7 +37,7 @@ Please see [Release Notes](./CHANGELOG.md) for updates pertaining to the latest 
 
 ## User Guide and API Documentation
 
-The user guide and API documentation are available on [GitHub Pages](https://nvidia-omniverse.github.io/PhysX/physx). Please create an [Issue](https://github.com/NVIDIA-Omniverse/PhysX/issues/) if you find a documentation issue.
+The user guide and API documentation are available on [GitHub Pages](https://nvidia-omniverse.github.io/PhysX/physx/index.html). Please create an [Issue](https://github.com/NVIDIA-Omniverse/PhysX/issues/) if you find a documentation issue.
 
 ## Quick Start Instructions
 

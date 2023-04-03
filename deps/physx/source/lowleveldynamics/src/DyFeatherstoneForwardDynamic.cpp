@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -2444,7 +2444,7 @@ namespace Dy
 
 					for (PxU32 i = 0; i < dofCount; ++i)
 					{
-						const PxReal jointForce = data.mMotionMatrix[offset + i].innerProduct(spatialForce);
+						const PxReal jointForce = data.mWorldMotionMatrix[offset + i].innerProduct(spatialForce);
 						constraintForces[offset + i] = jointForce;
 					}
 				}

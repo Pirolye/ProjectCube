@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -89,23 +89,11 @@ void initPhysics(bool /*interactive*/)
 	gPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *gFoundation, PxTolerancesScale(), true, gPvd);
 	
 	PxCudaContextManagerDesc cudaContextManagerDesc;
-
-#ifdef RENDER_SNIPPET
-	cudaContextManagerDesc.interopMode = PxCudaInteropMode::OGL_INTEROP;	//Choose interop mode. As the snippets use OGL, we select OGL_INTEROP
-																			//when using D3D, cudaContextManagerDesc.graphicsDevice must be set as the graphics device pointer.
-#else
-	cudaContextManagerDesc.interopMode = PxCudaInteropMode::NO_INTEROP;
-#endif
-	
-
 	gCudaContextManager = PxCreateCudaContextManager(*gFoundation, cudaContextManagerDesc, PxGetProfilerCallback());	//Create the CUDA context manager, required for GRB to dispatch CUDA kernels.
 	if( gCudaContextManager )
 	{
 		if( !gCudaContextManager->contextIsValid() )
-		{
-			gCudaContextManager->release();
-			gCudaContextManager = NULL;
-		}
+			PX_RELEASE(gCudaContextManager);
 	}	
 
 	PxSceneDesc sceneDesc(gPhysics->getTolerancesScale());

@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -788,7 +788,11 @@ namespace physx
 
 		return mCore.addClothFilter(*core, triIdx, tetIdx);
 	}
+#else
+	void NpSoftBody::addClothFilter(PxFEMCloth*, PxU32, PxU32) {}
+#endif
 
+#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	void NpSoftBody::removeClothFilter(PxFEMCloth* cloth, PxU32 triIdx, PxU32 tetIdx)
 	{
 		NP_WRITE_CHECK(getNpScene());
@@ -803,7 +807,12 @@ namespace physx
 
 		mCore.removeClothFilter(*core, triIdx, tetIdx);
 	}
+#else
+	void NpSoftBody::removeClothFilter(PxFEMCloth*, PxU32, PxU32) {}
+#endif
 
+
+#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	PxU32 NpSoftBody::addClothAttachment(PxFEMCloth* cloth, PxU32 triIdx, const PxVec4& triBarycentric, PxU32 tetIdx, const PxVec4& tetBarycentric, PxConeLimitedConstraint* constraint)
 	{
 		NP_WRITE_CHECK(getNpScene());
@@ -818,7 +827,14 @@ namespace physx
 		
 		return mCore.addClothAttachment(*core, triIdx, triBarycentric, tetIdx, tetBarycentric, constraint);
 	}
+#else
+	PxU32 NpSoftBody::addClothAttachment(PxFEMCloth*, PxU32, const PxVec4&, PxU32, const PxVec4&, PxConeLimitedConstraint*)
+	{
+		return 0;
+	}
+#endif
 
+#if PX_ENABLE_FEATURES_UNDER_CONSTRUCTION
 	void NpSoftBody::removeClothAttachment(PxFEMCloth* cloth, PxU32 handle)
 	{
 		NP_WRITE_CHECK(getNpScene());
@@ -833,6 +849,8 @@ namespace physx
 
 		mCore.removeClothAttachment(*core, handle);
 	}
+#else
+	void NpSoftBody::removeClothAttachment(PxFEMCloth*, PxU32) {}
 #endif
 }
 

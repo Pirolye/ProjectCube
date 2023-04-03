@@ -22,7 +22,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
-// Copyright (c) 2008-2022 NVIDIA Corporation. All rights reserved.
+// Copyright (c) 2008-2023 NVIDIA Corporation. All rights reserved.
 // Copyright (c) 2004-2008 AGEIA Technologies, Inc. All rights reserved.
 // Copyright (c) 2001-2004 NovodeX AG. All rights reserved.  
 
@@ -56,9 +56,9 @@ struct PX_PHYSX_COMMON_API HeightFieldData
 					CenterExtents				mAABB;
 					PxU32						rows;					// PT: WARNING: don't change this member's name (used in ConvX)
 					PxU32						columns;				// PT: WARNING: don't change this member's name (used in ConvX)
-					PxReal						rowLimit;				// PT: to avoid runtime int-to-float conversions on Xbox
-					PxReal						colLimit;				// PT: to avoid runtime int-to-float conversions on Xbox
-					PxReal						nbColumns;				// PT: to avoid runtime int-to-float conversions on Xbox
+					PxU32						rowLimit;
+					PxU32						colLimit;
+					PxU32						nbColumns;
 					PxHeightFieldSample*		samples;				// PT: WARNING: don't change this member's name (used in ConvX)
 					PxReal						convexEdgeThreshold;
 
