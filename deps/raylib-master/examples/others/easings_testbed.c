@@ -9,13 +9,13 @@
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2019-2022 Juan Miguel López (@flashback-fx ) and Ramon Santamaria (@raysan5)
+*   Copyright (c) 2019-2023 Juan Miguel López (@flashback-fx ) and Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
-#include <raylib.h>
+#include "raylib.h"
 
-#include "easings.h"
+#include "reasings.h"       // Required for easing functions
 
 #define FONT_SIZE         20
 

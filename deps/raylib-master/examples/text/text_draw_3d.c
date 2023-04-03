@@ -22,7 +22,7 @@
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2021-2022 Vlad Adrian (@demizdor)
+*   Copyright (c) 2021-2023 Vlad Adrian (@demizdor)
 *
 ********************************************************************************************/
 
@@ -96,14 +96,12 @@ int main(void)
     camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };          // Camera looking at point
     camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };              // Camera up vector (rotation towards target)
     camera.fovy = 45.0f;                                    // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;                 // Camera mode type
+    camera.projection = CAMERA_PERSPECTIVE;                 // Camera projection type
 
-    SetCameraMode(camera, CAMERA_ORBITAL);
+    int camera_mode = CAMERA_ORBITAL;
 
     Vector3 cubePosition = { 0.0f, 1.0f, 0.0f };
     Vector3 cubeSize = { 2.0f, 2.0f, 2.0f };
-
-    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
 
     // Use the default font
     Font font = GetFontDefault();
@@ -134,6 +132,10 @@ int main(void)
 
     // Array filled with multiple random colors (when multicolor mode is set)
     Color multi[TEXT_MAX_LAYERS] = {0};
+
+    DisableCursor();                    // Limit cursor to relative movement inside the window
+
+    SetTargetFPS(60);                   // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // Main game loop
@@ -141,6 +143,8 @@ int main(void)
     {
         // Update
         //----------------------------------------------------------------------------------
+        UpdateCamera(&camera, camera_mode);
+        
         // Handle font files dropped
         if (IsFileDropped())
         {
@@ -150,13 +154,13 @@ int main(void)
             if (IsFileExtension(droppedFiles.paths[0], ".ttf"))
             {
                 UnloadFont(font);
-                font = LoadFontEx(droppedFiles.paths[0], fontSize, 0, 0);
+                font = LoadFontEx(droppedFiles.paths[0], (int)fontSize, 0, 0);
             }
             else if (IsFileExtension(droppedFiles.paths[0], ".fnt"))
             {
                 UnloadFont(font);
                 font = LoadFont(droppedFiles.paths[0]);
-                fontSize = font.baseSize;
+                fontSize = (float)font.baseSize;
             }
             
             UnloadDroppedFiles(droppedFiles);    // Unload filepaths from memory
@@ -179,12 +183,12 @@ int main(void)
             if (spin)
             {
                 camera.position = (Vector3){ -10.0f, 15.0f, -10.0f };   // Camera position
-                SetCameraMode(camera, CAMERA_ORBITAL);
+                camera_mode = CAMERA_ORBITAL;
             }
             else
             {
                 camera.position = (Vector3){ 10.0f, 10.0f, -10.0f };   // Camera position
-                SetCameraMode(camera, CAMERA_FREE);
+                camera_mode = CAMERA_FREE;
             }
         }
 
@@ -265,7 +269,6 @@ int main(void)
         // Measure 3D text so we can center it
         tbox = MeasureTextWave3D(font, text, fontSize, fontSpacing, lineSpacing);
 
-        UpdateCamera(&camera);          // Update camera
         quads = 0;                      // Reset quad counter
         time += GetFrameTime();         // Update timer needed by `DrawTextWave3D()`
         //----------------------------------------------------------------------------------
@@ -741,7 +744,7 @@ static Vector3 MeasureTextWave3D(Font font, const char* text, float fontSize, fl
 static Color GenerateRandomColor(float s, float v)
 {
     const float Phi = 0.618033988749895f; // Golden ratio conjugate
-    float h = GetRandomValue(0, 360);
+    float h = (float)GetRandomValue(0, 360);
     h = fmodf((h + h*Phi), 360.0f);
     return ColorFromHSV(h, s, v);
 }

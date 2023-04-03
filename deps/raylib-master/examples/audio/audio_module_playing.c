@@ -7,7 +7,7 @@
 *   Example licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software
 *
-*   Copyright (c) 2016-2022 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2016-2023 Ramon Santamaria (@raysan5)
 *
 ********************************************************************************************/
 
@@ -42,7 +42,7 @@ int main(void)
     Color colors[14] = { ORANGE, RED, GOLD, LIME, BLUE, VIOLET, BROWN, LIGHTGRAY, PINK,
                          YELLOW, GREEN, SKYBLUE, PURPLE, BEIGE };
 
-    // Creates ome circles for visual effect
+    // Creates some circles for visual effect
     CircleWave circles[MAX_CIRCLES] = { 0 };
 
     for (int i = MAX_CIRCLES - 1; i >= 0; i--)
