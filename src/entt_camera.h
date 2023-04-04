@@ -9,6 +9,7 @@ struct entt_camera : entt
 	Camera3D* rayCam;
 
 	int mode; // 0 = locked (standard gameplay camera for missing cube) 1 = editor_free (free movement camera, standard 3d editor controls)
+	Vector3 eulerRot{};
 
 	using entt::entt;
 
