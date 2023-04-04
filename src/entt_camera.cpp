@@ -73,6 +73,8 @@ void entt_camera::on_draw_3d()
 void entt_camera::update_camera()
 {
 	Vector2 diff = GetMouseDelta(); // Vector2{ .x * CAMERA_MOUSE_MOVE_SENSITIVITY, GetMouseDelta().y * CAMERA_MOUSE_MOVE_SENSITIVITY };
+
+	diff = Vector2{ diff.x * 0.6f, diff.y * 0.6f };
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 	{
@@ -81,7 +83,25 @@ void entt_camera::update_camera()
 		Vector3 prev{};
 		graphene_quaternion_to_angles(transform.rot, &prev.x, &prev.y, &prev.z);
 
-		graphene_quaternion_t* modifQ = graphene_quaternion_alloc(); graphene_quaternion_init_from_angles(modifQ, diff.x, diff.y, 0.0f);
+		graphene_quaternion_t* modifQ = graphene_quaternion_alloc();
+
+		//printf("diff.y: %f \n", diff.y);
+		printf("prev.y: %f diff.y: %f \n", prev.y, diff.y);
+
+		if (prev.y < -60.0f)
+		{
+			 graphene_quaternion_init_from_angles(modifQ, diff.x, fabs(prev.y - -60.0f), 0.0f);
+
+		}
+		else if (prev.y > 60.0f)
+		{
+			graphene_quaternion_init_from_angles(modifQ, diff.x, -1.0f * (prev.y - 60.0f), 0.0f);
+
+		}
+		else
+		{
+			graphene_quaternion_init_from_angles(modifQ, diff.x, diff.y, 0.0f);
+		}
 
 		graphene_quaternion_t* finalQ = graphene_quaternion_alloc(); graphene_quaternion_init_identity(finalQ);
 		graphene_quaternion_multiply(transform.rot, modifQ, finalQ);
@@ -94,24 +114,51 @@ void entt_camera::update_camera()
 		Vector3 finalRot{ x - prev.x, y - prev.y, 0.0f };
 		Vector3 finalMove{  };
 
-		if (prev.y < -65.0f)
-		{
-			finalRot = Vector3{ finalRot.x, 0.0f, 0.0f };
-		}
-
 		UpdateCameraPro(rayCam, finalMove, finalRot, 0.0f);
 
 		graphene_quaternion_free(finalQ);
 		graphene_quaternion_free(modifQ);
+
+
+
 	}
 	if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
 	{
 		EnableCursor();
 	}
 
-
-
-
+	if (IsKeyDown(KEY_W))
+	{
+		CameraMoveForward(rayCam, 0.1f, false);
+		transform.pos = rayCam->position;
+	}
+	if (IsKeyDown(KEY_S))
+	{
+		CameraMoveForward(rayCam, -0.1f, false);
+		transform.pos = rayCam->position;
+	}
+	if (IsKeyDown(KEY_D))
+	{
+		CameraMoveRight(rayCam, 0.1f, false);
+		transform.pos = rayCam->position;
+	}
+	if (IsKeyDown(KEY_A))
+	{
+		CameraMoveRight(rayCam, -0.1f, false);
+		transform.pos = rayCam->position;
+	}
+	if (IsKeyDown(KEY_E))
+	{
+		rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y + 0.1f, rayCam->target.z };
+		rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y + 0.1f, rayCam->position.z };
+		transform.pos = rayCam->position;
+	}
+	if (IsKeyDown(KEY_Q))
+	{
+		rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y - 0.1f, rayCam->target.z };
+		rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y - 0.1f, rayCam->position.z };
+		transform.pos = rayCam->position;
+	}
 
 }
 

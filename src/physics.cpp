@@ -529,6 +529,13 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
 {
 	t.pos = inNewPos;
 	t.scale = inNewScale;
+
+	PxVec3 x(t.pos.x, t.pos.y, t.pos.z);
+	
+	PxTransform phsyxTransformNew(x);
+
+	rigidStatic->setGlobalPose(phsyxTransformNew, false);
+
 }
 
 

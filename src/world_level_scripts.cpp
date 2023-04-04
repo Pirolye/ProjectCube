@@ -21,7 +21,19 @@ void world::run_script_on_init()
 		dynamic_cast<entt_maincube*>(mainCube1)->update_spatial_props(Vector3{ 5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		dynamic_cast<entt_maincube_static*>(mainCube2)->update_spatial_props(Vector3{ 0.0f, -5.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		
-		
+		entt* mainCube3 = this->make_desired_entt(entts::mainCube_Static);
+		entt* mainCube4 = this->make_desired_entt(entts::mainCube_Static);
+		entt* mainCube5 = this->make_desired_entt(entts::mainCube_Static);
+		entt* mainCube6 = this->make_desired_entt(entts::mainCube_Static);
+		entt* mainCube7 = this->make_desired_entt(entts::mainCube_Static);
+		entt* mainCube8 = this->make_desired_entt(entts::mainCube_Static);
+		dynamic_cast<entt_maincube_static*>(mainCube3)->update_spatial_props(Vector3{ -15.0f, -5.0f, -5.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		dynamic_cast<entt_maincube_static*>(mainCube4)->update_spatial_props(Vector3{ 0.0f, 10.0f, 5.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		dynamic_cast<entt_maincube_static*>(mainCube5)->update_spatial_props(Vector3{ -35.0f, -30.0f, -10.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		dynamic_cast<entt_maincube_static*>(mainCube6)->update_spatial_props(Vector3{ 25.0f, 25.0f, -15.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		dynamic_cast<entt_maincube_static*>(mainCube7)->update_spatial_props(Vector3{ -20.0f, -5.0f, -40.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		dynamic_cast<entt_maincube_static*>(mainCube8)->update_spatial_props(Vector3{ 15.0f, -30.0f, -20.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+
 		
 		dynamic_cast<entt_light*>(secondaryLight)->update_light_props(1, Vector3{ 7.0f, 7.0f, 7.0f }, Vector3Zero(), WHITE);
 		dynamic_cast<entt_light*>(mainLight)->update_light_props(1, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3Zero(), WHITE);
