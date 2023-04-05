@@ -62,10 +62,10 @@ void entt_camera::on_draw_3d()
 {
 	if (this != containingWorld->currentlyRenderingCamera) return;
 	
-		DrawGrid(10, 1.0f);
 	
 	if (containingWorld->worldEditor.isInEditorMode)
 	{
+		DrawGrid(10, 1.0f);
 	}
 
 }
