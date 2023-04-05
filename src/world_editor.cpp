@@ -50,8 +50,34 @@ void world::editor_do_not_select_any_gizmo()
 
 void world::enter_editor_mode()
 {
+	entt_camera* nextCam = NULL;
+	
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr)
+			{
+				nextCam = dynamic_cast<entt_camera*>(entityArray[i]);
+				if (nextCam->mode == 1) 
+				{ 
+					currentlyRenderingCamera = nextCam; 
+					break; 
+				}
+				else
+				{
+					nextCam = NULL;
+					continue;
+				}
+
+				break;
+			}
+		}
+	}
+
+	if (nextCam == NULL) printf("ERROR: Couldn't find a camera in mode 1 (free) in world <<%s>> when entering the editor, so we didn't set the editor camera!\n", name.c_str());
+
 	worldEditor.isInEditorMode = true;
-	canMoveCamera = true;
 
 
 }
@@ -59,9 +85,29 @@ void world::enter_editor_mode()
 void world::exit_editor_mode()
 {
 	worldEditor.isInEditorMode = false;
-	canMoveCamera = false;
 
-	entt_camera* cam = dynamic_cast<entt_camera*>(entityArray[0]); //(Levente): Camera is always at index 0!
+	entt_camera* nextCam = NULL;
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			if (dynamic_cast<entt_camera*>(entityArray[i]))
+			{
+				nextCam = dynamic_cast<entt_camera*>(entityArray[i]);
+				if (nextCam->mode == 0) { currentlyRenderingCamera = nextCam; break; }
+				else
+				{
+					nextCam = NULL;
+					continue;
+				}
+
+				break;
+			}
+		}
+	}
+
+	if (nextCam == NULL) printf("ERROR: Couldn't find a camera in mode 0 (locked) in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", name.c_str());
 
 
 	worldEditor.editorCurrentlySelectedEntt = nullptr;
@@ -217,16 +263,16 @@ void world::editor_try_select_entt()
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	worldEditor.cursorSelectionRay = GetMouseRay(GetMousePosition(), *(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)
 		{
-			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(worldEditor.cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(worldEditor.cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(worldEditor.cursorSelectionRay, collision);
-			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(worldEditor.cursorSelectionRay, collision);
+			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
 			if (worldEditor.editorCurrentlySelectedEntt != nullptr) break;
 			else continue;

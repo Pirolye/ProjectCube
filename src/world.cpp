@@ -27,7 +27,6 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 	assert(gameInstance != nullptr);
 
 	name = "debug";
-	gameCameraPosition = Vector3{ 10.0f, 0.0f, 0.0f };
 
 	globalPhysics = inPhysicsMemAddress; // (Levente): We do this because for some reason the program
 										 // can't read gPhysics static var properly. (Even though it can read
@@ -103,18 +102,17 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 		case entts::cam:
 		{
 			bool isThereAnotherCameraInTheWorld = false;
-
+			
 			for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 			{
 				if (entityArray[i] != NULL)
 				{
-					isThereAnotherCameraInTheWorld = dynamic_cast<entt_camera*>(entityArray[i]);
-					break;
+					isThereAnotherCameraInTheWorld = (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr);
+					if (isThereAnotherCameraInTheWorld) break;
+					else continue;
 				}
 			}
 
-			assert(isThereAnotherCameraInTheWorld != true);
-			
 			entt_camera* cam = new entt_camera;
 
 			totalMadeEntts = totalMadeEntts + 1;
@@ -133,6 +131,8 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			}
 
 			cam->on_make();
+
+			if (isThereAnotherCameraInTheWorld == false) currentlyRenderingCamera = cam;
 
 			return cam;
 
@@ -227,8 +227,8 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 
 void world::update()
 {
-	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/A camera should always exist at entity array index 0!");
-	if(worldEditor.isInEditorMode && canMoveCamera) dynamic_cast<entt_camera*>(entityArray[0])->update_camera();
+	//	assert(dynamic_cast<entt_camera*>(entityArray[0]) != nullptr && "The/A camera should always exist at entity array index 0!");
+	//if(worldEditor.isInEditorMode && canMoveCamera) dynamic_cast<entt_camera*>(entityArray[0])->update_camera();
 
 	if (GetFrameTime() > 0)
 	{
@@ -273,7 +273,7 @@ void world::draw_all()
 {
 	BeginDrawing();
 
-	BeginMode3D(*(dynamic_cast<entt_camera*>(entityArray[0])->rayCam));
+	BeginMode3D( *currentlyRenderingCamera->rayCam);
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)

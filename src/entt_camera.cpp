@@ -34,12 +34,10 @@ void entt_camera::on_make()
 	rayCam->fovy = 70.0f;                                // Camera field-of-view 
 	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	UpdateCamera(rayCam, CAMERA_CUSTOM); // Set a free camera mode
-
 	transform.rot = graphene_quaternion_alloc();
 	graphene_quaternion_init_identity(transform.rot);
 
-	mode = 1;
+	mode = 0;
 	
 }
 
@@ -50,75 +48,111 @@ void entt_camera::on_destroy()
 
 void entt_camera::on_update() 
 {
-
+	update_camera();
 };
 
 void entt_camera::on_draw_2d()
 {
+	if (this != containingWorld->currentlyRenderingCamera) return;
 	DrawFPS(10, 10);
 
 };
 
 void entt_camera::on_draw_3d()
 {
+	if (this != containingWorld->currentlyRenderingCamera) return;
+	
 	ClearBackground(BLACK);
+		DrawGrid(10, 1.0f);
 	
 	if (containingWorld->worldEditor.isInEditorMode)
 	{
-		DrawGrid(10, 1.0f);
 	}
 
 }
 
+void entt_camera::set_mode(int inMode)
+{
+	if (inMode == 0)
+	{
+		mode = inMode;
+
+		CameraMoveForward(rayCam, -10.0f, false);
+		transform.pos = rayCam->position;
+
+	}
+	if (inMode == 1)
+	{
+		mode = inMode;
+	}
+	else printf("Tried to set camera.mode to a value not 1 or 0 (invalid) on camera %s!\n", id.c_str());
+}
+
 void entt_camera::update_camera()
 {
-	Vector2 diff = GetMouseDelta(); 
-
-	diff = Vector2{ diff.x * 0.6f, diff.y * 0.6f };
+	if (this != containingWorld->currentlyRenderingCamera) return;
 	
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	if (mode == 1)
 	{
-		DisableCursor();
-		UpdateCameraPro(rayCam, Vector3Zero(), Vector3{diff.x, diff.y, 0.0f}, 0.0f);
-	}
-	if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
-	{
-		EnableCursor();
-	}
+		Vector2 diff = GetMouseDelta(); 
+
+		diff = Vector2{ diff.x * 0.5f, diff.y * 0.5f };
+	
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		{
+			DisableCursor();
+			UpdateCameraPro(rayCam, Vector3Zero(), Vector3{diff.x, diff.y, 0.0f}, 0.0f);
+		}
+		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
+		{
+			EnableCursor();
+		}
 
 
-	if (IsKeyDown(KEY_W))
-	{
-		CameraMoveForward(rayCam, 0.1f, false);
-		transform.pos = rayCam->position;
+		if (IsKeyDown(KEY_W))
+		{
+			CameraMoveForward(rayCam, 0.1f, false);
+			transform.pos = rayCam->position;
+		}
+		if (IsKeyDown(KEY_S))
+		{
+			CameraMoveForward(rayCam, -0.1f, false);
+			transform.pos = rayCam->position;
+		}
+		if (IsKeyDown(KEY_D))
+		{
+			CameraMoveRight(rayCam, 0.1f, false);
+			transform.pos = rayCam->position;
+		}
+		if (IsKeyDown(KEY_A))
+		{
+			CameraMoveRight(rayCam, -0.1f, false);
+			transform.pos = rayCam->position;
+		}
+		if (IsKeyDown(KEY_E))
+		{
+			rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y + 0.1f, rayCam->target.z };
+			rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y + 0.1f, rayCam->position.z };
+			transform.pos = rayCam->position;
+		}
+		if (IsKeyDown(KEY_Q))
+		{
+			rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y - 0.1f, rayCam->target.z };
+			rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y - 0.1f, rayCam->position.z };
+			transform.pos = rayCam->position;
+		}
+
 	}
-	if (IsKeyDown(KEY_S))
+	else if (mode == 0)
 	{
-		CameraMoveForward(rayCam, -0.1f, false);
-		transform.pos = rayCam->position;
+		return;
 	}
-	if (IsKeyDown(KEY_D))
+	else
 	{
-		CameraMoveRight(rayCam, 0.1f, false);
-		transform.pos = rayCam->position;
+		return;
 	}
-	if (IsKeyDown(KEY_A))
-	{
-		CameraMoveRight(rayCam, -0.1f, false);
-		transform.pos = rayCam->position;
-	}
-	if (IsKeyDown(KEY_E))
-	{
-		rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y + 0.1f, rayCam->target.z };
-		rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y + 0.1f, rayCam->position.z };
-		transform.pos = rayCam->position;
-	}
-	if (IsKeyDown(KEY_Q))
-	{
-		rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y - 0.1f, rayCam->target.z };
-		rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y - 0.1f, rayCam->position.z };
-		transform.pos = rayCam->position;
-	}
+	
+	
 
 }
 

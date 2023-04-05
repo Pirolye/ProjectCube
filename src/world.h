@@ -32,12 +32,6 @@ struct world_editor
 	bool selectingGizmoMoveAxisYZ = false;
 	bool selectingGizmoMoveAxisZX = false;
 
-	bool selectingInPrevFrame = false;
-	Vector3 firstFramePoint = Vector3{ 0.0f, 0.0f, 0.0f };
-	Vector3* enttRot;
-
-	Ray cursorSelectionRay = { 0 };	
-	
 	Model editorGizmoMoveAxisX{};
 	Model editorGizmoMoveAxisY{};
 	Model editorGizmoMoveAxisZ{};
@@ -84,10 +78,8 @@ struct world
 	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64];
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
-	//(Levente): Each world has 1 camera located at index 0. We switch the properties of this when exiting/entering the editor. 
-	// This is because of a limitation arising from raycamera.h
-	Vector3 gameCameraPosition;
-	bool canMoveCamera = false;
+	//(Levente): Since the rcamera remake in raylib 4.5, we can have multiple cameras without issue!
+	entt_camera* currentlyRenderingCamera;
 
 	//(Levente): The make functions make the data structures and also do whatever is neccessary at that point in gameplay. Usually registering to arrays.
 	entt* make_desired_entt(entts inDesiredEntity);
