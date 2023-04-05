@@ -59,7 +59,7 @@ void world::enter_editor_mode()
 			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr)
 			{
 				nextCam = dynamic_cast<entt_camera*>(entityArray[i]);
-				if (nextCam->mode == 1) 
+				if (nextCam->isForEditorOnly == true) 
 				{ 
 					currentlyRenderingCamera = nextCam; 
 					break; 
@@ -75,7 +75,7 @@ void world::enter_editor_mode()
 		}
 	}
 
-	if (nextCam == NULL) printf("ERROR: Couldn't find a camera in mode 1 (free) in world <<%s>> when entering the editor, so we didn't set the editor camera!\n", name.c_str());
+	if (nextCam == NULL) printf("ERROR: Couldn't find a camera marked <<isForEditorOnly>> in world <<%s>> when entering the editor, so we didn't set the editor camera!\n", name.c_str());
 
 	worldEditor.isInEditorMode = true;
 
@@ -95,7 +95,7 @@ void world::exit_editor_mode()
 			if (dynamic_cast<entt_camera*>(entityArray[i]))
 			{
 				nextCam = dynamic_cast<entt_camera*>(entityArray[i]);
-				if (nextCam->mode == 0) { currentlyRenderingCamera = nextCam; break; }
+				if (nextCam->isForEditorOnly == false) { currentlyRenderingCamera = nextCam; break; }
 				else
 				{
 					nextCam = NULL;
@@ -107,12 +107,48 @@ void world::exit_editor_mode()
 		}
 	}
 
-	if (nextCam == NULL) printf("ERROR: Couldn't find a camera in mode 0 (locked) in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", name.c_str());
+	if (nextCam == NULL) printf("ERROR: Couldn't find a camera marked <<!isForEditorOnly>> in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", name.c_str());
 
 
 	worldEditor.editorCurrentlySelectedEntt = nullptr;
 
 	// START WORLD AGAIN FROM THE BEGINNING
+}
+
+void world::editor_next_camera()
+{
+	int numOfCam = 0;
+	
+	entt_camera* camArray[64] = { NULL };
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (entityArray[i] != NULL)
+		{
+			if (dynamic_cast<entt_camera*>(entityArray[i]) && dynamic_cast<entt_camera*>(entityArray[i])->isForEditorOnly)
+			{
+				camArray[numOfCam] = dynamic_cast<entt_camera*>(entityArray[i]);
+				numOfCam++;
+			}
+		}
+	}
+
+	if (camArray[0] == NULL) return;
+
+	for (int i = 0; i != 64; i++)
+	{
+		if (camArray[i] != NULL)
+		{
+			if (camArray[i] == currentlyRenderingCamera)
+			{
+				if (camArray[i + 1] == NULL) currentlyRenderingCamera = camArray[0];
+				else currentlyRenderingCamera = camArray[i + 1];
+
+				break; 
+			}
+		}
+	}
+
 }
 
 void world::init_world_editor()
@@ -148,6 +184,8 @@ void world::init_world_editor()
 
 void world::update_world_editor()
 {
+	printf("Current camera: %s\n", currentlyRenderingCamera->id.c_str());
+	
 	if (worldEditor.editorCurrentlySelectedEntt != nullptr)
 	{
 		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
@@ -156,6 +194,7 @@ void world::update_world_editor()
 	}
 	
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canSelectEntt) editor_try_select_entt();
+	if (IsKeyPressed(KEY_TAB)) editor_next_camera();
 
 	if (IsKeyPressed(KEY_TAB))
 	{

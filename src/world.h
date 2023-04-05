@@ -63,7 +63,7 @@ struct world
 
 	std::string name;
 
-	entt* entityArray[MAX_ENTITIES_IN_WORLD];
+	entt* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 
@@ -75,7 +75,7 @@ struct world
 
 	//(Levente): Lighting is done inside the shaders of course, but lights are also entites in their own term. This means we have to manually update all shaders
 	//to notify them of any changes that might happened in lighting data.
-	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64];
+	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64] = { NULL }; //Note: We have to do NULL initialization here because the compiler won't do it when defining! (Even though it accepts it as valid syntax...)
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Since the rcamera remake in raylib 4.5, we can have multiple cameras without issue!
@@ -105,6 +105,7 @@ struct world
 	void editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate);
 	bool editor_is_selecting_any_gizmo();
 	void editor_do_not_select_any_gizmo();
+	void editor_next_camera();
 	//void editor_scale_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate); // We need entt transform overhaul for this!
 
 	void update();

@@ -62,7 +62,6 @@ void entt_camera::on_draw_3d()
 {
 	if (this != containingWorld->currentlyRenderingCamera) return;
 	
-	ClearBackground(BLACK);
 		DrawGrid(10, 1.0f);
 	
 	if (containingWorld->worldEditor.isInEditorMode)
@@ -71,7 +70,7 @@ void entt_camera::on_draw_3d()
 
 }
 
-void entt_camera::set_mode(int inMode)
+void entt_camera::set_mode(int inMode, bool inIsForEditorOnly)
 {
 	if (inMode == 0)
 	{
@@ -81,11 +80,16 @@ void entt_camera::set_mode(int inMode)
 		transform.pos = rayCam->position;
 
 	}
-	if (inMode == 1)
+	else if (inMode == 1)
 	{
 		mode = inMode;
 	}
-	else printf("Tried to set camera.mode to a value not 1 or 0 (invalid) on camera %s!\n", id.c_str());
+	else
+	{
+		printf("Tried to set camera.mode to a value not 1 or 0 (invalid) on camera %s!\n", id.c_str());
+	}
+
+	isForEditorOnly = inIsForEditorOnly;
 }
 
 void entt_camera::update_camera()

@@ -11,6 +11,10 @@
 
 world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress) 
 {
+
+	
+	
+	/*
 	//(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -22,7 +26,8 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 	{
 		currentlyLoadedShaders[i] = { 0 };
 	}
-	
+	*/
+
 	gameInstance = inGameInstance;
 	assert(gameInstance != nullptr);
 
@@ -107,7 +112,7 @@ entt* world::make_desired_entt(entts inDesiredEntt)
 			{
 				if (entityArray[i] != NULL)
 				{
-					isThereAnotherCameraInTheWorld = (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr);
+					isThereAnotherCameraInTheWorld = (dynamic_cast<entt_camera*>(entityArray[i]) != NULL);
 					if (isThereAnotherCameraInTheWorld) break;
 					else continue;
 				}
@@ -274,6 +279,9 @@ void world::draw_all()
 	BeginDrawing();
 
 	BeginMode3D( *currentlyRenderingCamera->rayCam);
+	
+	ClearBackground(BLACK);
+
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		if (entityArray[i] != NULL)

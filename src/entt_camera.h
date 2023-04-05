@@ -9,6 +9,7 @@ struct entt_camera : entt
 	Camera3D* rayCam;
 
 	int mode; // 0 = locked (standard gameplay camera for missing cube) 1 = editor_free (free movement camera, standard 3d editor controls)
+	bool isForEditorOnly;
 
 	using entt::entt;
 
@@ -22,7 +23,7 @@ struct entt_camera : entt
 	virtual void on_draw_3d() override;
 
 	void update_camera();
-	void set_mode(int inMode);
+	void set_mode(int inMode, bool inIsForEditorOnly);
 
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
