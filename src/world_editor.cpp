@@ -5,6 +5,8 @@
 
 #include "raymath.h"
 
+#include "rlimgui.h"
+
 /*
 
 BIRO: I decided to separate the standard world functions from the editor ones because the main file was getting bloated and hard to navigate.
@@ -153,6 +155,8 @@ void world::editor_next_camera()
 
 void world::init_world_editor()
 {
+	rlImGuiSetup(true);
+	
 	worldEditor.editorGizmoAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
 
 	worldEditor.editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
@@ -180,6 +184,11 @@ void world::init_world_editor()
 	worldEditor.editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
 	worldEditor.editorGizmoHelperModel = LoadModelFromMesh(worldEditor.editorGizmoHelperMesh);
 
+}
+
+void world::shutdown_world_editor()
+{
+	rlImGuiShutdown();
 }
 
 void world::update_world_editor()
@@ -261,7 +270,12 @@ void world::draw_world_editor_3d()
 
 void world::draw_world_editor_2d()
 {
+	rlImGuiBegin();
 
+	bool open = true;
+	ImGui::ShowDemoWindow(&open);
+
+	rlImGuiEnd();
 }
 
 

@@ -94,6 +94,7 @@ struct world
 	void editor_move_entt(int axis, float val);
 	void editor_rotate_entt(int axis, float val);
 	void init_world_editor();
+	void shutdown_world_editor();
 	void update_world_editor();
 	void draw_world_editor_3d();
 	void draw_world_editor_2d();

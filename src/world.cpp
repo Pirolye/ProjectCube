@@ -57,9 +57,7 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 
 #ifdef DEBUG
 	init_world_editor();
-#else
 #endif
-
 
 	run_script_on_init();
 
@@ -129,10 +127,8 @@ void world::update()
 	if (IsKeyPressed(KEY_F1))
 	{
 		#ifdef DEBUG 
-		if (worldEditor.isInEditorMode) exit_editor_mode();
-		else enter_editor_mode();
-		#else
-		
+			if (worldEditor.isInEditorMode) exit_editor_mode();
+			else enter_editor_mode();
 		#endif
 	}
 
@@ -179,6 +175,10 @@ void world::draw_all()
 
 void world::on_destroy()
 {
+#if DEBUG
+	shutdown_world_editor();
+#endif
+	
 	run_script_on_destroy();
 	
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
