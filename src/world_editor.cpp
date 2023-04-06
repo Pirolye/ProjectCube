@@ -272,8 +272,9 @@ void world::draw_world_editor_2d()
 {
 	rlImGuiBegin();
 
-	bool open = true;
+	bool open;
 	ImGui::ShowDemoWindow(&open);
+
 
 	rlImGuiEnd();
 }
