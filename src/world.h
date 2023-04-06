@@ -82,8 +82,9 @@ struct world
 	entt_camera* currentlyRenderingCamera;
 
 	//(Levente): The make functions make the data structures and also do whatever is neccessary at that point in gameplay. Usually registering to arrays.
-	entt* make_desired_entt(entts inDesiredEntity);
+	template <typename t> entt* make_desired_entt();
 	Shader make_shader(const char* vertexShader, const char* fragmentShader);
+	void set_cam(entt_camera* i);
 
 	bool cameraSwitchedLastFrame = false;
 
