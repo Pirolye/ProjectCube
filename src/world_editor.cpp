@@ -201,8 +201,19 @@ void world::update_world_editor()
 	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && !ImGui::GetIO().WantCaptureKeyboard)
 	{
 		worldEditor.canManipulateWorld = true;
-		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
-		else ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+		
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+		{
+			ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+			ImGui::GetStyle().Alpha = 0.5f;
+		}
+		else
+		{
+			ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+			ImGui::GetStyle().Alpha = 1.0f;
+
+		}
+
 	}
 	
 	if (worldEditor.currentlySelectedEntt != nullptr) worldEditor.selectingEntt = true; else worldEditor.selectingEntt = false;
