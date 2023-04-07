@@ -2076,7 +2076,7 @@ void EnableCursor(void)
     emscripten_exit_pointerlock();
 #endif
     // Set cursor position in the middle
-    SetMousePosition(CORE.Window.screen.width/2, CORE.Window.screen.height/2);
+    //SetMousePosition(CORE.Window.screen.width/2, CORE.Window.screen.height/2);
 
     CORE.Input.Mouse.cursorHidden = false;
 }
@@ -2091,7 +2091,7 @@ void DisableCursor(void)
     emscripten_request_pointerlock("#canvas", 1);
 #endif
     // Set cursor position in the middle
-    SetMousePosition(CORE.Window.screen.width/2, CORE.Window.screen.height/2);
+    //SetMousePosition(CORE.Window.screen.width/2, CORE.Window.screen.height/2);
 
     CORE.Input.Mouse.cursorHidden = true;
 }

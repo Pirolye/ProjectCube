@@ -112,7 +112,7 @@ void world::exit_editor_mode()
 	if (nextCam == NULL) printf("ERROR: Couldn't find a camera marked <<!isForEditorOnly>> in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", name.c_str());
 
 
-	worldEditor.editorCurrentlySelectedEntt = nullptr;
+	worldEditor.currentlySelectedEntt = nullptr;
 
 	// START WORLD AGAIN FROM THE BEGINNING
 }
@@ -193,16 +193,28 @@ void world::shutdown_world_editor()
 
 void world::update_world_editor()
 {
-	printf("Current camera: %s\n", currentlyRenderingCamera->id.c_str());
-	
-	if (worldEditor.editorCurrentlySelectedEntt != nullptr)
+	// If we are hovering any ImGui windows then we can't edit the world, however, when we are editing, we don't want ImGui to do its IO
+	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::GetIO().WantCaptureKeyboard)
 	{
-		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
-		if (worldEditor.currentGizmoMode == 1) editor_check_against_rotate_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
+		worldEditor.canManipulateWorld = false;
+	}
+	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && !ImGui::GetIO().WantCaptureKeyboard)
+	{
+		worldEditor.canManipulateWorld = true;
+		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouse;
+		else ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouse;
+	}
+	
+	if (worldEditor.currentlySelectedEntt != nullptr) worldEditor.selectingEntt = true; else worldEditor.selectingEntt = false;
+	
+	if (worldEditor.selectingEntt && worldEditor.canManipulateWorld)
+	{
+		if(worldEditor.currentGizmoMode == 0) editor_check_against_move_gizmo(worldEditor.currentlySelectedEntt->transform.pos);
+		if(worldEditor.currentGizmoMode == 1) editor_check_against_rotate_gizmo(worldEditor.currentlySelectedEntt->transform.pos);
 
 	}
 	
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canSelectEntt) editor_try_select_entt();
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canManipulateWorld) editor_try_select_entt();
 	if (IsKeyPressed(KEY_TAB)) editor_next_camera();
 
 	if (IsKeyPressed(KEY_TAB))
@@ -211,49 +223,24 @@ void world::update_world_editor()
 		if (worldEditor.currentlyEditingAxis == 3) worldEditor.currentlyEditingAxis = 0;
 	}
 	
-	// Set gizmo modes
-	if(!editor_is_selecting_any_gizmo()) 
+	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && worldEditor.selectingEntt)
 	{
-		if (IsKeyPressed(KEY_W))
+		// Set gizmo modes
+		if(!editor_is_selecting_any_gizmo()) 
 		{
-			worldEditor.currentGizmoMode = 0;
+			if (IsKeyPressed(KEY_W))
+			{
+				worldEditor.currentGizmoMode = 0;
+			}
+			if (IsKeyPressed(KEY_E))
+			{
+				worldEditor.currentGizmoMode = 1;
+			}
+			if (IsKeyPressed(KEY_R))
+			{
+				worldEditor.currentGizmoMode = 2;
+			}
 		}
-		if (IsKeyPressed(KEY_E))
-		{
-			worldEditor.currentGizmoMode = 1;
-		}
-		if (IsKeyPressed(KEY_R))
-		{
-			worldEditor.currentGizmoMode = 2;
-		}
-	}
-
-	//Will be removed once we got editor gui
-
-	// @@REDUNDANT, WONT FIX WARNING
-	if (worldEditor.editorCurrentlySelectedEntt != NULL)
-	{
-		DrawText(worldEditor.editorCurrentlySelectedEntt->id.c_str(), 10, 550, 20, RED);
-
-		/*
-		if (IsKeyDown(KEY_W))
-		{
-			editor_move_entt(worldEditor.currentlyEditingAxis, 0.05f);
-		}
-		if (IsKeyDown(KEY_S))
-		{
-			editor_move_entt(worldEditor.currentlyEditingAxis, -0.05f);
-		}
-		if (IsKeyDown(KEY_A))
-		{
-			editor_rotate_entt(worldEditor.currentlyEditingAxis, 1.0f);
-		}
-		if (IsKeyDown(KEY_D))
-		{
-			editor_rotate_entt(worldEditor.currentlyEditingAxis, -1.0f);
-		}*/
-
-
 	}
 
 }
@@ -264,7 +251,7 @@ void world::draw_world_editor_3d()
 	//DrawModel(worldEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	
 	
-	if(worldEditor.editorCurrentlySelectedEntt != nullptr) editor_draw_gizmo(worldEditor.editorCurrentlySelectedEntt->transform.pos);
+	if(worldEditor.selectingEntt) editor_draw_gizmo(worldEditor.currentlySelectedEntt->transform.pos);
 
 }
 
@@ -276,30 +263,31 @@ void world::draw_world_editor_2d()
 	ImGui::ShowDemoWindow(&open);
 
 
+
 	rlImGuiEnd();
 }
 
 
 void world::editor_move_entt(int axis, float val)
 {
-	if (worldEditor.editorCurrentlySelectedEntt == nullptr) return;
+	if (worldEditor.currentlySelectedEntt == nullptr) return;
 
 	if (axis == 0)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
+		entt_transform t = worldEditor.currentlySelectedEntt->transform;
+		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 1)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
+		entt_transform t = worldEditor.currentlySelectedEntt->transform;
+		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
 
 	}
 	if (axis == 2)
 	{
-		entt_transform t = worldEditor.editorCurrentlySelectedEntt->transform;
-		worldEditor.editorCurrentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
+		entt_transform t = worldEditor.currentlySelectedEntt->transform;
+		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
 
 	}
 
@@ -323,13 +311,13 @@ void world::editor_try_select_entt()
 	{
 		if (entityArray[i] != NULL)
 		{
-			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
-			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) worldEditor.editorCurrentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_light*>(entityArray[i]) != nullptr) worldEditor.currentlySelectedEntt = dynamic_cast<entt_light*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube*>(entityArray[i]) != nullptr) worldEditor.currentlySelectedEntt = dynamic_cast<entt_maincube*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_maincube_static*>(entityArray[i]) != nullptr) worldEditor.currentlySelectedEntt = dynamic_cast<entt_maincube_static*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
+			if (dynamic_cast<entt_camera*>(entityArray[i]) != nullptr) worldEditor.currentlySelectedEntt = dynamic_cast<entt_camera*>(entityArray[i])->editor_try_select(cursorSelectionRay, collision);
 
-			if (worldEditor.editorCurrentlySelectedEntt != nullptr) break;
-			else continue;
+			if (worldEditor.currentlySelectedEntt != nullptr) { break; worldEditor.selectingEntt = true; }
+			else { worldEditor.selectingEntt = false;  continue; }
 		}
 	}
 };

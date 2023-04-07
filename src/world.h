@@ -22,9 +22,11 @@ struct world_editor
 	int currentGizmoMode = 0; //(Levente): This determines move/rotate/scale gizmo. 0 = move, 1 = rotate, 2 = scale
 	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z; 3 = xy, 4 = yz. 5 = zx
 
-	entt* editorCurrentlySelectedEntt = nullptr;
+	entt* currentlySelectedEntt = nullptr;
+	bool selectingEntt = false;
 
-	bool canSelectEntt = true;
+	bool canManipulateWorld = true;
+
 	bool selectingGizmoMoveAxisX = false;
 	bool selectingGizmoMoveAxisY = false;
 	bool selectingGizmoMoveAxisZ = false;

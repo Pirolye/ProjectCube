@@ -179,7 +179,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 			}
 
 			worldEditor.selectingGizmoMoveAxisX = true;
-			worldEditor.canSelectEntt = false;
+			worldEditor.canManipulateWorld = false;
 
 		}
 		else
@@ -190,7 +190,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				worldEditor.selectingGizmoMoveAxisX = true;
 				worldEditor.selectingGizmoMoveAxisY = false; // This is so that you don't grab onto another gizmo when grabbing this
 				worldEditor.selectingGizmoMoveAxisZ = false; // UPDATE: This may not work but I'm not testing it now. Has no practical implications
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 			}
 			else
@@ -219,7 +219,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				}
 
 				worldEditor.selectingGizmoMoveAxisY = true;
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 				break;
 				return;
@@ -231,7 +231,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 					worldEditor.selectingGizmoMoveAxisY = true;
 					worldEditor.selectingGizmoMoveAxisX = false;
 					worldEditor.selectingGizmoMoveAxisZ = false;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -261,7 +261,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				}
 
 				worldEditor.selectingGizmoMoveAxisZ = true;
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 				break;
 				return;
@@ -273,7 +273,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 					worldEditor.selectingGizmoMoveAxisZ = true;
 					worldEditor.selectingGizmoMoveAxisX = false;
 					worldEditor.selectingGizmoMoveAxisY = false;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -308,7 +308,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				}
 
 				worldEditor.selectingGizmoMoveAxisXY = true;
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 				break;
 				return;
@@ -324,7 +324,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 					worldEditor.selectingGizmoMoveAxisY = false;
 					worldEditor.selectingGizmoMoveAxisX = false;
 					worldEditor.selectingGizmoMoveAxisZ = false;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -354,7 +354,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				}
 
 				worldEditor.selectingGizmoMoveAxisYZ = true;
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 				break;
 				return;
@@ -370,7 +370,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 					worldEditor.selectingGizmoMoveAxisY = false;
 					worldEditor.selectingGizmoMoveAxisX = false;
 					worldEditor.selectingGizmoMoveAxisZ = false;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -400,7 +400,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 				}
 
 				worldEditor.selectingGizmoMoveAxisZX = true;
-				worldEditor.canSelectEntt = false;
+				worldEditor.canManipulateWorld = false;
 
 				break;
 				return;
@@ -416,7 +416,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 					worldEditor.selectingGizmoMoveAxisY = false;
 					worldEditor.selectingGizmoMoveAxisX = false;
 					worldEditor.selectingGizmoMoveAxisZ = false;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -436,16 +436,16 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 		worldEditor.selectingGizmoMoveAxisYZ = false;
 		worldEditor.selectingGizmoMoveAxisZX = false;
 
-		worldEditor.canSelectEntt = true;
+		worldEditor.canManipulateWorld = true;
 	}
 
-	if (worldEditor.selectingGizmoMoveAxisX && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(0, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoMoveAxisY && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(1, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoMoveAxisZ && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(2, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisX && worldEditor.selectingEntt) editor_move_entt_gizmo(0, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisY && worldEditor.selectingEntt) editor_move_entt_gizmo(1, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisZ && worldEditor.selectingEntt) editor_move_entt_gizmo(2, inCenterPos, worldEditor.currentlySelectedEntt);
 
-	if (worldEditor.selectingGizmoMoveAxisXY && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(3, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoMoveAxisYZ && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(4, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoMoveAxisZX && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_move_entt_gizmo(5, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisXY && worldEditor.selectingEntt) editor_move_entt_gizmo(3, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisYZ && worldEditor.selectingEntt) editor_move_entt_gizmo(4, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoMoveAxisZX && worldEditor.selectingEntt) editor_move_entt_gizmo(5, inCenterPos, worldEditor.currentlySelectedEntt);
 
 
 
@@ -482,7 +482,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 				else
 				{
 					worldEditor.selectingGizmoRotateAxisX = true;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 					break;
 					return;
@@ -494,7 +494,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisX)
 				{
 					worldEditor.selectingGizmoRotateAxisX = true;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -531,7 +531,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 				else
 				{
 					worldEditor.selectingGizmoRotateAxisY = true;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 					break; return;
 
@@ -542,7 +542,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 				if (IsMouseButtonDown(MOUSE_BUTTON_LEFT) && worldEditor.selectingGizmoRotateAxisY)
 				{
 					worldEditor.selectingGizmoRotateAxisY = true;
-					worldEditor.canSelectEntt = false;
+					worldEditor.canManipulateWorld = false;
 
 				}
 				else
@@ -558,13 +558,13 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 	{
 		editor_do_not_select_any_gizmo();
 
-		worldEditor.canSelectEntt = true;
+		worldEditor.canManipulateWorld = true;
 	}
 
 
-	if (worldEditor.selectingGizmoRotateAxisX && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(0, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoRotateAxisY && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(1, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
-	if (worldEditor.selectingGizmoRotateAxisZ && worldEditor.editorCurrentlySelectedEntt != nullptr) editor_rotate_entt_gizmo(2, inCenterPos, worldEditor.editorCurrentlySelectedEntt);
+	if (worldEditor.selectingGizmoRotateAxisX && worldEditor.selectingEntt) editor_rotate_entt_gizmo(0, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoRotateAxisY && worldEditor.selectingEntt) editor_rotate_entt_gizmo(1, inCenterPos, worldEditor.currentlySelectedEntt);
+	if (worldEditor.selectingGizmoRotateAxisZ && worldEditor.selectingEntt) editor_rotate_entt_gizmo(2, inCenterPos, worldEditor.currentlySelectedEntt);
 
 }
 

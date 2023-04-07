@@ -101,7 +101,7 @@ void entt_light::on_destroy()
 
 void entt_light::on_update() 
 {
-	if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+	if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
 	{
 	
 	}
@@ -118,7 +118,7 @@ void entt_light::on_draw_3d()
 	{
 		DrawModel(debugModel, Vector3Zero(), 1.0f, YELLOW);
 
-		if (containingWorld->worldEditor.editorCurrentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+		if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
 		{
 			DrawModelWires(debugModel, Vector3Zero(), 1.0f, RED);
 		}

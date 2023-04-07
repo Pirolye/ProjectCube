@@ -38,6 +38,7 @@ void entt_camera::on_make()
 	graphene_quaternion_init_identity(transform.rot);
 
 	mode = 0;
+	moveSpeed = 0.1f;
 	
 }
 
@@ -98,6 +99,14 @@ void entt_camera::update_camera()
 	
 	if (mode == 1)
 	{
+		//(Levente): WARNING! I had to modify rcore.c in order to not put the mouse cursor back in the middle every time you enabled/disabled it! Also, I have to separately get the mouse delta every time I need it, using a variable such as diff in this case doesn't work for some reason.
+		
+		if (!containingWorld->worldEditor.canManipulateWorld) return;
+		
+		Vector2 c = GetMousePosition();
+
+		bool canMove = false;
+
 		Vector2 diff = GetMouseDelta(); 
 
 		diff = Vector2{ diff.x * 0.5f, diff.y * 0.5f };
@@ -106,31 +115,35 @@ void entt_camera::update_camera()
 		{
 			DisableCursor();
 			UpdateCameraPro(rayCam, Vector3Zero(), Vector3{diff.x, diff.y, 0.0f}, 0.0f);
+			SetMousePosition(c.x - GetMouseDelta().x, c.y - GetMouseDelta().y);
+			canMove = true;
 		}
 		if (IsMouseButtonReleased(MOUSE_BUTTON_RIGHT))
 		{
 			EnableCursor();
+			SetMousePosition(c.x - GetMouseDelta().x, c.y - GetMouseDelta().y);
+			canMove = false;
 		}
 
-
+		if (!canMove) return;
 		if (IsKeyDown(KEY_W))
 		{
-			CameraMoveForward(rayCam, 0.1f, false);
+			CameraMoveForward(rayCam, moveSpeed, false);
 			transform.pos = rayCam->position;
 		}
 		if (IsKeyDown(KEY_S))
 		{
-			CameraMoveForward(rayCam, -0.1f, false);
+			CameraMoveForward(rayCam, -moveSpeed, false);
 			transform.pos = rayCam->position;
 		}
 		if (IsKeyDown(KEY_D))
 		{
-			CameraMoveRight(rayCam, 0.1f, false);
+			CameraMoveRight(rayCam, moveSpeed, false);
 			transform.pos = rayCam->position;
 		}
 		if (IsKeyDown(KEY_A))
 		{
-			CameraMoveRight(rayCam, -0.1f, false);
+			CameraMoveRight(rayCam, -moveSpeed, false);
 			transform.pos = rayCam->position;
 		}
 		if (IsKeyDown(KEY_E))

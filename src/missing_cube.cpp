@@ -2,8 +2,8 @@
 *
 *  Missing Cube
 * 
-*  A game by Levente Biro (C) 2022. Uses raylib. (rlgl.h, rcamera.h is modified!)
-*									Uses Nvidia Physx 5.1
+*  A game by Levente Biro (C) 2022. Uses raylib 4.5 (MODIFIED)
+*									Uses Nvidia Physx 5.2
 *									Uses graphene 1.10.8
 *
 ********************************************************************************************/

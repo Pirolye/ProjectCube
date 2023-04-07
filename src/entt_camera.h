@@ -10,6 +10,7 @@ struct entt_camera : entt
 
 	int mode; // 0 = locked (standard gameplay camera for missing cube) 1 = editor_free (free movement camera, standard 3d editor controls)
 	bool isForEditorOnly;
+	float moveSpeed;
 
 	using entt::entt;
 
