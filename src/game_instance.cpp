@@ -5,6 +5,7 @@ using namespace physx;
 
 game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int inWindowHeight, float inTargetFPS)
 {
+
 	SetConfigFlags(FLAG_MSAA_4X_HINT);  // Enable Multi Sampling Anti Aliasing 4x (if available)
 
 	gFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gAllocator, gErrorCallback);
@@ -20,6 +21,7 @@ game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int i
 	displayName = inDisplayName;
 	windowWidth = inWindowWidth;
 	windowHeight = inWindowHeight;
+	SetExitKey(0);
 
 	InitAudioDevice();      // Initialize audio device
 	SetTargetFPS(inTargetFPS); 

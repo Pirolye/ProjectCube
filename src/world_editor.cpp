@@ -194,11 +194,11 @@ void world::shutdown_world_editor()
 void world::update_world_editor()
 {
 	// If we are hovering any ImGui windows then we can't edit the world, however, when we are editing, we don't want ImGui to do its IO
-	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::GetIO().WantCaptureKeyboard)
+	if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().NavVisible)
 	{
 		worldEditor.canManipulateWorld = false;
 	}
-	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && !ImGui::GetIO().WantCaptureKeyboard)
+	if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) && !ImGui::GetIO().WantCaptureKeyboard && !ImGui::GetIO().NavVisible)
 	{
 		worldEditor.canManipulateWorld = true;
 		
@@ -226,15 +226,10 @@ void world::update_world_editor()
 	}
 	
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && worldEditor.canManipulateWorld) editor_try_select_entt();
-	if (IsKeyPressed(KEY_TAB)) editor_next_camera();
 
-	if (IsKeyPressed(KEY_TAB))
-	{
-		worldEditor.currentlyEditingAxis = worldEditor.currentlyEditingAxis + 1;
-		if (worldEditor.currentlyEditingAxis == 3) worldEditor.currentlyEditingAxis = 0;
-	}
+	if (IsKeyPressed(KEY_TAB) && worldEditor.canManipulateWorld) editor_next_camera();
 	
-	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && worldEditor.selectingEntt)
+	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && worldEditor.selectingEntt && worldEditor.canManipulateWorld)
 	{
 		// Set gizmo modes
 		if(!editor_is_selecting_any_gizmo()) 
