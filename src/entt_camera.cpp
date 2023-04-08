@@ -39,12 +39,19 @@ void entt_camera::on_make()
 
 	mode = 0;
 	moveSpeed = 0.1f;
+
+	transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
+	euler = Vector3Zero();
+
+	cameraEditorModel = LoadModel("editor/camera_model.obj");
 	
 }
 
 void entt_camera::on_destroy() 
 {
 	delete(rayCam);
+
+	UnloadModel(cameraEditorModel);
 };
 
 void entt_camera::on_update() 
@@ -63,10 +70,22 @@ void entt_camera::on_draw_3d()
 {
 	if (this != containingWorld->currentlyRenderingCamera) return;
 	
-	
 	if (containingWorld->worldEditor.isInEditorMode)
 	{
 		DrawGrid(10, 1.0f);
+
+		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		{
+			if (containingWorld->entityArray[i] != NULL)
+			{
+				if (dynamic_cast<entt_camera*>(containingWorld->entityArray[i]) != nullptr)
+				{
+					entt_camera* currentCam = dynamic_cast<entt_camera*>(containingWorld->entityArray[i]);
+					if(currentCam != this) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
+				
+				}
+			}
+		}
 	}
 
 }
@@ -115,6 +134,18 @@ void entt_camera::update_camera()
 		{
 			DisableCursor();
 			UpdateCameraPro(rayCam, Vector3Zero(), Vector3{diff.x, diff.y, 0.0f}, 0.0f);
+
+			euler.x = euler.x + diff.x;
+			euler.y = euler.y + diff.y;
+
+			if (euler.x > 180.0f) euler.x = 0.0f + diff.x;
+			if (euler.x < 0.0f) euler.x = 360.0f + diff.x;
+
+			if (euler.y > 180.0f) euler.y = 0.0f + diff.y;
+			if (euler.y < 0.0f) euler.y = 360.0f + diff.y;
+
+
+			editor_camera_update_model_rotation();
 			SetMousePosition(c.x - GetMouseDelta().x, c.y - GetMouseDelta().y);
 			canMove = true;
 		}
@@ -171,6 +202,19 @@ void entt_camera::update_camera()
 	
 	
 
+}
+
+void entt_camera::editor_camera_update_model_rotation()
+{
+
+
+
+	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);	
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD*euler.x, DEG2RAD * euler.y, DEG2RAD * euler.z });
+
+	cameraEditorModel.transform = MatrixIdentity();
+	cameraEditorModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 }
 
 void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)

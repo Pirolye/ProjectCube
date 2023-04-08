@@ -12,6 +12,8 @@ struct entt_camera : entt
 	bool isForEditorOnly;
 	float moveSpeed;
 
+	Vector3 euler; // Rotation represented as euler angles. For ease of use, everywhere else use quats!!
+
 	using entt::entt;
 
 	entt_camera() {};
@@ -25,6 +27,9 @@ struct entt_camera : entt
 
 	void update_camera();
 	void set_mode(int inMode, bool inIsForEditorOnly);
+
+	Model cameraEditorModel;
+	void editor_camera_update_model_rotation();
 
 	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
