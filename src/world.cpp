@@ -143,7 +143,7 @@ void world::draw_all()
 {
 	BeginDrawing();
 
-	BeginMode3D( *currentlyRenderingCamera->rayCam);
+	BeginMode3D( currentlyRenderingCamera->rayCam);
 	
 	ClearBackground(BLACK);
 

@@ -164,7 +164,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 		collision.distance = FLT_MAX;
 		collision.hit = false;
 		RayCollision meshHitInfo = { 0 };
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, worldEditor.editorGizmoMoveAxisX.meshes[0], worldEditor.editorGizmoMoveAxisX.transform);
 		if (meshHitInfo.hit)
@@ -200,7 +200,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 
 		}
 
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.hit = false;
 		meshHitInfo = { 0 };
@@ -242,7 +242,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 			}
 		}
 
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.hit = false;
 		meshHitInfo = { 0 };
@@ -286,7 +286,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 
 
 
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.hit = false;
 		meshHitInfo = { 0 };
@@ -334,7 +334,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 
 			}
 		}
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.hit = false;
 		meshHitInfo = { 0 };
@@ -380,7 +380,7 @@ void world::editor_check_against_move_gizmo(Vector3 inCenterPos)
 
 			}
 		}
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.hit = false;
 		meshHitInfo = { 0 };
@@ -455,7 +455,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 {
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		RayCollision collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
@@ -505,7 +505,7 @@ void world::editor_check_against_rotate_gizmo(Vector3 inCenterPos)
 			}
 		}
 
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
@@ -591,10 +591,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		float currentFramePointX = 0.0f;
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		float prevFramePointX = 0.0f;
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -643,10 +643,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		float currentFramePointY = 0.0f;
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		float prevFramePointY = 0.0f;
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -694,10 +694,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		float currentFramePointZ = 0.0f;
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		float prevFramePointZ = 0.0f;
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -747,10 +747,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		Vector2 currentFramePointXY{ 0.0f, 0.0f };
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		Vector2 prevFramePointXY{ 0.0f, 0.0f };
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -800,10 +800,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		Vector2 currentFramePointYZ{ 0.0f, 0.0f };
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		Vector2 prevFramePointYZ{ 0.0f, 0.0f };
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -853,10 +853,10 @@ void world::editor_move_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* e
 
 		Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
-		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		Vector2 currentFramePointZX{ 0.0f, 0.0f };
 
-		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, currentlyRenderingCamera->rayCam);
 		Vector2 prevFramePointZX{ 0.0f, 0.0f };
 
 		for (int m = 0; m < worldEditor.editorGizmoHelperModel.meshCount; m++)
@@ -919,7 +919,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			delete worldEditor.enttRot;
 
 			Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y};
-			Ray cursorSelectionRayForFirstFrame = GetMouseRay(mousePos, *currentlyRenderingCamera->rayCam);
+			Ray cursorSelectionRayForFirstFrame = GetMouseRay(mousePos, currentlyRenderingCamera->rayCam);
 
 			meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForFirstFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
 			if (meshHitInfo.hit)
@@ -934,7 +934,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 		}
 
-		cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+		cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 		Vector3 currentFramePoint{};
 
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
@@ -943,7 +943,7 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 			currentFramePoint = Vector3{ meshHitInfo.point.x, meshHitInfo.point.y, meshHitInfo.point.z };
 
 			//BeginDrawing();
-			//BeginMode3D( *currentlyRenderingCamera->rayCam);
+			//BeginMode3D( currentlyRenderingCamera->rayCam);
 
 			//DrawCubeV(worldEditor.firstFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, BLACK);
 			//DrawCubeV(currentFramePoint, Vector3{ 1.0f, 1.0f, 1.0f, }, WHITE);
@@ -991,10 +991,10 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 
 
 		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
-		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, currentlyRenderingCamera->rayCam);
 
 		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
-		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, currentlyRenderingCamera->rayCam);
 
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayCurrentFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
 		if (meshHitInfo.hit)
@@ -1078,10 +1078,10 @@ void world::editor_rotate_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt*
 		RayCollision meshHitInfo = { 0 };
 
 		Vector2 mousePos = Vector2{ GetMousePosition().x, GetMousePosition().y };
-		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayCurrentFrame = GetMouseRay(mousePos, currentlyRenderingCamera->rayCam);
 
 		Vector2 mousePosPrevFrame = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
-		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, *currentlyRenderingCamera->rayCam);
+		Ray cursorSelectionRayPrevFrame = GetMouseRay(mousePosPrevFrame, currentlyRenderingCamera->rayCam);
 
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayCurrentFrame, worldEditor.editorGizmoHelperModel.meshes[0], worldEditor.editorGizmoHelperModel.transform);
 		if (meshHitInfo.hit)

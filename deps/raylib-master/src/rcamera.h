@@ -481,7 +481,7 @@ void UpdateCameraPro(Camera *camera, Vector3 movement, Vector3 rotation, float z
     // rotation.z - roll
     // zoom - Move towards target
 
-    bool lockView = false;
+    bool lockView = true;
     bool rotateAroundTarget = false;
     bool rotateUp = false;
     bool moveInWorldPlane = true;

@@ -311,7 +311,7 @@ void world::editor_try_select_entt()
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), *currentlyRenderingCamera->rayCam);
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), currentlyRenderingCamera->rayCam);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{

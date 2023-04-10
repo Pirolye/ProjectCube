@@ -26,13 +26,11 @@ even close to accomplishing this. Now we have 1 camera which switches properties
 
 void entt_camera::on_make()
 {
-	rayCam = new Camera3D;
-	
-	rayCam->position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
-	rayCam->target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-	rayCam->up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-	rayCam->fovy = 70.0f;                                // Camera field-of-view 
-	rayCam->projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+	rayCam.position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
+	rayCam.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+	rayCam.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+	rayCam.fovy = 70.0f;                                // Camera field-of-view 
+	rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
 	transform.rot = graphene_quaternion_alloc();
 	graphene_quaternion_init_identity(transform.rot);
@@ -49,8 +47,6 @@ void entt_camera::on_make()
 
 void entt_camera::on_destroy() 
 {
-	delete(rayCam);
-
 	UnloadModel(cameraEditorModel);
 };
 
@@ -92,23 +88,13 @@ void entt_camera::on_draw_3d()
 
 void entt_camera::set_mode(int inMode, bool inIsForEditorOnly)
 {
-	if (inMode == 0)
+	if (inMode != 1 && inMode != 0)
 	{
-		mode = inMode;
-
-		CameraMoveForward(rayCam, -10.0f, false);
-		transform.pos = rayCam->position;
-
-	}
-	else if (inMode == 1)
-	{
-		mode = inMode;
-	}
-	else
-	{
-		printf("Tried to set camera.mode to a value not 1 or 0 (invalid) on camera %s!\n", id.c_str());
+		printf("[game] ERROR: Tried to set camera.mode to value <<%d>> (invalid, only <<1>> and <<0>> is valid) on camera %s!\n", inMode, id.c_str());
+		return;
 	}
 
+	mode = inMode;
 	isForEditorOnly = inIsForEditorOnly;
 }
 
@@ -126,26 +112,16 @@ void entt_camera::update_camera()
 
 		bool canMove = false;
 
-		Vector2 diff = GetMouseDelta(); 
+		Vector2 diff1 = GetMouseDelta(); 
 
-		diff = Vector2{ diff.x * 0.5f, diff.y * 0.5f };
+		Vector2 diff = Vector2{ diff1.x / 2.0f, diff1.y / 2.0f };
 	
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 		{
 			DisableCursor();
-			UpdateCameraPro(rayCam, Vector3Zero(), Vector3{diff.x, diff.y, 0.0f}, 0.0f);
-
-			euler.x = euler.x + diff.x;
-			euler.y = euler.y + diff.y;
-
-			if (euler.x > 180.0f) euler.x = 0.0f + diff.x;
-			if (euler.x < 0.0f) euler.x = 360.0f + diff.x;
-
-			if (euler.y > 180.0f) euler.y = 0.0f + diff.y;
-			if (euler.y < 0.0f) euler.y = 360.0f + diff.y;
-
-
-			editor_camera_update_model_rotation();
+			
+			transform_camera_by_delta(Vector3Zero(), Vector3{ diff.x, diff.y, 0.0f });
+			
 			SetMousePosition(c.x - GetMouseDelta().x, c.y - GetMouseDelta().y);
 			canMove = true;
 		}
@@ -157,38 +133,13 @@ void entt_camera::update_camera()
 		}
 
 		if (!canMove) return;
-		if (IsKeyDown(KEY_W))
-		{
-			CameraMoveForward(rayCam, moveSpeed, false);
-			transform.pos = rayCam->position;
-		}
-		if (IsKeyDown(KEY_S))
-		{
-			CameraMoveForward(rayCam, -moveSpeed, false);
-			transform.pos = rayCam->position;
-		}
-		if (IsKeyDown(KEY_D))
-		{
-			CameraMoveRight(rayCam, moveSpeed, false);
-			transform.pos = rayCam->position;
-		}
-		if (IsKeyDown(KEY_A))
-		{
-			CameraMoveRight(rayCam, -moveSpeed, false);
-			transform.pos = rayCam->position;
-		}
-		if (IsKeyDown(KEY_E))
-		{
-			rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y + 0.1f, rayCam->target.z };
-			rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y + 0.1f, rayCam->position.z };
-			transform.pos = rayCam->position;
-		}
-		if (IsKeyDown(KEY_Q))
-		{
-			rayCam->target = Vector3{ rayCam->target.x, rayCam->target.y - 0.1f, rayCam->target.z };
-			rayCam->position = Vector3{ rayCam->position.x, rayCam->position.y - 0.1f, rayCam->position.z };
-			transform.pos = rayCam->position;
-		}
+
+		if (IsKeyDown(KEY_W)) transform_camera_by_delta(Vector3{ moveSpeed, 0.0f, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_S)) transform_camera_by_delta(Vector3{ -moveSpeed, 0.0f, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_D)) transform_camera_by_delta(Vector3{ 0.0f, 0.0f, moveSpeed }, Vector3Zero());
+		if (IsKeyDown(KEY_A)) transform_camera_by_delta(Vector3{ 0.0f, 0.0f, -moveSpeed }, Vector3Zero());
+		if (IsKeyDown(KEY_E)) transform_camera_by_delta(Vector3{ 0.0f, moveSpeed, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_Q)) transform_camera_by_delta(Vector3{ 0.0f, -moveSpeed, 0.0f }, Vector3Zero());
 
 	}
 	else if (mode == 0)
@@ -209,9 +160,11 @@ void entt_camera::editor_camera_update_model_rotation()
 
 
 
+
 	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);	
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD*euler.x, DEG2RAD * euler.y, DEG2RAD * euler.z });
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * euler.x, DEG2RAD * euler.y, 0.0f });
 
 	cameraEditorModel.transform = MatrixIdentity();
 	cameraEditorModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
@@ -219,7 +172,39 @@ void entt_camera::editor_camera_update_model_rotation()
 
 void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
 {
+	printf("[game] Illegal call: entt_camera:update_spatial_props() For camera, always use move_camera_by()!!!");
+	assert(false);
+
+}
+
+void entt_camera::transform_camera_by_delta(Vector3 inNewPosDelta, Vector3 inNewRotDelta)
+{
+	//(Levente): We have to manually calculate the angle of the camera based on the inputs we receive.
+	// I originally wanted to clamp the value of the y axis rot to 360, but we lost so much precision with all that that I let it go. Now, we work with floats in the 0 - 10 000 range, usually. Hopefully won't cause any issues.
 	
+	UpdateCameraPro(&rayCam, Vector3Zero(), inNewRotDelta, 0.0f);
+	
+	euler.x = euler.x + inNewRotDelta.y;
+	euler.y = euler.y - inNewRotDelta.x;
+
+	if (euler.x > 90.0f) euler.x = 90.0f;
+	if (euler.x < -90.0f) euler.x = -90.0f;
+
+	/*
+	if (euler.y > 359.5f) euler.y = 0.0f;
+	if (euler.y < 0.0f) euler.y = 359.5f;
+	*/
+
+	//printf("[game] currentlyRenderingCam euler: %f %f %f\n", this->euler.x, this->euler.y, this->euler.z);
+
+	CameraMoveForward(&rayCam, inNewPosDelta.x, false);
+	CameraMoveRight(&rayCam, inNewPosDelta.z, false);
+
+	rayCam.target = Vector3{ rayCam.target.x, rayCam.target.y + inNewPosDelta.y, rayCam.target.z };
+	rayCam.position = Vector3{ rayCam.position.x, rayCam.position.y + inNewPosDelta.y, rayCam.position.z };
+
+	transform.pos = rayCam.position;
+	editor_camera_update_model_rotation();
 
 }
 
