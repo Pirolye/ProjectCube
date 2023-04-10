@@ -121,7 +121,7 @@ void world::editor_next_camera()
 {
 	int numOfCam = 0;
 	
-	entt_camera* camArray[64] = { NULL };
+	entt_camera* camArray[64] = { NULL }; // @@ RESET ME
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{

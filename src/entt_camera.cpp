@@ -26,8 +26,8 @@ even close to accomplishing this. Now we have 1 camera which switches properties
 
 void entt_camera::on_make()
 {
-	rayCam.position = Vector3{ 0.0f, 0.0f, -5.0f }; // Camera position
-	rayCam.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
+	rayCam.position = Vector3{ 0.0f, 0.0f, 0.0f }; // Camera position
+	rayCam.target = Vector3{ 0.0f, 0.0f, 1.0f };      // Camera looking at point
 	rayCam.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
 	rayCam.fovy = 70.0f;                                // Camera field-of-view 
 	rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
@@ -35,6 +35,8 @@ void entt_camera::on_make()
 	transform.rot = graphene_quaternion_alloc();
 	graphene_quaternion_init_identity(transform.rot);
 
+	transform.pos = Vector3Zero();
+	
 	mode = 0;
 	moveSpeed = 0.1f;
 
@@ -72,15 +74,22 @@ void entt_camera::on_draw_3d()
 
 		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 		{
-			if (containingWorld->entityArray[i] != NULL)
-			{
-				if (dynamic_cast<entt_camera*>(containingWorld->entityArray[i]) != nullptr)
-				{
-					entt_camera* currentCam = dynamic_cast<entt_camera*>(containingWorld->entityArray[i]);
-					if(currentCam != this) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
+			if (containingWorld->entityArray[i] == NULL) continue;
+			
+			if (dynamic_cast<entt_camera*>(containingWorld->entityArray[i]) == nullptr) continue;
+			
+			entt_camera* currentCam = dynamic_cast<entt_camera*>(containingWorld->entityArray[i]);
+
+			if (currentCam == this) continue;
 				
-				}
+			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
+			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
+
+			if (containingWorld->worldEditor.currentlySelectedEntt == currentCam)
+			{
+				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
 			}
+						
 		}
 	}
 
@@ -157,14 +166,10 @@ void entt_camera::update_camera()
 
 void entt_camera::editor_camera_update_model_rotation()
 {
-
-
-
-
 	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z - 1.0f);
 	
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * euler.x, DEG2RAD * euler.y, 0.0f });
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * euler.x, DEG2RAD * euler.y, DEG2RAD * 0.0f });
 
 	cameraEditorModel.transform = MatrixIdentity();
 	cameraEditorModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
@@ -172,8 +177,17 @@ void entt_camera::editor_camera_update_model_rotation()
 
 void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
 {
-	printf("[game] Illegal call: entt_camera:update_spatial_props() For camera, always use move_camera_by()!!!");
-	assert(false);
+	
+	float x, y, z;
+
+	graphene_quaternion_to_angles(inNewRotation, &x, &y, &z);
+	
+	transform_camera_by_delta(Vector3{ inNewPos.z - transform.pos.z, inNewPos.y - transform.pos.y, -1.0f * (inNewPos.x - transform.pos.x) }, Vector3{x, y, z});
+	
+	
+	//printf("[game] Illegal call: entt_camera:update_spatial_props() For camera, always use move_camera_by()!!!\n");
+	//assert(false);
+	return;
 
 }
 
@@ -220,7 +234,26 @@ void entt_camera::transform_camera_by_delta(Vector3 inNewPosDelta, Vector3 inNew
 
 entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
 {
-	return nullptr;
+	// Check ray collision against model meshes
+	RayCollision meshHitInfo = { 0 };
+	for (int m = 0; m < cameraEditorModel.meshCount; m++)
+	{
+		meshHitInfo = GetRayCollisionMesh(inRay, cameraEditorModel.meshes[m], cameraEditorModel.transform);
+		if (meshHitInfo.hit)
+		{
+			// Save the closest hit mesh
+			inRayCollision = meshHitInfo;
+
+			return this;
+
+			break;  // Stop once one mesh collision is detected, the colliding mesh is m
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+
 };
 
 #else
