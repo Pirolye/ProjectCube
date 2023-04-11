@@ -7,6 +7,8 @@
 
 #include "rlimgui.h"
 
+#include "game_instance.h"
+
 /*
 
 BIRO: I decided to separate the standard world functions from the editor ones because the main file was getting bloated and hard to navigate.
@@ -265,8 +267,19 @@ void world::draw_world_editor_2d()
 {
 	rlImGuiBegin();
 
-	bool open;
-	ImGui::ShowDemoWindow(&open);
+	worldEditor.worldEditorUI.setup_colors();
+
+	editor_draw_main_menu();
+
+	editor_draw_entt_panel();
+
+	if (worldEditor.ImGuiStylerOpen)
+	{
+		ImGui::ShowStyleEditor(&(ImGui::GetStyle()));
+	}
+
+	//static bool open = true;
+	//ImGui::ShowDemoWindow(&open);
 
 
 
@@ -328,6 +341,7 @@ void world::editor_try_select_entt()
 	}
 };
 
+// -------- UI --------
 
 
 #else

@@ -16,6 +16,14 @@ using namespace physx;
 
 struct game_instance;
 
+struct world_editor_ui
+{
+	void setup_colors();
+	
+	void entt_panel_draw_vec3(Vector3* inVec3, char* inName);
+	void entt_panel_draw_quat(graphene_quaternion_t* inQuat, char* inName);
+};
+
 struct world_editor
 {
 	bool isInEditorMode = false;
@@ -53,6 +61,14 @@ struct world_editor
 	
 	Mesh editorGizmoHelperMesh{};
 	Model editorGizmoHelperModel{};
+
+	// --- UI ---
+
+	world_editor_ui worldEditorUI;
+
+	bool enttPanelOpen = false;
+	bool ImGuiStylerOpen = false;
+	entt_transform localT = {};
 
 };
 
@@ -111,6 +127,8 @@ struct world
 	void editor_do_not_select_any_gizmo();
 	void editor_next_camera();
 	//void editor_scale_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate); // We need entt transform overhaul for this!
+	void editor_draw_entt_panel();
+	void editor_draw_main_menu();
 
 	void update();
 	void draw_all();

@@ -60,7 +60,7 @@ void entt_camera::on_update()
 void entt_camera::on_draw_2d()
 {
 	if (this != containingWorld->currentlyRenderingCamera) return;
-	DrawFPS(10, 10);
+	DrawFPS(10, 20);
 
 };
 
