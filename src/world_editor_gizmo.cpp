@@ -25,7 +25,7 @@ void world::editor_draw_gizmo(Vector3 inCenterPos)
 	if (worldEditor.currentGizmoMode == 0)
 	{
 
-		
+
 		Matrix matScaleX = MatrixScale(1.0f, 1.0f, 1.0f);
 		Matrix matRotationX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f, DEG2RAD * 90.0f });
 		Matrix matTranslationX = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
@@ -55,62 +55,62 @@ void world::editor_draw_gizmo(Vector3 inCenterPos)
 		Matrix matRotationZX = MatrixRotateXYZ(Vector3{ 0.0f, 0.0f , 0.0f });
 		Matrix matTranslationZX = MatrixTranslate(inCenterPos.x + 1.5f, inCenterPos.y, inCenterPos.z - 1.5f);
 		worldEditor.editorGizmoMoveAxisZX.transform = MatrixMultiply(MatrixMultiply(matScaleZX, matRotationZX), matTranslationZX);
-	}
 
-	if (worldEditor.selectingGizmoMoveAxisX == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
-	}
 
-	if (worldEditor.selectingGizmoMoveAxisY == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
-	}
+		if (worldEditor.selectingGizmoMoveAxisX == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, RED);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisX, Vector3Zero(), 1.0f, WHITE);
+		}
 
-	if (worldEditor.selectingGizmoMoveAxisZ == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
-	}
+		if (worldEditor.selectingGizmoMoveAxisY == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, GREEN);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisY, Vector3Zero(), 1.0f, WHITE);
+		}
 
-	if (worldEditor.selectingGizmoMoveAxisXY == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, WHITE);
-	}
+		if (worldEditor.selectingGizmoMoveAxisZ == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, BLUE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZ, Vector3Zero(), 1.0f, WHITE);
+		}
 
-	if (worldEditor.selectingGizmoMoveAxisYZ == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, WHITE);
-	}
+		if (worldEditor.selectingGizmoMoveAxisXY == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, ORANGE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisXY, Vector3Zero(), 1.0f, WHITE);
+		}
 
-	if (worldEditor.selectingGizmoMoveAxisZX == false)
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
-	}
-	else
-	{
-		DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, WHITE);
-	}
+		if (worldEditor.selectingGizmoMoveAxisYZ == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, SKYBLUE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisYZ, Vector3Zero(), 1.0f, WHITE);
+		}
 
+		if (worldEditor.selectingGizmoMoveAxisZX == false)
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, PURPLE);
+		}
+		else
+		{
+			DrawModel(worldEditor.editorGizmoMoveAxisZX, Vector3Zero(), 1.0f, WHITE);
+		}
+	}
 
 	if (worldEditor.currentGizmoMode == 1)
 	{

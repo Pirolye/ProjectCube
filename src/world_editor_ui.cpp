@@ -103,6 +103,8 @@ void world_editor_ui::entt_panel_draw_quat(graphene_quaternion_t* inQuat, char* 
 
 	}
 
+	graphene_vec4_free(v4);
+
 }
 
 void world::editor_draw_entt_panel()
