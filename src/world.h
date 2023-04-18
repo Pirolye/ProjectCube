@@ -24,7 +24,7 @@ struct world
 
 	std::string name;
 
-	entt* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
+	void* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 

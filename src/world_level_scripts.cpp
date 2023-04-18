@@ -118,9 +118,16 @@ template <typename t> void* world_make_desired_entt(world* inWorld)
 		{
 			if (inWorld->entityArray[i] != NULL)
 			{
-				isThereAnotherCameraInTheWorld = (reinterpret_cast<entt_camera*>(inWorld->entityArray[i]) != NULL);
-				if (isThereAnotherCameraInTheWorld) break;
-				else continue;
+				if (typeid(inWorld->entityArray[i]) == typeid(entt_camera))
+				{
+					isThereAnotherCameraInTheWorld = true;
+					break;
+				}
+				else
+				{
+					isThereAnotherCameraInTheWorld = false;
+					continue;
+				}
 			}
 		}
 

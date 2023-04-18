@@ -28,7 +28,7 @@ game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int i
 
 	targetFPS = inTargetFPS;
 
-	world* persistentWorld = new world;
+	persistentWorld = new world;
 	world_init(persistentWorld, this, gPhysics);
 
 	//
