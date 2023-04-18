@@ -5,22 +5,22 @@
 ;
 //(Levente): Each shader individually keeps track of light source information. When making a light, we go through each shader and manually update the 
 //information.
-void entt_light::on_make()
+void on_make(entt_light* inEntt)
 {
 	for (int i = 0; i != 360; i++)
 	{
-		rayLight[i] = { 0 };
+		inEntt->rayLight[i] = { 0 };
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
-		if (containingWorld->currentlyLoadedShaders[i].id != 0 && containingWorld->currentlyLoadedShaders[i].locs != 0)
+		if (inEntt->containingWorld->currentlyLoadedShaders[i].id != 0 && inEntt->containingWorld->currentlyLoadedShaders[i].locs != 0)
 		{
 			for (int i2 = 0; i2 != 360; i2++)
 			{
-				if (rayLight[i2].enabled != true)
+				if (inEntt->rayLight[i2].enabled != true)
 				{
-					rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3Zero(), WHITE, containingWorld->currentlyLoadedShaders[i]);
+					inEntt->rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3Zero(), WHITE, inEntt->containingWorld->currentlyLoadedShaders[i]);
 					break;
 				}
 				else
@@ -31,26 +31,26 @@ void entt_light::on_make()
 		}
 	}
 
-	transform.pos = Vector3Zero();
-	transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(transform.rot);
-	transform.scale = Vector3{1.0f, 1.0f, 1.0f};
+	inEntt->transform.pos = Vector3Zero();
+	inEntt->transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntt->transform.rot);
+	inEntt->transform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
 #ifdef DEBUG
-	debugModel = LoadModel("editor/point_light_model.obj");
+	inEntt->debugModel = LoadModel("editor/point_light_model.obj");
 #endif
 }
 
-void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
+void update_light_props(entt_light* inEntt, int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
 {
 	for (int i2 = 0; i2 != 360; i2++)
 	{
-		if (rayLight[i2].enabled == true)
+		if (inEntt->rayLight[i2].enabled == true)
 		{
-			rayLight[i2].type = inType;
-			rayLight[i2].position = inPos;
-			rayLight[i2].target = inTarget;
-			rayLight[i2].color = inColor;
+			inEntt->rayLight[i2].type = inType;
+			inEntt->rayLight[i2].position = inPos;
+			inEntt->rayLight[i2].target = inTarget;
+			inEntt->rayLight[i2].color = inColor;
 		}
 		else
 		{
@@ -62,11 +62,11 @@ void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget,
 	{
 		for (int i2 = 0; i2 != 360; i2++)
 		{
-			if (rayLight[i2].enabled == true)
+			if (inEntt->rayLight[i2].enabled == true)
 			{
-				if (containingWorld->currentlyLoadedShaders[i].id != 0 && containingWorld->currentlyLoadedShaders[i].locs != 0)
+				if (inEntt->containingWorld->currentlyLoadedShaders[i].id != 0 && inEntt->containingWorld->currentlyLoadedShaders[i].locs != 0)
 				{
-					UpdateLightValues(containingWorld->currentlyLoadedShaders[i], rayLight[i2]);
+					UpdateLightValues(inEntt->containingWorld->currentlyLoadedShaders[i], inEntt->rayLight[i2]);
 				}
 
 			}
@@ -74,53 +74,53 @@ void entt_light::update_light_props(int inType, Vector3 inPos, Vector3 inTarget,
 	}
 };
 
-void entt_light::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
+void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	transform.pos = inNewPos;
-	transform.scale = inNewScale;
-	transform.rot = inNewRot;
+	inEntt->transform.pos = inNewPos;
+	inEntt->transform.scale = inNewScale;
+	inEntt->transform.rot = inNewRot;
 
 	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
 	float x, y, z;
-	graphene_quaternion_to_radians(transform.rot, &x, &y, &z);
+	graphene_quaternion_to_radians(inEntt->transform.rot, &x, &y, &z);
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
-	debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+	inEntt->debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	update_light_props(this->rayLight->type, transform.pos, Vector3Zero(), this->rayLight->color);
+	update_light_props(inEntt, inEntt->rayLight->type, inEntt->transform.pos, Vector3Zero(), inEntt->rayLight->color);
 
 }
 
-void entt_light::on_destroy() 
+void on_destroy(entt_light* inEntt)
 {
 #ifdef DEBUG
-	UnloadModel(debugModel);
+	UnloadModel(inEntt->debugModel);
 #endif
 };
 
-void entt_light::on_update() 
+void on_update(entt_light* inEntt)
 {
-	if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+	if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
 	{
 	
 	}
 };
 
-void entt_light::on_draw_2d() 
+void on_draw_2d(entt_light* inEntt)
 {
 
 };
 
-void entt_light::on_draw_3d() 
+void on_draw_3d(entt_light* inEntt)
 {
-	if (containingWorld->worldEditor.isInEditorMode)
+	if (inEntt->containingWorld->worldEditor->isInEditorMode)
 	{
-		DrawModel(debugModel, Vector3Zero(), 1.0f, YELLOW);
+		DrawModel(inEntt->debugModel, Vector3Zero(), 1.0f, YELLOW);
 
-		if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+		if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
 		{
-			DrawModelWires(debugModel, Vector3Zero(), 1.0f, RED);
+			DrawModelWires(inEntt->debugModel, Vector3Zero(), 1.0f, RED);
 		}
 
 	}
@@ -137,8 +137,9 @@ void entt_light::on_draw_3d()
 
 #ifdef DEBUG
 
-entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt_light* editor_try_select(entt_light* inEntt)
 {
+	/*
 	// Check ray collision against model meshes
 	RayCollision meshHitInfo = { 0 };
 	for (int m = 0; m < debugModel.meshCount; m++)
@@ -149,7 +150,7 @@ entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
 			// Save the closest hit mesh
 			inRayCollision = meshHitInfo;
 
-			return this;
+			return inEntt;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}
@@ -157,13 +158,14 @@ entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
 		{
 			return nullptr;
 		}
-	}
+	}*/
 
+	return nullptr;
 }
 
 #else
 
-entt* entt_light::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt* editor_try_select(entt_maincube* inEntt)
 {
 	return nullptr;
 }

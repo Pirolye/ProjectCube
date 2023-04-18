@@ -268,7 +268,7 @@ void dynamic_body::disable()
 void dynamic_body::update()
 {
 	//Get the PhysX results
-	if (containingWorld->worldEditor.isInEditorMode == false)
+	if (containingWorld->worldEditor->isInEditorMode == false)
 	{
 		PxTransform physxReturns = rigidDynamic->getGlobalPose();
 

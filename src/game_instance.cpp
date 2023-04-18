@@ -28,7 +28,8 @@ game_instance::game_instance(std::string inDisplayName, int inWindowWidth, int i
 
 	targetFPS = inTargetFPS;
 
-	persistentWorld = new world(this, gPhysics);
+	world* persistentWorld = new world;
+	world_init(persistentWorld, this, gPhysics);
 
 	//
 	//
@@ -39,19 +40,19 @@ void game_instance::update()
 {
 	assert(persistentWorld != NULL); assert(persistentWorld != nullptr);
 	
-	persistentWorld->update();
+	world_update(persistentWorld);
 };
 
 void game_instance::draw()
 {
 	assert(persistentWorld != NULL); assert(persistentWorld != nullptr);
 
-	persistentWorld->draw_all();
+	world_draw_all(persistentWorld);
 };
 
 void game_instance::on_exit()
 {
-	persistentWorld->on_destroy();
+	world_deinit(persistentWorld);
 
 	CloseAudioDevice();     // Close audio context
 

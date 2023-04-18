@@ -15,22 +15,23 @@ struct entt_maincube : entt
 
 	dynamic_body* collisionBox;
 
-	using entt::entt;
-
-	entt_maincube() {};
-	~entt_maincube() {};
-
-	virtual void on_make() override;
-	virtual void on_destroy() override;
-	virtual void on_update() override;
-	virtual void on_draw_2d() override;
-	virtual void on_draw_3d() override;
-	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
-	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale) override;
-
-	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 };
 
+void on_make(entt_maincube* inEntt);
+
+void on_update(entt_maincube* inEntt);
+void on_draw_2d(entt_maincube* inEntt);
+void on_draw_3d(entt_maincube* inEntt);
+
+void update_spatial_props(entt_maincube* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entt_maincube* inEntt, Vector3 inNewPos, Vector3 inNewScale);
+
+void on_destroy(entt_maincube* inEntt);
+
+entt_maincube* editor_try_select(entt_maincube* inEntt);
+
+
+// ------------------------------------------
 
 struct entt_maincube_static : entt
 {
@@ -40,22 +41,20 @@ struct entt_maincube_static : entt
 
 	static_body* collisionBox;
 
-	using entt::entt;
-
-	entt_maincube_static() {};
-	~entt_maincube_static() {};
-
-	virtual void on_make() override;
-	virtual void on_destroy() override;
-	virtual void on_update() override;
-	virtual void on_draw_2d() override;
-	virtual void on_draw_3d() override;
-	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
-	virtual void update_spatial_props(Vector3 inNewPos, Vector3 inNewScale) override;
-
-	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
 };
 
+void on_make(entt_maincube_static* inEntt);
+
+void on_update(entt_maincube_static* inEntt);
+void on_draw_2d(entt_maincube_static* inEntt);
+void on_draw_3d(entt_maincube_static* inEntt);
+
+void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale);
+
+void on_destroy(entt_maincube_static* inEntt);
+
+entt_maincube_static* editor_try_select(entt_maincube_static* inEntt);
 
 
 #else

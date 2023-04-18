@@ -1,6 +1,8 @@
 #include "entt_camera.h"
 #include "entt_maincube.h"
 
+#include "world_editor.h"
+
 #include "game_instance.h"
 
 ;
@@ -9,45 +11,25 @@
 #define FLT_MAX 340282346638528859811704183484516925440.0f 
 
 
-world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress) 
+void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 {
 
-	
-	
-	/*
-	//(Levente): Okay... this is clever but not very logical. Apparently 0xcdcdcd... is not a nullptr so we individually assign NULL to every uninitialized entt in the array!
-	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-	{
-		entityArray[i] = NULL;
-	}
+	inWorld->gameInstance = inGameInstance;
+	assert(inWorld->gameInstance != nullptr);
 
-	//(Levente): Same for the shaders.
-	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
-	{
-		currentlyLoadedShaders[i] = { 0 };
-	}
-	*/
+	inWorld->name = "debug";
 
-	gameInstance = inGameInstance;
-	assert(gameInstance != nullptr);
+	inWorld->globalPhysics = inPhysicsMemAddress; // (Levente): We do this because for some reason the can't read gPhysics static var properly. (Even though it can read gFoundation just fine...)
 
-	name = "debug";
-
-	globalPhysics = inPhysicsMemAddress; // (Levente): We do this because for some reason the program
-										 // can't read gPhysics static var properly. (Even though it can read
-										 // gFoundation just fine...)
-
-	PxSceneDesc sceneDesc(globalPhysics->getTolerancesScale());
+	PxSceneDesc sceneDesc(inWorld->globalPhysics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	gameInstance->gDispatcher = PxDefaultCpuDispatcherCreate(2);
-	sceneDesc.cpuDispatcher = gameInstance->gDispatcher;
+	inWorld->gameInstance->gDispatcher = PxDefaultCpuDispatcherCreate(2);
+	sceneDesc.cpuDispatcher = inWorld->gameInstance->gDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	gScene = globalPhysics->createScene(sceneDesc);
+	inWorld->gScene = inWorld->globalPhysics->createScene(sceneDesc);
 
-	//physicsSpace = new q3Scene(1.0 / 60);
-	//physicsSpace->SetGravity(q3Vec3(0.0, -1.0, 0.0));
-
-	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
+	//NOTE: This gets destroy after this scope ends... but it still works... sooo??
+	PxPvdSceneClient* pvdClient = inWorld->gScene->getScenePvdClient();
 	if (pvdClient)
 	{
 		pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
@@ -56,15 +38,41 @@ world::world(game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress)
 	}
 
 #ifdef DEBUG
-	init_world_editor();
+	init_world_editor(inWorld->worldEditor, inWorld);
 #endif
 
-	run_script_on_init();
+	world_run_script_on_init(inWorld);
 
 }
 
-world::~world() //(Levente): Technically this is really bad. We will need a proper shutdown procedure!
+void world_deinit(world* inWorld) //(Levente): Technically this is really bad. We will need a proper shutdown procedure!
 {
+	#if DEBUG
+		shutdown_world_editor(inWorld->worldEditor);
+	#endif
+
+	world_run_script_on_destroy(inWorld);
+
+	//@TODO: Figure this out! 
+
+	/*
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->entityArray[i] != NULL)
+		{
+			inWorld->entityArray[i]->on_destroy();
+		}
+	}
+	*/
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->entityArray[i] != NULL)
+		{
+			delete inWorld->entityArray[i];
+		}
+	}
+
 	/*
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -82,15 +90,15 @@ world::~world() //(Levente): Technically this is really bad. We will need a prop
 
 }
 
-Shader world::make_shader(const char* vertexShader, const char* fragmentShader)
+Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader)
 {
 	Shader temp = LoadShader(vertexShader, fragmentShader);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
-		if (currentlyLoadedShaders[i].id == 0 && currentlyLoadedShaders[i].locs == 0)
+		if (inWorld->currentlyLoadedShaders[i].id == 0 && inWorld->currentlyLoadedShaders[i].locs == 0)
 		{
-			currentlyLoadedShaders[i] = temp;
+			inWorld->currentlyLoadedShaders[i] = temp;
 			break;
 		}
 	}
@@ -99,16 +107,16 @@ Shader world::make_shader(const char* vertexShader, const char* fragmentShader)
 }
 
 
-void world::update()
+void world_update(world* inWorld)
 {
 
 	if (GetFrameTime() > 0)
 	{
 		
-		if (!worldEditor.isInEditorMode) 
+		if (!inWorld->worldEditor->isInEditorMode) 
 		{
-			gScene->simulate(1.0f / gameInstance->targetFPS);
-			gScene->fetchResults(true);
+			inWorld->gScene->simulate(1.0f / inWorld->gameInstance->targetFPS);
+			inWorld->gScene->fetchResults(true);
 		}
 		
 		//(Levente): Traditionally you don't want physics in the editor...
@@ -116,85 +124,71 @@ void world::update()
 		//gScene->fetchResults(true);
 	}
 
+
+	// @@TODO: Look into replacing this mess with a template function!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (entityArray[i] != NULL)
+		if (inWorld->entityArray[i] != NULL)
 		{
-			entityArray[i]->on_update();
+			if(typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_update(static_cast<entt_maincube*>(inWorld->entityArray[i]));
+			if(typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_update(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
+			if(typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_update(static_cast<entt_light*>(inWorld->entityArray[i]));
+			if(typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_update(static_cast<entt_camera*>(inWorld->entityArray[i]));
+			//entityArray[i]->on_update();
 		}
 	}
 
 	if (IsKeyPressed(KEY_F1))
 	{
 		#ifdef DEBUG 
-			if (worldEditor.isInEditorMode) exit_editor_mode();
-			else enter_editor_mode();
+			if (inWorld->worldEditor->isInEditorMode) exit_editor_mode(inWorld->worldEditor);
+			else enter_editor_mode(inWorld->worldEditor);
 		#endif
 	}
 
-	if(worldEditor.isInEditorMode) update_world_editor();
+	if(inWorld->worldEditor->isInEditorMode) update_world_editor(inWorld->worldEditor);
 
-	run_script_on_update();
+	world_run_script_on_update(inWorld);
 
 
 }
 
-void world::draw_all()
+void world_draw_all(world* inWorld)
 {
 	BeginDrawing();
 
-	BeginMode3D( currentlyRenderingCamera->rayCam);
+	BeginMode3D(inWorld->currentlyRenderingCamera->rayCam);
 	
 	ClearBackground(BLACK);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (entityArray[i] != NULL)
+		if (inWorld->entityArray[i] != NULL)
 		{
-			entityArray[i]->on_draw_3d();
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_draw_3d(static_cast<entt_maincube*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_draw_3d(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_draw_3d(static_cast<entt_light*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_draw_3d(static_cast<entt_camera*>(inWorld->entityArray[i]));
 		}
 	}
 
-	if (worldEditor.isInEditorMode) draw_world_editor_3d();
+	if (inWorld->worldEditor->isInEditorMode) draw_world_editor_3d(inWorld->worldEditor);
 
 	EndMode3D();
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (entityArray[i] != NULL)
+		if (inWorld->entityArray[i] != NULL)
 		{
-			entityArray[i]->on_draw_2d();
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_draw_2d(static_cast<entt_maincube*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_draw_2d(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_draw_2d(static_cast<entt_light*>(inWorld->entityArray[i]));
+			if (typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_draw_2d(static_cast<entt_camera*>(inWorld->entityArray[i]));
 		}
 	}
 
-	if (worldEditor.isInEditorMode) draw_world_editor_2d();
+	if (inWorld->worldEditor->isInEditorMode) draw_world_editor_2d(inWorld->worldEditor);
 
 	EndDrawing();
 
-}
-
-void world::on_destroy()
-{
-#if DEBUG
-	shutdown_world_editor();
-#endif
-	
-	run_script_on_destroy();
-	
-	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-	{
-		if (entityArray[i] != NULL)
-		{
-			entityArray[i]->on_destroy();
-		}
-	}
-
-	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-	{
-		if (entityArray[i] != NULL)
-		{
-			delete entityArray[i];
-		}
-	}
-	
 }

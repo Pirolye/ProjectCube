@@ -1,106 +1,107 @@
 #include "entt_maincube.h"
+
 #include "rlgl.h"
 #include "raymath.h"
 #include "assert.h"
 
 ;
-void entt_maincube_static::on_make()
+void on_make(entt_maincube_static* inEntt)
 {
-	cubeModel = LoadModel("content/model/smallCube/smallCube.obj");                 // Load model
-	cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
-	cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = cubeTexture;
+	inEntt->cubeModel = LoadModel("content/model/smallCube/smallCube.obj");                 // Load model
+	inEntt->cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
+	inEntt->cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEntt->cubeTexture;
 
-	cubeShader = containingWorld->make_shader("content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
-	cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(cubeShader, "matModel");
-	int ambientLoc = GetShaderLocation(cubeShader, "ambient");
-	SetShaderValue(cubeShader, ambientLoc, containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
-	cubeModel.materials[0].shader = cubeShader;
+	inEntt->cubeShader = world_make_shader(inEntt->containingWorld, "content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
+	inEntt->cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(inEntt->cubeShader, "matModel");
+	int ambientLoc = GetShaderLocation(inEntt->cubeShader, "ambient");
+	SetShaderValue(inEntt->cubeShader, ambientLoc, inEntt->containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
+	inEntt->cubeModel.materials[0].shader = inEntt->cubeShader;
 
-	collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, containingWorld->gScene, containingWorld);
+	inEntt->collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntt->containingWorld->gScene, inEntt->containingWorld);
 
-	transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(transform.rot);
-	update_spatial_props(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+	inEntt->transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntt->transform.rot);
+	update_spatial_props(inEntt, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 
 }
 
-void entt_maincube_static::on_destroy()
+void on_destroy(entt_maincube_static* inEntt)
 {
-	UnloadTexture(cubeTexture);
-	UnloadModel(cubeModel);
-	UnloadShader(cubeShader); // REVISIT!!!!
+	UnloadTexture(inEntt->cubeTexture);
+	UnloadModel(inEntt->cubeModel);
+	UnloadShader(inEntt->cubeShader); // REVISIT!!!!
 
 	//delete body; WILL BE REVISITED
 }
 
-void entt_maincube_static::on_draw_3d()
+void on_draw_3d(entt_maincube_static* inEntt)
 {
 	//rlEnableFrontfaceCulling();
-	if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+	if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
 	{
-		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
-		DrawModelWires(cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
+		DrawModel(inEntt->cubeModel, Vector3Zero(), 1.0f, WHITE);
+		DrawModelWires(inEntt->cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
 	}
 	else
 	{
-		DrawModel(cubeModel, Vector3Zero(), 1.0f, WHITE);
+		DrawModel(inEntt->cubeModel, Vector3Zero(), 1.0f, WHITE);
 	}
 
 	//rlDisableFrontfaceCulling();
 }
 
-void entt_maincube_static::on_draw_2d()
+void on_draw_2d(entt_maincube_static* inEntt)
 {
 
 }
 
-void entt_maincube_static::on_update()
+void on_update(entt_maincube_static* inEntt)
 {
-	collisionBox->update();
+	inEntt->collisionBox->update();
 	
-	update_spatial_props(collisionBox->t.pos, collisionBox->t.scale, collisionBox->t.rot);
+	update_spatial_props(inEntt, inEntt->collisionBox->t.pos, inEntt->collisionBox->t.scale, inEntt->collisionBox->t.rot);
 
-	if (containingWorld->worldEditor.currentlySelectedEntt == this && containingWorld->worldEditor.isInEditorMode)
+	if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_X))
 		{
-			collisionBox->enable();
+			inEntt->collisionBox->enable();
 		}
 
 	}
 }
 
-void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
+void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	transform.pos = inNewPos;
-	transform.scale = inNewScale;
-	transform.rot = inNewRot;
+	inEntt->transform.pos = inNewPos;
+	inEntt->transform.scale = inNewScale;
+	inEntt->transform.rot = inNewRot;
 
-	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
+	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
 	float x, y, z;
-	graphene_quaternion_to_radians(transform.rot, &x, &y, &z);
+	graphene_quaternion_to_radians(inEntt->transform.rot, &x, &y, &z);
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
-	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z);
 
-	cubeModel.transform = MatrixIdentity();
-	cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+	inEntt->cubeModel.transform = MatrixIdentity();
+	inEntt->cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRot);
+	inEntt->collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRot);
 
 }
 
-void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
+void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale)
 {
-	transform.pos = inNewPos;
-	transform.scale = inNewScale;
+	inEntt->transform.pos = inNewPos;
+	inEntt->transform.scale = inNewScale;
 
-	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z);
+	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z);
 
-	cubeModel.transform = MatrixIdentity();
-	cubeModel.transform = MatrixMultiply(matScale, matTranslation);
+	inEntt->cubeModel.transform = MatrixIdentity();
+	inEntt->cubeModel.transform = MatrixMultiply(matScale, matTranslation);
 
-	collisionBox->update_spatial_props(inNewPos, inNewScale);
+	inEntt->collisionBox->update_spatial_props(inNewPos, inNewScale);
 
 }
 
@@ -115,19 +116,20 @@ void entt_maincube_static::update_spatial_props(Vector3 inNewPos, Vector3 inNewS
 
 #ifdef DEBUG
 
-entt* entt_maincube_static::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt_maincube_static* editor_try_select(entt_maincube_static* inEntt)
 {
-	// Check ray collision against model meshes
+	
+	/*// Check ray collision against model meshes
 	RayCollision meshHitInfo = { 0 };
-	for (int m = 0; m < cubeModel.meshCount; m++)
+	for (int m = 0; m < inEntt->cubeModel.meshCount; m++)
 	{
-		meshHitInfo = GetRayCollisionMesh(inRay, cubeModel.meshes[m], cubeModel.transform);
+		meshHitInfo = GetRayCollisionMesh(inRay, inEntt->cubeModel.meshes[m], inEntt->cubeModel.inEntt->transform);
 		if (meshHitInfo.hit)
 		{
 			// Save the closest hit mesh
 			inRayCollision = meshHitInfo;
 
-			return this;
+			return inEntt;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}
@@ -135,13 +137,15 @@ entt* entt_maincube_static::editor_try_select(Ray inRay, RayCollision inRayColli
 		{
 			return nullptr;
 		}
-	}
+	}*/
+
+	return nullptr;
 
 };
 
 #else
 
-entt* entt_maincube_static::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt* editor_try_select(entt_maincube_static* inEntt)
 {
 	return nullptr;
 };

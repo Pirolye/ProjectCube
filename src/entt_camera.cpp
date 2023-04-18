@@ -13,124 +13,70 @@
 #include "rlgl.h"
 
 #include "stdlib.h"
+#include <typeinfo>
 #include "graphene.h"
 #include "assert.h"
 
 /*
 
 BIRO: Originally I wanted to have a multi cam system, where you could have as many cameras as you wanted. However, due to poor software design regarding rcamera.h, I was not 
-even close to accomplishing this. Now we have 1 camera which switches properties when entering/exiting editor mode.
+even close to accomplishing inEntt. Now we have 1 camera which switches properties when entering/exiting editor mode.
 
 */
 
 
-void entt_camera::on_make()
+void on_make(entt_camera* inEntt)
 {
-	rayCam.position = Vector3{ 0.0f, 0.0f, 0.0f }; // Camera position
-	rayCam.target = Vector3{ 0.0f, 0.0f, 1.0f };      // Camera looking at point
-	rayCam.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-	rayCam.fovy = 70.0f;                                // Camera field-of-view 
-	rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
+	inEntt->rayCam.position = Vector3{ 0.0f, 0.0f, 0.0f }; // Camera position
+	inEntt->rayCam.target = Vector3{ 0.0f, 0.0f, 1.0f };      // Camera looking at point
+	inEntt->rayCam.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
+	inEntt->rayCam.fovy = 70.0f;                                // Camera field-of-view 
+	inEntt->rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(transform.rot);
+	inEntt->transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntt->transform.rot);
 
-	transform.pos = Vector3Zero();
+	inEntt->transform.pos = Vector3Zero();
 	
-	mode = 0;
-	moveSpeed = 0.1f;
+	inEntt->mode = 0;
+	inEntt->moveSpeed = 0.1f;
 
-	transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
-	euler = Vector3Zero();
+	inEntt->transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
+	inEntt->euler = Vector3Zero();
 
-	cameraEditorModel = LoadModel("editor/camera_model.obj");
+	inEntt->cameraEditorModel = LoadModel("editor/camera_model.obj");
 	
 }
 
-void entt_camera::on_destroy() 
+void on_destroy(entt_camera* inEntt)
 {
-	UnloadModel(cameraEditorModel);
+	UnloadModel(inEntt->cameraEditorModel);
 };
 
-void entt_camera::on_update() 
+void on_update(entt_camera* inEntt)
 {
-	update_camera();
-};
+	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
 
-void entt_camera::on_draw_2d()
-{
-	if (this != containingWorld->currentlyRenderingCamera) return;
-	DrawFPS(10, 20);
-
-};
-
-void entt_camera::on_draw_3d()
-{
-	if (this != containingWorld->currentlyRenderingCamera) return;
-	
-	if (containingWorld->worldEditor.isInEditorMode)
+	if (inEntt->mode == 1)
 	{
-		DrawGrid(10, 1.0f);
+		//(Levente): WARNING! I had to modify rcore.c in order to not put the mouse cursor back in the middle every time you enabled/disabled it! Also, I have to separately get the mouse delta every time I need it, using a variable such as diff in inEntt case doesn't work for some reason.
 
-		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
-		{
-			if (containingWorld->entityArray[i] == NULL) continue;
-			
-			if (dynamic_cast<entt_camera*>(containingWorld->entityArray[i]) == nullptr) continue;
-			
-			entt_camera* currentCam = dynamic_cast<entt_camera*>(containingWorld->entityArray[i]);
+		if (!inEntt->containingWorld->worldEditor->canManipulateWorld) return;
 
-			if (currentCam == this) continue;
-				
-			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
-			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
-
-			if (containingWorld->worldEditor.currentlySelectedEntt == currentCam)
-			{
-				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
-			}
-						
-		}
-	}
-
-}
-
-void entt_camera::set_mode(int inMode, bool inIsForEditorOnly)
-{
-	if (inMode != 1 && inMode != 0)
-	{
-		printf("[game] ERROR: Tried to set camera.mode to value <<%d>> (invalid, only <<1>> and <<0>> is valid) on camera %s!\n", inMode, id.c_str());
-		return;
-	}
-
-	mode = inMode;
-	isForEditorOnly = inIsForEditorOnly;
-}
-
-void entt_camera::update_camera()
-{
-	if (this != containingWorld->currentlyRenderingCamera) return;
-	
-	if (mode == 1)
-	{
-		//(Levente): WARNING! I had to modify rcore.c in order to not put the mouse cursor back in the middle every time you enabled/disabled it! Also, I have to separately get the mouse delta every time I need it, using a variable such as diff in this case doesn't work for some reason.
-		
-		if (!containingWorld->worldEditor.canManipulateWorld) return;
-		
 		Vector2 c = GetMousePosition();
 
 		bool canMove = false;
 
-		Vector2 diff1 = GetMouseDelta(); 
+		Vector2 diff1 = GetMouseDelta();
 
 		Vector2 diff = Vector2{ diff1.x / 2.0f, diff1.y / 2.0f };
-	
+
 		if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
 		{
 			DisableCursor();
-			
-			transform_camera_by_delta(Vector3Zero(), Vector3{ diff.x, diff.y, 0.0f });
-			
+
+			transform_camera_by_delta(inEntt, Vector3Zero(), Vector3{ diff.x, diff.y, 0.0f });
+
 			SetMousePosition(c.x - GetMouseDelta().x, c.y - GetMouseDelta().y);
 			canMove = true;
 		}
@@ -143,15 +89,15 @@ void entt_camera::update_camera()
 
 		if (!canMove) return;
 
-		if (IsKeyDown(KEY_W)) transform_camera_by_delta(Vector3{ moveSpeed, 0.0f, 0.0f }, Vector3Zero());
-		if (IsKeyDown(KEY_S)) transform_camera_by_delta(Vector3{ -moveSpeed, 0.0f, 0.0f }, Vector3Zero());
-		if (IsKeyDown(KEY_D)) transform_camera_by_delta(Vector3{ 0.0f, 0.0f, moveSpeed }, Vector3Zero());
-		if (IsKeyDown(KEY_A)) transform_camera_by_delta(Vector3{ 0.0f, 0.0f, -moveSpeed }, Vector3Zero());
-		if (IsKeyDown(KEY_E)) transform_camera_by_delta(Vector3{ 0.0f, moveSpeed, 0.0f }, Vector3Zero());
-		if (IsKeyDown(KEY_Q)) transform_camera_by_delta(Vector3{ 0.0f, -moveSpeed, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_W)) transform_camera_by_delta(inEntt, Vector3{ inEntt->moveSpeed, 0.0f, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_S)) transform_camera_by_delta(inEntt, Vector3{ -(inEntt->moveSpeed), 0.0f, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_D)) transform_camera_by_delta(inEntt, Vector3{ 0.0f, 0.0f, inEntt->moveSpeed }, Vector3Zero());
+		if (IsKeyDown(KEY_A)) transform_camera_by_delta(inEntt, Vector3{ 0.0f, 0.0f, -(inEntt->moveSpeed) }, Vector3Zero());
+		if (IsKeyDown(KEY_E)) transform_camera_by_delta(inEntt, Vector3{ 0.0f, inEntt->moveSpeed, 0.0f }, Vector3Zero());
+		if (IsKeyDown(KEY_Q)) transform_camera_by_delta(inEntt, Vector3{ 0.0f, -(inEntt->moveSpeed), 0.0f }, Vector3Zero());
 
 	}
-	else if (mode == 0)
+	else if (inEntt->mode == 0)
 	{
 		return;
 	}
@@ -159,66 +105,112 @@ void entt_camera::update_camera()
 	{
 		return;
 	}
-	
-	
 
-}
 
-void entt_camera::editor_camera_update_model_rotation()
+};
+
+void on_draw_2d(entt_camera* inEntt)
 {
-	Matrix matScale = MatrixScale(transform.scale.x, transform.scale.y, transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(transform.pos.x, transform.pos.y, transform.pos.z - 1.0f);
-	
-	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * euler.x, DEG2RAD * euler.y, DEG2RAD * 0.0f });
+	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
+	DrawFPS(10, 20);
 
-	cameraEditorModel.transform = MatrixIdentity();
-	cameraEditorModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+};
+
+void on_draw_3d(entt_camera* inEntt)
+{
+	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
+	
+	if (inEntt->containingWorld->worldEditor->isInEditorMode)
+	{
+		DrawGrid(10, 1.0f);
+
+		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		{
+			if (inEntt->containingWorld->entityArray[i] == NULL) continue;
+			
+			//if (dynamic_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]) == nullptr) continue;
+			if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
+			
+			entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
+
+			if (currentCam == inEntt) continue;
+				
+			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
+			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
+
+			if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == currentCam)
+			{
+				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
+			}
+						
+		}
+	}
+
 }
 
-void entt_camera::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
+void set_mode(entt_camera* inEntt, int inMode, bool inIsForEditorOnly)
+{
+	if (inMode != 1 && inMode != 0)
+	{
+		printf("[game] ERROR: Tried to set camera.mode to value <<%d>> (invalid, only <<1>> and <<0>> is valid) on camera %s!\n", inMode, inEntt->id.c_str());
+		return;
+	}
+
+	inEntt->mode = inMode;
+	inEntt->isForEditorOnly = inIsForEditorOnly;
+}
+
+void editor_camera_update_model_rotation(entt_camera* inEntt)
+{
+	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z - 1.0f);
+	
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * inEntt->euler.x, DEG2RAD * inEntt->euler.y, DEG2RAD * 0.0f });
+
+	inEntt->cameraEditorModel.transform = MatrixIdentity();
+	inEntt->cameraEditorModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+}
+
+void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
 {
 	
 	float x, y, z;
 
 	graphene_quaternion_to_angles(inNewRotation, &x, &y, &z);
 	
-	transform_camera_by_delta(Vector3{ inNewPos.z - transform.pos.z, inNewPos.y - transform.pos.y, -1.0f * (inNewPos.x - transform.pos.x) }, Vector3{x, y, z});
+	transform_camera_by_delta(inEntt, Vector3{ inNewPos.z - inEntt->transform.pos.z, inNewPos.y - inEntt->transform.pos.y, -1.0f * (inNewPos.x - inEntt->transform.pos.x) }, Vector3{x, y, z});
 	
-	
-	//printf("[game] Illegal call: entt_camera:update_spatial_props() For camera, always use move_camera_by()!!!\n");
-	//assert(false);
-	return;
 
 }
 
-void entt_camera::transform_camera_by_delta(Vector3 inNewPosDelta, Vector3 inNewRotDelta)
+void transform_camera_by_delta(entt_camera* inEntt, Vector3 inNewPosDelta, Vector3 inNewRotDelta)
 {
 	//(Levente): We have to manually calculate the angle of the camera based on the inputs we receive.
 	// I originally wanted to clamp the value of the y axis rot to 360, but we lost so much precision with all that that I let it go. Now, we work with floats in the 0 - 10 000 range, usually. Hopefully won't cause any issues.
 	
-	UpdateCameraPro(&rayCam, Vector3Zero(), inNewRotDelta, 0.0f);
+	UpdateCameraPro(&(inEntt->rayCam), Vector3Zero(), inNewRotDelta, 0.0f);
 	
-	euler.x = euler.x + inNewRotDelta.y;
-	euler.y = euler.y - inNewRotDelta.x;
+	inEntt->euler.x = inEntt->euler.x + inNewRotDelta.y;
+	inEntt->euler.y = inEntt->euler.y - inNewRotDelta.x;
 
-	if (euler.x > 90.0f) euler.x = 90.0f;
-	if (euler.x < -90.0f) euler.x = -90.0f;
+	if (inEntt->euler.x > 90.0f) inEntt->euler.x = 90.0f;
+	if (inEntt->euler.x < -90.0f) inEntt->euler.x = -90.0f;
 
 	/*
 	if (euler.y > 359.5f) euler.y = 0.0f;
 	if (euler.y < 0.0f) euler.y = 359.5f;
 	*/
 
-	//printf("[game] currentlyRenderingCam euler: %f %f %f\n", this->euler.x, this->euler.y, this->euler.z);
+	//printf("[game] currentlyRenderingCam euler: %f %f %f\n", inEntt->euler.x, inEntt->euler.y, inEntt->euler.z);
 
-	CameraMoveForward(&rayCam, inNewPosDelta.x, false);
-	CameraMoveRight(&rayCam, inNewPosDelta.z, false);
+	CameraMoveForward(&(inEntt->rayCam), inNewPosDelta.x, false);
+	CameraMoveRight(&(inEntt->rayCam), inNewPosDelta.z, false);
 
-	rayCam.target = Vector3{ rayCam.target.x, rayCam.target.y + inNewPosDelta.y, rayCam.target.z };
-	rayCam.position = Vector3{ rayCam.position.x, rayCam.position.y + inNewPosDelta.y, rayCam.position.z };
+	inEntt->rayCam.target = Vector3{ inEntt->rayCam.target.x, inEntt->rayCam.target.y + inNewPosDelta.y, inEntt->rayCam.target.z };
+	inEntt->rayCam.position = Vector3{ inEntt->rayCam.position.x, inEntt->rayCam.position.y + inNewPosDelta.y, inEntt->rayCam.position.z };
 
-	transform.pos = rayCam.position;
-	editor_camera_update_model_rotation();
+	inEntt->transform.pos = inEntt->rayCam.position;
+	editor_camera_update_model_rotation(inEntt);
 
 }
 
@@ -232,19 +224,17 @@ void entt_camera::transform_camera_by_delta(Vector3 inNewPosDelta, Vector3 inNew
 
 #ifdef DEBUG
 
-entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt_camera* editor_try_select(entt_camera* inEntt)
 {
-	// Check ray collision against model meshes
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
+
 	RayCollision meshHitInfo = { 0 };
-	for (int m = 0; m < cameraEditorModel.meshCount; m++)
+	for (int m = 0; m < inEntt->cameraEditorModel.meshCount; m++)
 	{
-		meshHitInfo = GetRayCollisionMesh(inRay, cameraEditorModel.meshes[m], cameraEditorModel.transform);
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->cameraEditorModel.meshes[m], inEntt->cameraEditorModel.transform);
 		if (meshHitInfo.hit)
 		{
-			// Save the closest hit mesh
-			inRayCollision = meshHitInfo;
-
-			return this;
+			return inEntt;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}
@@ -258,7 +248,7 @@ entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
 
 #else
 
-entt* entt_camera::editor_try_select(Ray inRay, RayCollision inRayCollision)
+entt* editor_try_select(entt_camera* inEntt)
 {
 	return nullptr;
 };

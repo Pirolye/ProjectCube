@@ -9,28 +9,25 @@
 ;
 struct entt_light : entt
 {
-	using entt::entt;
-
-	entt_light() {};
-	~entt_light() {};
-
 	Light rayLight[360];
 
 	Model debugModel;
-	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
-
-	void update_light_props(int inType, Vector3 inPosition, Vector3 inTarget, Color inColor);
 	
-	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
-
-	virtual void on_make() override;
-	virtual void on_destroy() override;
-	virtual void on_update() override;
-	virtual void on_draw_2d() override;
-	virtual void on_draw_3d() override;
 
 };
 
+void on_make(entt_light* inEntt);
+
+void on_update(entt_light* inEntt);
+void on_draw_2d(entt_light* inEntt);
+void on_draw_3d(entt_light* inEntt);
+
+void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale);
+void upate_light_props(entt_light* inEntt, int inType, Vector3 inPosition, Vector3 inTarget, Color inColor);
+void on_destroy(entt_light* inEntt);
+
+entt_light* editor_try_select(entt_light* inEntt);
 
 
 

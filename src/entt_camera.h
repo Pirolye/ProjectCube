@@ -4,7 +4,7 @@
 #include "entt.h"
 
 ;
-struct entt_camera : entt
+struct entt_camera : public entt
 {
 	Camera3D rayCam;
 
@@ -14,28 +14,28 @@ struct entt_camera : entt
 
 	Vector3 euler; // Rotation represented as euler angles. For ease of use, everywhere else use quats!!
 
-	using entt::entt;
-
-	entt_camera() {};
-	~entt_camera() {};
-
-	virtual void on_make() override;
-	virtual void on_destroy() override;
-	virtual void on_update() override;
-	virtual void on_draw_2d() override;
-	virtual void on_draw_3d() override;
-
-	void update_camera();
-	void set_mode(int inMode, bool inIsForEditorOnly);
 
 	Model cameraEditorModel;
-	void editor_camera_update_model_rotation();
-	void transform_camera_by_delta(Vector3 a, Vector3 b);
 
-	virtual entt* editor_try_select(Ray inRay, RayCollision inRayCollision) override;
-	void update_spatial_props(Vector3 inNewPosition, Vector3 inNewScale, graphene_quaternion_t* inNewRotation) override;
 
-}
+};
+
+void on_make(entt_camera* inEntt);
+
+void on_update(entt_camera* inEntt);
+void on_draw_2d(entt_camera* inEntt);
+void on_draw_3d(entt_camera* inEntt);
+
+void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewScale);
+void set_mode(entt_camera* inEntt, int inMode, bool isForEditorOnly);
+void transform_camera_by_delta(entt_camera* inEntt, Vector3 inPosition, Vector3 inRotation);
+void editor_camera_update_model_rotation();
+
+void on_destroy(entt_camera* inEntt);
+
+entt_camera* editor_try_select(entt_camera* inEntt);
+
 
 #else
 

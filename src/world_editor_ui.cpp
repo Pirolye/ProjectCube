@@ -2,10 +2,13 @@
 #include "imgui.h"
 ;
 
-#define GET_VARIABLE_NAME(Variable) (#Variable)
+void editor_ui_init(world_editor_ui* inEditorUI, world_editor* inWorldEditor)
+{
+	inEditorUI->worldEditor = inWorldEditor;
+}
 
-;
-void world_editor_ui::entt_panel_draw_vec3(Vector3* inVec3, char* inName)
+
+void entt_panel_draw_vec3(world_editor_ui* inEditorUI, Vector3* inVec3, char* inName)
 {
 	if (ImGui::CollapsingHeader(inName))
 	{
@@ -43,7 +46,7 @@ void world_editor_ui::entt_panel_draw_vec3(Vector3* inVec3, char* inName)
 
 };
 
-void world_editor_ui::entt_panel_draw_quat(graphene_quaternion_t* inQuat, char* inName)
+void entt_panel_draw_quat(world_editor_ui* inEditorUI, graphene_quaternion_t* inQuat, char* inName)
 {
 	graphene_vec4_t* v4 = graphene_vec4_alloc(); graphene_quaternion_to_vec4(inQuat, v4);
 	
@@ -107,27 +110,27 @@ void world_editor_ui::entt_panel_draw_quat(graphene_quaternion_t* inQuat, char* 
 
 }
 
-void world::editor_draw_entt_panel()
+void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 {
-	if (!worldEditor.enttPanelOpen) return;
+	if (!inEditorUI->enttPanelOpen) return;
 
 	std::string title;
 
-	if (worldEditor.currentlySelectedEntt == nullptr)
+	if (inEditorUI->worldEditor->currentlySelectedEntt == nullptr)
 	{
 		title = "viewing nullptr";
 
-		ImGui::Begin(title.c_str(), &worldEditor.enttPanelOpen, 0);
+		ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
 		ImGui::Text("No entt selected :(");
 		ImGui::End();
 		return;
 	}
 
-	title = "viewing " + worldEditor.currentlySelectedEntt->id;
+	title = "viewing " + inEditorUI->worldEditor->currentlySelectedEntt->id;
 
-	worldEditor.localT = worldEditor.currentlySelectedEntt->transform;
+	inEditorUI->localT = inEditorUI->worldEditor->currentlySelectedEntt->transform;
 
-	ImGui::Begin(title.c_str(), &worldEditor.enttPanelOpen, 0);
+	ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
 
 
 	/*
@@ -144,19 +147,19 @@ void world::editor_draw_entt_panel()
 			ImGui::Text("x");
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("x", &worldEditor.localT.pos.x, 1.0f, FLT_MAX, -FLT_MAX);
+			ImGui::DragFloat("x", &inEditorUI->worldEditor->localT.pos.x, 1.0f, FLT_MAX, -FLT_MAX);
 
 			ImGui::TableNextRow(); ImGui::TableNextColumn();
 			ImGui::Text("y");
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("y", &worldEditor.localT.pos.y, 1.0f, FLT_MAX, -FLT_MAX);
+			ImGui::DragFloat("y", &inEditorUI->worldEditor->localT.pos.y, 1.0f, FLT_MAX, -FLT_MAX);
 
 			ImGui::TableNextRow(); ImGui::TableNextColumn();
 			ImGui::Text("z");
 			ImGui::TableNextColumn();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("z", &worldEditor.localT.pos.z, 1.0f, FLT_MAX, -FLT_MAX);
+			ImGui::DragFloat("z", &inEditorUI->worldEditor->localT.pos.z, 1.0f, FLT_MAX, -FLT_MAX);
 
 			ImGui::EndTable();
 
@@ -178,9 +181,9 @@ void world::editor_draw_entt_panel()
 	if (ImGui::TreeNode("transform"))
 	{
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
-		worldEditor.worldEditorUI.entt_panel_draw_vec3(&worldEditor.localT.pos, "position");
-		worldEditor.worldEditorUI.entt_panel_draw_vec3(&worldEditor.localT.scale, "scale");
-		worldEditor.worldEditorUI.entt_panel_draw_quat(worldEditor.localT.rot, "rotation");
+		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.pos, "position");
+		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.scale, "scale");
+		entt_panel_draw_quat(inEditorUI, inEditorUI->localT.rot, "rotation");
 		ImGui::TreePop();
 	}
 	else
@@ -189,11 +192,32 @@ void world::editor_draw_entt_panel()
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 	}
 
+	if (typeid(entt_maincube) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	{
+		entt_maincube* a = static_cast<entt_maincube*>(inEditorUI->worldEditor->currentlySelectedEntt);
+		
+		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
+	}
+	if (typeid(entt_maincube_static) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	{
+		entt_maincube_static* a = static_cast<entt_maincube_static*>(inEditorUI->worldEditor->currentlySelectedEntt);
 
-	worldEditor.currentlySelectedEntt->update_spatial_props(worldEditor.localT.pos, worldEditor.localT.scale, worldEditor.localT.rot);
+		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
+	}
+	if (typeid(entt_light) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	{
+		entt_light* a = static_cast<entt_light*>(inEditorUI->worldEditor->currentlySelectedEntt);
 
+		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
+	}
+	if (typeid(entt_camera) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	{
+		entt_camera* a = static_cast<entt_camera*>(inEditorUI->worldEditor->currentlySelectedEntt);
 
+		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
+	}
 
+	
 
 
 	ImGui::End();
@@ -201,14 +225,14 @@ void world::editor_draw_entt_panel()
 
 }
 
-void world::editor_draw_main_menu()
+void editor_draw_main_menu(world_editor_ui* inEditorUI)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
-			ImGui::MenuItem("View and edit entt properties", NULL, &worldEditor.enttPanelOpen);
-			ImGui::MenuItem("ImGui styler", NULL, &worldEditor.ImGuiStylerOpen);
+			ImGui::MenuItem("View and edit entt properties", NULL, &inEditorUI->enttPanelOpen);
+			ImGui::MenuItem("ImGui styler", NULL, &inEditorUI->ImGuiStylerOpen);
 
 			ImGui::EndMenu();
 		}
@@ -217,7 +241,7 @@ void world::editor_draw_main_menu()
 	}
 }
 
-void world_editor_ui::setup_colors()
+void editor_setup_colors(world_editor_ui* inEditorUI)
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
