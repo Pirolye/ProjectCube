@@ -57,9 +57,9 @@ void enter_editor_mode(world_editor* inEditor)
 	{
 		if (inEditor->currentWorld->entityArray[i] != NULL)
 		{
-			if (typeid(entt_camera) == typeid(inEditor->currentWorld->entityArray[i]))
+			if (typeid(entt_camera) == *inEditor->currentWorld->entityArray[i]->type)
 			{
-				nextCam = static_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]);
+				nextCam = reinterpret_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]->pointer);
 				if (nextCam->isForEditorOnly == true) 
 				{ 
 					inEditor->currentWorld->currentlyRenderingCamera = nextCam; 
@@ -79,6 +79,7 @@ void enter_editor_mode(world_editor* inEditor)
 	if (nextCam == NULL) printf("ERROR: Couldn't find a camera marked <<isForEditorOnly>> in world <<%s>> when entering the editor, so we didn't set the editor camera!\n", inEditor->currentWorld->name.c_str());
 
 	inEditor->isInEditorMode = true;
+	
 
 
 }
@@ -93,9 +94,9 @@ void exit_editor_mode(world_editor* inEditor)
 	{
 		if (inEditor->currentWorld->entityArray[i] != NULL)
 		{
-			if (typeid(entt_camera) == typeid(inEditor->currentWorld->entityArray[i]))
+			if (typeid(entt_camera) == *inEditor->currentWorld->entityArray[i]->type)
 			{
-				nextCam = static_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]);
+				nextCam = reinterpret_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]->pointer);
 				if (nextCam->isForEditorOnly == false) { inEditor->currentWorld->currentlyRenderingCamera = nextCam; break; }
 				else
 				{
@@ -108,7 +109,7 @@ void exit_editor_mode(world_editor* inEditor)
 		}
 	}
 
-	if (nextCam == NULL) printf("ERROR: Couldn't find a camera marked <<!isForEditorOnly>> in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", inEditor->currentWorld->name.c_str());
+	if (nextCam == NULL) printf("ERROR: Couldn't find a camera not marked isForEditorOnly in world <<%s>> when exiting the editor, so we didn't set the gameplay camera!\n", inEditor->currentWorld->name.c_str());
 
 
 	inEditor->currentlySelectedEntt = nullptr;
@@ -126,9 +127,9 @@ void editor_next_camera(world_editor* inEditor)
 	{
 		if (inEditor->currentWorld->entityArray[i] != NULL)
 		{
-			if (typeid(entt_camera) == typeid(inEditor->currentWorld->entityArray[i]))
+			if (typeid(entt_camera) == typeid(inEditor->currentWorld->entityArray[i]->type))
 			{
-				entt_camera* cam = static_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]);
+				entt_camera* cam = reinterpret_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]->pointer);
 
 				if (cam->isForEditorOnly)
 				{
@@ -169,6 +170,7 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 {
 	inEditor->currentWorld = inCurrentWorld;
 	inEditor->editorUI = new world_editor_ui;
+	editor_ui_init(inEditor->editorUI, inEditor);
 	
 	rlImGuiSetup(true);
 	
@@ -343,25 +345,33 @@ void editor_try_select_entt(world_editor* inEditor)
 	{
 		if (inEditor->currentWorld->entityArray[i] != NULL)
 		{
-			if (typeid(inEditor->currentWorld->entityArray[i]) == typeid(entt_light))
+			/*
+			const type_info* enttType = &typeid(inEditor->currentWorld->entityArray[i]->type);
+			const char* typeName = enttType->name();
+			editor_try_select(reinterpret_cast<typeName>inEditor->currentWorld->entityArray[i]
+			*/
+
+
+			if (*inEditor->currentWorld->entityArray[i]->type == typeid(entt_light))
 			{
-				inEditor->currentlySelectedEntt = editor_try_select(static_cast<entt_light*>(inEditor->currentWorld->entityArray[i]));
+				inEditor->currentlySelectedEntt = editor_try_select(reinterpret_cast<entt_light*>(inEditor->currentWorld->entityArray[i]->pointer));
 			}
-			if (typeid(inEditor->currentWorld->entityArray[i]) == typeid(entt_camera))
+			if (*inEditor->currentWorld->entityArray[i]->type == typeid(entt_camera))
 			{
-				inEditor->currentlySelectedEntt = editor_try_select(static_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]));
+				inEditor->currentlySelectedEntt = editor_try_select(reinterpret_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]->pointer));
 			}
-			if (typeid(inEditor->currentWorld->entityArray[i]) == typeid(entt_maincube))
+			if (*inEditor->currentWorld->entityArray[i]->type == typeid(entt_maincube))
 			{
-				inEditor->currentlySelectedEntt = editor_try_select(static_cast<entt_maincube*>(inEditor->currentWorld->entityArray[i]));
+				inEditor->currentlySelectedEntt = editor_try_select(reinterpret_cast<entt_maincube*>(inEditor->currentWorld->entityArray[i]->pointer));
 			}
-			if (typeid(inEditor->currentWorld->entityArray[i]) == typeid(entt_maincube_static))
+			if (*inEditor->currentWorld->entityArray[i]->type == typeid(entt_maincube_static))
 			{
-				inEditor->currentlySelectedEntt = editor_try_select(static_cast<entt_maincube_static*>(inEditor->currentWorld->entityArray[i]));
+				inEditor->currentlySelectedEntt = editor_try_select(reinterpret_cast<entt_maincube_static*>(inEditor->currentWorld->entityArray[i]->pointer));
 			}
 
 			if (inEditor->currentlySelectedEntt != nullptr) { break; inEditor->selectingEntt = true; }
 			else { inEditor->selectingEntt = false;  continue; }
+			
 		}
 	}
 };

@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include <string>
 #include "graphene.h"
+#include <typeinfo>
 
 struct world;
 
@@ -14,6 +15,12 @@ struct entt_transform
 {
 	Vector3 pos, scale;
 	graphene_quaternion_t* rot;
+};
+
+struct entity_pointer
+{
+	void* pointer;
+	const type_info* type;
 };
 
 struct entt

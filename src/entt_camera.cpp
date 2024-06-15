@@ -128,10 +128,13 @@ void on_draw_3d(entt_camera* inEntt)
 		{
 			if (inEntt->containingWorld->entityArray[i] == NULL) continue;
 			
+			if (*inEntt->containingWorld->entityArray[i]->type != typeid(entt_camera)) continue;
+
 			//if (dynamic_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]) == nullptr) continue;
-			if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
+			//if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
 			
-			entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
+			//entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
+			entt_camera* currentCam = reinterpret_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]->pointer);
 
 			if (currentCam == inEntt) continue;
 				

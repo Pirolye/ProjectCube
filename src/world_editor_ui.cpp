@@ -5,6 +5,7 @@
 void editor_ui_init(world_editor_ui* inEditorUI, world_editor* inWorldEditor)
 {
 	inEditorUI->worldEditor = inWorldEditor;
+	inEditorUI->worldEditor->currentlySelectedEntt = nullptr;
 }
 
 

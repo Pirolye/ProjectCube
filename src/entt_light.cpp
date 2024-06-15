@@ -139,17 +139,14 @@ void on_draw_3d(entt_light* inEntt)
 
 entt_light* editor_try_select(entt_light* inEntt)
 {
-	/*
-	// Check ray collision against model meshes
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
+
 	RayCollision meshHitInfo = { 0 };
-	for (int m = 0; m < debugModel.meshCount; m++)
+	for (int m = 0; m < inEntt->debugModel.meshCount; m++)
 	{
-		meshHitInfo = GetRayCollisionMesh(inRay, debugModel.meshes[m], debugModel.transform);
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->debugModel.meshes[m], inEntt->debugModel.transform);
 		if (meshHitInfo.hit)
 		{
-			// Save the closest hit mesh
-			inRayCollision = meshHitInfo;
-
 			return inEntt;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
@@ -158,9 +155,7 @@ entt_light* editor_try_select(entt_light* inEntt)
 		{
 			return nullptr;
 		}
-	}*/
-
-	return nullptr;
+	}
 }
 
 #else

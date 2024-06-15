@@ -28,7 +28,6 @@ void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhys
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	inWorld->gScene = inWorld->globalPhysics->createScene(sceneDesc);
 
-	//NOTE: This gets destroy after this scope ends... but it still works... sooo??
 	PxPvdSceneClient* pvdClient = inWorld->gScene->getScenePvdClient();
 	if (pvdClient)
 	{
@@ -135,10 +134,15 @@ void world_update(world* inWorld)
 			
 			
 			
-			if(typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_update(static_cast<entt_maincube*>(inWorld->entityArray[i]));
-			if(typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_update(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
-			if(typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_update(static_cast<entt_light*>(inWorld->entityArray[i]));
-			if(typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_update(static_cast<entt_camera*>(inWorld->entityArray[i]));
+			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube)) on_update(static_cast<entt_maincube*>(inWorld->entityArray[i]));
+			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube_static)) on_update(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
+			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_light)) on_update(static_cast<entt_light*>(inWorld->entityArray[i]));
+
+
+			if(*inWorld->entityArray[i]->type == typeid(entt_maincube)) on_update(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->pointer));
+			if(*inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_update(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->pointer));
+			if(*inWorld->entityArray[i]->type == typeid(entt_light)) on_update(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->pointer));
+			if(*inWorld->entityArray[i]->type == typeid(entt_camera)) on_update(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->pointer));
 			//entityArray[i]->on_update();
 			
 		}
@@ -174,11 +178,11 @@ void world_draw_all(world* inWorld)
 			//on_draw_3d(inWorld->entityArray[i]);
 
 			
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_draw_3d(static_cast<entt_maincube*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_draw_3d(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_draw_3d(static_cast<entt_light*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_draw_3d(static_cast<entt_camera*>(inWorld->entityArray[i]));
-			
+			if (*inWorld->entityArray[i]->type == typeid(entt_maincube)) on_draw_3d(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_draw_3d(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_light)) on_draw_3d(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_camera)) on_draw_3d(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->pointer));
+
 		}
 	}
 
@@ -192,11 +196,11 @@ void world_draw_all(world* inWorld)
 		{
 			//on_draw_2d(inWorld->entityArray[i]);
 			
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube)) on_draw_2d(static_cast<entt_maincube*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_maincube_static)) on_draw_2d(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_light)) on_draw_2d(static_cast<entt_light*>(inWorld->entityArray[i]));
-			if (typeid(inWorld->entityArray[i]) == typeid(entt_camera)) on_draw_2d(static_cast<entt_camera*>(inWorld->entityArray[i]));
-			
+			if (*inWorld->entityArray[i]->type == typeid(entt_maincube)) on_draw_2d(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_draw_2d(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_light)) on_draw_2d(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->pointer));
+			if (*inWorld->entityArray[i]->type == typeid(entt_camera)) on_draw_2d(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->pointer));
+
 		}
 	}
 

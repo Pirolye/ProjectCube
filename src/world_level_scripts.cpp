@@ -11,12 +11,11 @@ void world_run_script_on_init(world* inWorld)
 	if (inWorld->name == "debug")
 	{
 		
-		entt_maincube* mainCube1 = reinterpret_cast<entt_maincube*>(world_make_desired_entt<entt_maincube>(inWorld));
+		entt_maincube_static* mainCubeStatic1 = world_make_desired_entt<entt_maincube_static>(inWorld);
 		//entt* mainCube2 = world_make_desired_entt<entt_maincube_static>(inWorld);
 		
-		//entt* secondaryLight = world_make_desired_entt<entt_light>(inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
 
-		update_spatial_props(mainCube1, Vector3{ 5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		update_spatial_props(mainCubeStatic1, Vector3{ 5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		//static_cast<entt_maincube_static*>(mainCube2)->update_spatial_props(Vector3{ 10.0f, -1.0f, 10.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		
 		/*
@@ -35,9 +34,12 @@ void world_run_script_on_init(world* inWorld)
 
 		*/
 		
-		entt_camera* gameplayCam = reinterpret_cast<entt_camera*>(world_make_desired_entt<entt_camera>(inWorld));
+		entt_camera* gameplayCam = world_make_desired_entt<entt_camera>(inWorld);
 		set_mode(gameplayCam, 1, true);
 
+		entt_light* secondaryLight = world_make_desired_entt<entt_light>(inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
+
+		update_light_props(secondaryLight, 1, Vector3{7.0f, 7.0f, 7.0f}, Vector3Zero(), WHITE);
 
 		/*
 		entt* gameplayCam1 = world_make_desired_entt<entt_camera>(inWorld);
@@ -95,9 +97,11 @@ void world_run_script_on_destroy(world *inWorld)
 
 };
 
-template <typename t> void* world_make_desired_entt(world* inWorld)
+template <typename t> t* world_make_desired_entt(world* inWorld)
 {
 	t* newEntt = new t;
+
+	entity_pointer* newEntityPointer = new entity_pointer{ newEntt, &typeid(t) };
 
 	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
@@ -118,7 +122,7 @@ template <typename t> void* world_make_desired_entt(world* inWorld)
 		{
 			if (inWorld->entityArray[i] != NULL)
 			{
-				if (typeid(inWorld->entityArray[i]) == typeid(entt_camera))
+				if (*inWorld->entityArray[i]->type == typeid(entt_camera))
 				{
 					isThereAnotherCameraInTheWorld = true;
 					break;
@@ -139,7 +143,7 @@ template <typename t> void* world_make_desired_entt(world* inWorld)
 	{
 		if (inWorld->entityArray[i] == NULL)
 		{
-			inWorld->entityArray[i] = newEntt;
+			inWorld->entityArray[i] = newEntityPointer;
 			break;
 		}
 	}

@@ -119,16 +119,14 @@ void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector
 entt_maincube_static* editor_try_select(entt_maincube_static* inEntt)
 {
 	
-	/*// Check ray collision against model meshes
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
+
 	RayCollision meshHitInfo = { 0 };
 	for (int m = 0; m < inEntt->cubeModel.meshCount; m++)
 	{
-		meshHitInfo = GetRayCollisionMesh(inRay, inEntt->cubeModel.meshes[m], inEntt->cubeModel.inEntt->transform);
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->cubeModel.meshes[m], inEntt->cubeModel.transform);
 		if (meshHitInfo.hit)
 		{
-			// Save the closest hit mesh
-			inRayCollision = meshHitInfo;
-
 			return inEntt;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
@@ -137,9 +135,7 @@ entt_maincube_static* editor_try_select(entt_maincube_static* inEntt)
 		{
 			return nullptr;
 		}
-	}*/
-
-	return nullptr;
+	}
 
 };
 
