@@ -27,7 +27,7 @@ void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewSca
 void update_light_props(entt_light* inEntt, int inType, Vector3 inPosition, Vector3 inTarget, Color inColor);
 void on_destroy(entt_light* inEntt);
 
-entt_light* editor_try_select(entt_light* inEntt);
+entity_pointer* editor_try_select(entt_light* inEntt);
 
 
 

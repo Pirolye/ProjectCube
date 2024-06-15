@@ -137,7 +137,7 @@ void on_draw_3d(entt_light* inEntt)
 
 #ifdef DEBUG
 
-entt_light* editor_try_select(entt_light* inEntt)
+entity_pointer* editor_try_select(entt_light* inEntt)
 {
 	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
 
@@ -147,7 +147,7 @@ entt_light* editor_try_select(entt_light* inEntt)
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->debugModel.meshes[m], inEntt->debugModel.transform);
 		if (meshHitInfo.hit)
 		{
-			return inEntt;
+			return inEntt->thisInArray;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}

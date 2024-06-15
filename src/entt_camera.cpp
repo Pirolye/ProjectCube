@@ -141,7 +141,7 @@ void on_draw_3d(entt_camera* inEntt)
 			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
 			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
 
-			if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == currentCam)
+			if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == currentCam->thisInArray)
 			{
 				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
 			}

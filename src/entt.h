@@ -28,6 +28,8 @@ struct entt
 	std::string id;
 	world* containingWorld;
 
+	entity_pointer* thisInArray;
+
 	entt_transform transform; // WARNING: Do not set manually! Always use functions!
 
 

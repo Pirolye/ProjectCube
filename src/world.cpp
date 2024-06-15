@@ -119,9 +119,6 @@ void world_update(world* inWorld)
 			inWorld->gScene->fetchResults(true);
 		}
 		
-		//(Levente): Traditionally you don't want physics in the editor...
-		//gScene->simulate(1.0f / gameInstance->targetFPS);
-		//gScene->fetchResults(true);
 	}
 
 

@@ -114,6 +114,7 @@ template <typename t> t* world_make_desired_entt(world* inWorld)
 	newEntt->containingWorld = inWorld;
 
 	on_make(newEntt);
+	newEntt->thisInArray = newEntityPointer;
 
 	bool isThereAnotherCameraInTheWorld = false;
 	if (typeid(t) == typeid(entt_camera))
