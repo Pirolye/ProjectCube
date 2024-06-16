@@ -101,20 +101,22 @@ template <typename t> t* world_make_desired_entt(world* inWorld)
 {
 	t* newEntt = new t;
 
-	entity_pointer* newEntityPointer = new entity_pointer{ newEntt, &typeid(t) };
+	newEntityPointer newEntity = new entity_pointer{ newEntt, typeid(t) };
+	newEntt->entityInfo->thisInArray = newEntity;
 
 	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
+	newEntt->entityInfo->num = inWorld->totalMadeEntts;
+
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
 
 	std::string typeName = typeid(t).name();
 	
 	typeName.erase(0, 12);
 
-	newEntt->id = "entt_" + typeName + std::to_string(inWorld->totalMadeEntts);
+	newEntt->id = "entity_" + typeName + std::to_string(inWorld->totalMadeEntts);
 	newEntt->containingWorld = inWorld;
 
 	on_make(newEntt);
-	newEntt->thisInArray = newEntityPointer;
 
 	bool isThereAnotherCameraInTheWorld = false;
 	if (typeid(t) == typeid(entt_camera))
@@ -123,7 +125,7 @@ template <typename t> t* world_make_desired_entt(world* inWorld)
 		{
 			if (inWorld->entityArray[i] != NULL)
 			{
-				if (*inWorld->entityArray[i]->type == typeid(entt_camera))
+				if (*inWorld->entityArray[i]->entityInfo->type == typeid(entt_camera))
 				{
 					isThereAnotherCameraInTheWorld = true;
 					break;
@@ -144,7 +146,7 @@ template <typename t> t* world_make_desired_entt(world* inWorld)
 	{
 		if (inWorld->entityArray[i] == NULL)
 		{
-			inWorld->entityArray[i] = newEntityPointer;
+			inWorld->entityArray[i] = newEntity;
 			break;
 		}
 	}

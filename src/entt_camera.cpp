@@ -33,15 +33,15 @@ void on_make(entt_camera* inEntt)
 	inEntt->rayCam.fovy = 70.0f;                                // Camera field-of-view 
 	inEntt->rayCam.projection = CAMERA_PERSPECTIVE;                   // Camera mode type
 
-	inEntt->transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(inEntt->transform.rot);
+	inEntt->entityInfo.transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntt->entityInfo.transform.rot);
 
-	inEntt->transform.pos = Vector3Zero();
+	inEntt->entityInfo.transform.pos = Vector3Zero();
 	
 	inEntt->mode = 0;
 	inEntt->moveSpeed = 0.1f;
 
-	inEntt->transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
+	inEntt->entityInfo.transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
 	inEntt->euler = Vector3Zero();
 
 	inEntt->cameraEditorModel = LoadModel("editor/camera_model.obj");
@@ -55,13 +55,13 @@ void on_destroy(entt_camera* inEntt)
 
 void on_update(entt_camera* inEntt)
 {
-	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
+	if (inEntt != inEntt->entityInfo.containingWorld->currentlyRenderingCamera) return;
 
 	if (inEntt->mode == 1)
 	{
 		//(Levente): WARNING! I had to modify rcore.c in order to not put the mouse cursor back in the middle every time you enabled/disabled it! Also, I have to separately get the mouse delta every time I need it, using a variable such as diff in inEntt case doesn't work for some reason.
 
-		if (!inEntt->containingWorld->worldEditor->canManipulateWorld) return;
+		if (!inEntt->entityInfo.containingWorld->worldEditor->canManipulateWorld) return;
 
 		Vector2 c = GetMousePosition();
 
@@ -111,37 +111,37 @@ void on_update(entt_camera* inEntt)
 
 void on_draw_2d(entt_camera* inEntt)
 {
-	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
+	if (inEntt != inEntt->entityInfo.containingWorld->currentlyRenderingCamera) return;
 	DrawFPS(10, 20);
 
 };
 
 void on_draw_3d(entt_camera* inEntt)
 {
-	if (inEntt != inEntt->containingWorld->currentlyRenderingCamera) return;
+	if (inEntt != inEntt->entityInfo.containingWorld->currentlyRenderingCamera) return;
 	
-	if (inEntt->containingWorld->worldEditor->isInEditorMode)
+	if (inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
 	{
 		DrawGrid(10, 1.0f);
 
 		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 		{
-			if (inEntt->containingWorld->entityArray[i] == NULL) continue;
+			if (inEntt->entityInfo.containingWorld->entityArray[i] == NULL) continue;
 			
-			if (*inEntt->containingWorld->entityArray[i]->type != typeid(entt_camera)) continue;
+			if (*inEntt->entityInfo.containingWorld->entityArray[i]->type != typeid(entt_camera)) continue;
 
 			//if (dynamic_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]) == nullptr) continue;
 			//if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
 			
 			//entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
-			entt_camera* currentCam = reinterpret_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]->pointer);
+			entt_camera* currentCam = reinterpret_cast<entt_camera*>(inEntt->entityInfo.containingWorld->entityArray[i]->pointer);
 
 			if (currentCam == inEntt) continue;
 				
 			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
 			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
 
-			if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == currentCam->thisInArray)
+			if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity == currentCam->thisInArray)
 			{
 				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
 			}
@@ -165,8 +165,8 @@ void set_mode(entt_camera* inEntt, int inMode, bool inIsForEditorOnly)
 
 void editor_camera_update_model_rotation(entt_camera* inEntt)
 {
-	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z - 1.0f);
+	Matrix matScale = MatrixScale(inEntt->entityInfo.transform.scale.x, inEntt->entityInfo.transform.scale.y, inEntt->entityInfo.transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->entityInfo.transform.pos.x, inEntt->entityInfo.transform.pos.y, inEntt->entityInfo.transform.pos.z - 1.0f);
 	
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * inEntt->euler.x, DEG2RAD * inEntt->euler.y, DEG2RAD * 0.0f });
 
@@ -181,7 +181,7 @@ void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewSc
 
 	graphene_quaternion_to_angles(inNewRotation, &x, &y, &z);
 	
-	transform_camera_by_delta(inEntt, Vector3{ inNewPos.z - inEntt->transform.pos.z, inNewPos.y - inEntt->transform.pos.y, -1.0f * (inNewPos.x - inEntt->transform.pos.x) }, Vector3{x, y, z});
+	transform_camera_by_delta(inEntt, Vector3{ inNewPos.z - inEntt->entityInfo.transform.pos.z, inNewPos.y - inEntt->entityInfo.transform.pos.y, -1.0f * (inNewPos.x - inEntt->entityInfo.transform.pos.x) }, Vector3{x, y, z});
 	
 
 }
@@ -212,7 +212,7 @@ void transform_camera_by_delta(entt_camera* inEntt, Vector3 inNewPosDelta, Vecto
 	inEntt->rayCam.target = Vector3{ inEntt->rayCam.target.x, inEntt->rayCam.target.y + inNewPosDelta.y, inEntt->rayCam.target.z };
 	inEntt->rayCam.position = Vector3{ inEntt->rayCam.position.x, inEntt->rayCam.position.y + inNewPosDelta.y, inEntt->rayCam.position.z };
 
-	inEntt->transform.pos = inEntt->rayCam.position;
+	inEntt->entityInfo.transform.pos = inEntt->rayCam.position;
 	editor_camera_update_model_rotation(inEntt);
 
 }

@@ -1,19 +1,16 @@
 #ifndef _WORLD_H_
 #define _WORLD_H_
 
-#include "entt.h"
-#include "entt_camera.h"
-#include "entt_maincube.h"
+#include "entity.h"
 #include "world_editor.h"
 #include "world_editor_ui.h"
 
 
 ;
-#include "entt_light.h"
-
-;
 #include "PxPhysicsAPI.h"
 #include "graphene.h"
+
+#define MAX_ENTITIES_IN_WORLD 1024
 
 using namespace physx;
 
@@ -24,7 +21,7 @@ struct world
 
 	std::string name;
 
-	entity_pointer* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
+	void* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 

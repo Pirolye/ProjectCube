@@ -2,6 +2,7 @@
 #include "world.h"
 #include "raymath.h"
 
+/*
 
 /*
 *
@@ -1361,3 +1362,5 @@ void editor_rotate_entt_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 
 	}
 }
+
+*/

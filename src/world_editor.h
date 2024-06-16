@@ -13,7 +13,8 @@ struct world_editor
 	int currentGizmoMode = 0; //(Levente): This determines move/rotate/scale gizmo. 0 = move, 1 = rotate, 2 = scale
 	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z; 3 = xy, 4 = yz. 5 = zx
 
-	entity_pointer* currentlySelectedEntt = nullptr;
+	void* currentlySelectedEntity = nullptr;
+	type_info currentlySelectedEntityType;
 	bool selectingEntt = false;
 
 	bool canManipulateWorld = true;
@@ -69,8 +70,8 @@ void editor_draw_gizmo(world_editor* inWorldEditor, Vector3 inCenterPos);
 void editor_check_against_move_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 void editor_check_against_rotate_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 
-void editor_move_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, entt* enttToMove);
-void editor_rotate_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate);
+void editor_move_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, void* enttToMove);
+void editor_rotate_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, void* enttToRotate);
 
 bool editor_is_selecting_any_gizmo(world_editor* inWorldEditor);
 
