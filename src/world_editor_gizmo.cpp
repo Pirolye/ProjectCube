@@ -15,10 +15,11 @@
 *
 */
 
+/*
 void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 {
 	//(Levente): NOTE: For now, editing a camera's properties using the gizmo handles is disabled. Fix: when I implement global/local transform into the gizmo system!
-	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntt)) return;
+	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntity)) return;
 
 	Vector3 v{ 1.0f, 0.0f, 0.0f };
 
@@ -164,7 +165,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 {
 	//(Levente): NOTE: For now, editing a camera's properties using the gizmo handles is disabled. Fix: when I implement global/local transform into the gizmo system!
-	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntt)) return;
+	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntity)) return;
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
@@ -402,7 +403,7 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 					|| inEditor->selectingGizmoMoveAxisY == true
 					|| inEditor->selectingGizmoMoveAxisXY == true
 					|| inEditor->selectingGizmoMoveAxisYZ == true
-					/* || inEditor->selectingGizmoMoveAxisZX == true*/)
+					/* || inEditor->selectingGizmoMoveAxisZX == true)
 				{
 					break; return;
 				}
@@ -447,13 +448,13 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 		inEditor->canManipulateWorld = true;
 	}
 
-	if (inEditor->selectingGizmoMoveAxisX && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoMoveAxisY && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 1, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoMoveAxisZ && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 2, inCenterPos, inEditor->currentlySelectedEntt);
+	if (inEditor->selectingGizmoMoveAxisX && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoMoveAxisY && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 1, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoMoveAxisZ && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 2, inCenterPos, inEditor->currentlySelectedEntity);
 
-	if (inEditor->selectingGizmoMoveAxisXY && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 3, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoMoveAxisYZ && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 4, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoMoveAxisZX && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 5, inCenterPos, inEditor->currentlySelectedEntt);
+	if (inEditor->selectingGizmoMoveAxisXY && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 3, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoMoveAxisYZ && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 4, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoMoveAxisZX && inEditor->selectingEntt) editor_move_entt_gizmo(inEditor, 5, inCenterPos, inEditor->currentlySelectedEntity);
 
 
 
@@ -462,7 +463,7 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 {
 	//(Levente): NOTE: For now, editing a camera's properties using the gizmo handles is disabled. Fix: when I implement global/local transform into the gizmo system!
-	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntt)) return;
+	if (typeid(entt_camera) == typeid(inEditor->currentlySelectedEntity)) return;
 
 	
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
@@ -574,9 +575,9 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 	}
 
 
-	if (inEditor->selectingGizmoRotateAxisX && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoRotateAxisY && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 1, inCenterPos, inEditor->currentlySelectedEntt);
-	if (inEditor->selectingGizmoRotateAxisZ && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 2, inCenterPos, inEditor->currentlySelectedEntt);
+	if (inEditor->selectingGizmoRotateAxisX && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoRotateAxisY && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 1, inCenterPos, inEditor->currentlySelectedEntity);
+	if (inEditor->selectingGizmoRotateAxisZ && inEditor->selectingEntt) editor_rotate_entt_gizmo(inEditor, 2, inCenterPos, inEditor->currentlySelectedEntity);
 
 }
 
@@ -1136,7 +1137,7 @@ void editor_rotate_entt_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 			//EndDrawing();
 		}
 
-		*/
+		
 
 		//SECOND METHOD
 
@@ -1362,5 +1363,4 @@ void editor_rotate_entt_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 
 	}
 }
-
 */

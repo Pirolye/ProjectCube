@@ -4,7 +4,7 @@
 #include "PxPhysicsAPI.h"
 #include "raylib.h"
 #include "entity.h"
-#include "world.h"
+
 
 using namespace physx;
 

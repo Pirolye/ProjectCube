@@ -1,7 +1,7 @@
 #ifndef _WORLD_H_
 #define _WORLD_H_
 
-#include "entity.h"
+#include "entities.h"
 #include "world_editor.h"
 #include "world_editor_ui.h"
 
@@ -21,7 +21,7 @@ struct world
 
 	std::string name;
 
-	void* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
+	entity_pointer* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 
@@ -48,7 +48,7 @@ void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhys
 void world_deinit(world* inWorld);
 
 //NOTE: Use reinterpret_cast to make it into the desired entt type!
-template <typename t> t* world_make_desired_entt(world* inWorld);
+template <typename t> t* world_make_desired_entity(world* inWorld);
 
 Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader);
 void world_set_cam(world* inWorld, entt_camera* inCam);

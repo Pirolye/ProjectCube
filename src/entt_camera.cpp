@@ -128,20 +128,20 @@ void on_draw_3d(entt_camera* inEntt)
 		{
 			if (inEntt->entityInfo.containingWorld->entityArray[i] == NULL) continue;
 			
-			if (*inEntt->entityInfo.containingWorld->entityArray[i]->type != typeid(entt_camera)) continue;
+			if (inEntt->entityInfo.containingWorld->entityArray[i]->type != typeid(entt_camera)) continue;
 
 			//if (dynamic_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]) == nullptr) continue;
 			//if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
 			
 			//entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
-			entt_camera* currentCam = reinterpret_cast<entt_camera*>(inEntt->entityInfo.containingWorld->entityArray[i]->pointer);
+			entt_camera* currentCam = reinterpret_cast<entt_camera*>(inEntt->entityInfo.containingWorld->entityArray[i]->entity);
 
 			if (currentCam == inEntt) continue;
 				
 			if (currentCam->isForEditorOnly) DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
 			else DrawModel(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
 
-			if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity == currentCam->thisInArray)
+			if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity == currentCam->entityInfo.thisInArray)
 			{
 				DrawModelWires(currentCam->cameraEditorModel, Vector3Zero(), 1.0f, RED);
 			}
@@ -155,7 +155,7 @@ void set_mode(entt_camera* inEntt, int inMode, bool inIsForEditorOnly)
 {
 	if (inMode != 1 && inMode != 0)
 	{
-		printf("[game] ERROR: Tried to set camera.mode to value <<%d>> (invalid, only <<1>> and <<0>> is valid) on camera %s!\n", inMode, inEntt->id.c_str());
+		printf("[game] ERROR: Tried to set camera.mode to value <<%d>> (invalid, only <<1>> and <<0>> is valid) on camera %s!\n", inMode, inEntt->entityInfo.thisInArray->id.c_str());
 		return;
 	}
 
@@ -227,9 +227,9 @@ void transform_camera_by_delta(entt_camera* inEntt, Vector3 inNewPosDelta, Vecto
 
 #ifdef DEBUG
 
-entt_camera* editor_try_select(entt_camera* inEntt)
+entity_pointer* editor_try_select(entt_camera* inEntt)
 {
-	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->entityInfo.containingWorld->currentlyRenderingCamera->rayCam);
 
 	RayCollision meshHitInfo = { 0 };
 	for (int m = 0; m < inEntt->cameraEditorModel.meshCount; m++)
@@ -237,7 +237,7 @@ entt_camera* editor_try_select(entt_camera* inEntt)
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->cameraEditorModel.meshes[m], inEntt->cameraEditorModel.transform);
 		if (meshHitInfo.hit)
 		{
-			return inEntt;
+			return inEntt->entityInfo.thisInArray;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}

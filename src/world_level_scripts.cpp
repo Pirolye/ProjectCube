@@ -11,7 +11,7 @@ void world_run_script_on_init(world* inWorld)
 	if (inWorld->name == "debug")
 	{
 		
-		entt_maincube_static* mainCubeStatic1 = world_make_desired_entt<entt_maincube_static>(inWorld);
+		entt_maincube_static* mainCubeStatic1 = world_make_desired_entity<entt_maincube_static>(inWorld);
 		//entt* mainCube2 = world_make_desired_entt<entt_maincube_static>(inWorld);
 		
 
@@ -34,10 +34,10 @@ void world_run_script_on_init(world* inWorld)
 
 		*/
 		
-		entt_camera* gameplayCam = world_make_desired_entt<entt_camera>(inWorld);
+		entt_camera* gameplayCam = world_make_desired_entity<entt_camera>(inWorld);
 		set_mode(gameplayCam, 1, true);
 
-		entt_light* secondaryLight = world_make_desired_entt<entt_light>(inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
+		entt_light* secondaryLight = world_make_desired_entity<entt_light>(inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
 
 		update_light_props(secondaryLight, 1, Vector3{7.0f, 7.0f, 7.0f}, Vector3Zero(), WHITE);
 
@@ -97,24 +97,32 @@ void world_run_script_on_destroy(world *inWorld)
 
 };
 
-template <typename t> t* world_make_desired_entt(world* inWorld)
+template <typename t> t* world_make_desired_entity(world* inWorld)
 {
 	t* newEntt = new t;
 
-	newEntityPointer newEntity = new entity_pointer{ newEntt, typeid(t) };
-	newEntt->entityInfo->thisInArray = newEntity;
+	std::string typeName = typeid(t).name();
+
+	typeName.erase(0, 12);
+
+	std::string id = "entity_" + typeName + std::to_string(inWorld->totalMadeEntts);
+	newEntt->entityInfo.containingWorld = inWorld;
+
+	entity_pointer newEntity = new entity_pointer{ newEntt, typeid(t), id };
+
+	/*
+	entity_pointer* newEntity = reinterpret_cast<entity_pointer*>(malloc(sizeof(entity_pointer)));
+	newEntity->entity = newEntt;
+	newEntity->type = typeid(t);
+	newEntity->id = id;
+	*/
+
+	newEntt->entityInfo.thisInArray = newEntity;
 
 	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
-	newEntt->entityInfo->num = inWorld->totalMadeEntts;
 
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
 
-	std::string typeName = typeid(t).name();
-	
-	typeName.erase(0, 12);
-
-	newEntt->id = "entity_" + typeName + std::to_string(inWorld->totalMadeEntts);
-	newEntt->containingWorld = inWorld;
 
 	on_make(newEntt);
 
@@ -125,7 +133,7 @@ template <typename t> t* world_make_desired_entt(world* inWorld)
 		{
 			if (inWorld->entityArray[i] != NULL)
 			{
-				if (*inWorld->entityArray[i]->entityInfo->type == typeid(entt_camera))
+				if (inWorld->entityArray[i]->type == typeid(entt_camera))
 				{
 					isThereAnotherCameraInTheWorld = true;
 					break;

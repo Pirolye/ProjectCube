@@ -43,7 +43,7 @@ void on_destroy(entt_maincube* inEntt)
 void on_draw_3d(entt_maincube* inEntt)
 {
 	//rlEnableFrontfaceCulling();
-	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
+	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity->id == inEntt->entityInfo.thisInArray->id && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
 	{
 		DrawModel(inEntt->cubeModel, Vector3Zero(), 1.0f, WHITE);
 		DrawModelWires(inEntt->cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
@@ -102,7 +102,7 @@ void on_update(entt_maincube* inEntt)
 		update_spatial_props(inEntt, inEntt->collisionBox->t.pos, inEntt->collisionBox->t.scale, inEntt->collisionBox->t.rot);
 	}
 	
-	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
+	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity->id == inEntt->entityInfo.thisInArray->id && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_X))
 		{
@@ -156,7 +156,7 @@ void update_spatial_props(entt_maincube* inEntt, Vector3 inNewPos, Vector3 inNew
 
 #ifdef DEBUG
 
-entt_maincube* editor_try_select(entt_maincube* inEntt)
+entity_pointer* editor_try_select(entt_maincube* inEntt)
 {
 	/*// Check ray collision against model meshes
 	RayCollision meshHitInfo = { 0 };

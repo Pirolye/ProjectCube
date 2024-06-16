@@ -5,7 +5,7 @@
 void editor_ui_init(world_editor_ui* inEditorUI, world_editor* inWorldEditor)
 {
 	inEditorUI->worldEditor = inWorldEditor;
-	inEditorUI->worldEditor->currentlySelectedEntt = nullptr;
+	inEditorUI->worldEditor->currentlySelectedEntity = nullptr;
 }
 
 
@@ -117,7 +117,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 
 	std::string title;
 
-	if (inEditorUI->worldEditor->currentlySelectedEntt == nullptr)
+	if (inEditorUI->worldEditor->currentlySelectedEntity == nullptr)
 	{
 		title = "viewing nullptr";
 
@@ -127,9 +127,9 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		return;
 	}
 
-	title = "viewing " + inEditorUI->worldEditor->currentlySelectedEntt->id;
+	title = "viewing " + inEditorUI->worldEditor->currentlySelectedEntity->id;
 
-	inEditorUI->localT = inEditorUI->worldEditor->currentlySelectedEntt->transform;
+	//inEditorUI->localT = inEditorUI->worldEditor->currentlySelectedEntity->transform;
 
 	ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
 
@@ -193,27 +193,27 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 	}
 
-	if (typeid(entt_maincube) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	if (typeid(entt_maincube) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
 	{
-		entt_maincube* a = static_cast<entt_maincube*>(inEditorUI->worldEditor->currentlySelectedEntt);
+		entt_maincube* a = static_cast<entt_maincube*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
 		
 		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 	}
-	if (typeid(entt_maincube_static) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	if (typeid(entt_maincube_static) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
 	{
-		entt_maincube_static* a = static_cast<entt_maincube_static*>(inEditorUI->worldEditor->currentlySelectedEntt);
+		entt_maincube_static* a = static_cast<entt_maincube_static*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
 
 		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 	}
-	if (typeid(entt_light) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	if (typeid(entt_light) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
 	{
-		entt_light* a = static_cast<entt_light*>(inEditorUI->worldEditor->currentlySelectedEntt);
+		entt_light* a = static_cast<entt_light*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
 
 		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 	}
-	if (typeid(entt_camera) == typeid(inEditorUI->worldEditor->currentlySelectedEntt))
+	if (typeid(entt_camera) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
 	{
-		entt_camera* a = static_cast<entt_camera*>(inEditorUI->worldEditor->currentlySelectedEntt);
+		entt_camera* a = static_cast<entt_camera*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
 
 		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 	}

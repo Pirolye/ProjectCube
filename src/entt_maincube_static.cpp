@@ -11,16 +11,16 @@ void on_make(entt_maincube_static* inEntt)
 	inEntt->cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
 	inEntt->cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEntt->cubeTexture;
 
-	inEntt->cubeShader = world_make_shader(inEntt->containingWorld, "content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
+	inEntt->cubeShader = world_make_shader(inEntt->entityInfo.containingWorld, "content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
 	inEntt->cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(inEntt->cubeShader, "matModel");
 	int ambientLoc = GetShaderLocation(inEntt->cubeShader, "ambient");
-	SetShaderValue(inEntt->cubeShader, ambientLoc, inEntt->containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
+	SetShaderValue(inEntt->cubeShader, ambientLoc, inEntt->entityInfo.containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
 	inEntt->cubeModel.materials[0].shader = inEntt->cubeShader;
 
-	inEntt->collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntt->containingWorld->gScene, inEntt->containingWorld);
+	inEntt->collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntt->entityInfo.containingWorld->gScene, inEntt->entityInfo.containingWorld);
 
-	inEntt->transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(inEntt->transform.rot);
+	inEntt->entityInfo.transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntt->entityInfo.transform.rot);
 	update_spatial_props(inEntt, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 
 }
@@ -37,7 +37,7 @@ void on_destroy(entt_maincube_static* inEntt)
 void on_draw_3d(entt_maincube_static* inEntt)
 {
 	//rlEnableFrontfaceCulling();
-	if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
+	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity->id == inEntt->entityInfo.thisInArray->id && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
 	{
 		DrawModel(inEntt->cubeModel, Vector3Zero(), 1.0f, WHITE);
 		DrawModelWires(inEntt->cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
@@ -61,7 +61,7 @@ void on_update(entt_maincube_static* inEntt)
 	
 	update_spatial_props(inEntt, inEntt->collisionBox->t.pos, inEntt->collisionBox->t.scale, inEntt->collisionBox->t.rot);
 
-	if (inEntt->containingWorld->worldEditor->currentlySelectedEntt == inEntt && inEntt->containingWorld->worldEditor->isInEditorMode)
+	if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity->id == inEntt->entityInfo.thisInArray->id && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
 	{
 		if (IsKeyPressed(KEY_X))
 		{
@@ -73,15 +73,15 @@ void on_update(entt_maincube_static* inEntt)
 
 void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	inEntt->transform.pos = inNewPos;
-	inEntt->transform.scale = inNewScale;
-	inEntt->transform.rot = inNewRot;
+	inEntt->entityInfo.transform.pos = inNewPos;
+	inEntt->entityInfo.transform.scale = inNewScale;
+	inEntt->entityInfo.transform.rot = inNewRot;
 
-	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
+	Matrix matScale = MatrixScale(inEntt->entityInfo.transform.scale.x, inEntt->entityInfo.transform.scale.y, inEntt->entityInfo.transform.scale.z);
 	float x, y, z;
-	graphene_quaternion_to_radians(inEntt->transform.rot, &x, &y, &z);
+	graphene_quaternion_to_radians(inEntt->entityInfo.transform.rot, &x, &y, &z);
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
-	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->entityInfo.transform.pos.x, inEntt->entityInfo.transform.pos.y, inEntt->entityInfo.transform.pos.z);
 
 	inEntt->cubeModel.transform = MatrixIdentity();
 	inEntt->cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
@@ -92,11 +92,11 @@ void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector
 
 void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector3 inNewScale)
 {
-	inEntt->transform.pos = inNewPos;
-	inEntt->transform.scale = inNewScale;
+	inEntt->entityInfo.transform.pos = inNewPos;
+	inEntt->entityInfo.transform.scale = inNewScale;
 
-	Matrix matScale = MatrixScale(inEntt->transform.scale.x, inEntt->transform.scale.y, inEntt->transform.scale.z);
-	Matrix matTranslation = MatrixTranslate(inEntt->transform.pos.x, inEntt->transform.pos.y, inEntt->transform.pos.z);
+	Matrix matScale = MatrixScale(inEntt->entityInfo.transform.scale.x, inEntt->entityInfo.transform.scale.y, inEntt->entityInfo.transform.scale.z);
+	Matrix matTranslation = MatrixTranslate(inEntt->entityInfo.transform.pos.x, inEntt->entityInfo.transform.pos.y, inEntt->entityInfo.transform.pos.z);
 
 	inEntt->cubeModel.transform = MatrixIdentity();
 	inEntt->cubeModel.transform = MatrixMultiply(matScale, matTranslation);
@@ -116,10 +116,10 @@ void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector
 
 #ifdef DEBUG
 
-entt_maincube_static* editor_try_select(entt_maincube_static* inEntt)
+entity_pointer* editor_try_select(entt_maincube_static* inEntt)
 {
 	
-	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->containingWorld->currentlyRenderingCamera->rayCam);
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->entityInfo.containingWorld->currentlyRenderingCamera->rayCam);
 
 	RayCollision meshHitInfo = { 0 };
 	for (int m = 0; m < inEntt->cubeModel.meshCount; m++)
@@ -127,7 +127,7 @@ entt_maincube_static* editor_try_select(entt_maincube_static* inEntt)
 		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->cubeModel.meshes[m], inEntt->cubeModel.transform);
 		if (meshHitInfo.hit)
 		{
-			return inEntt;
+			return inEntt->entityInfo.thisInArray;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}
