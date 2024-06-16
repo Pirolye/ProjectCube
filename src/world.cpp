@@ -125,21 +125,38 @@ void world_update(world* inWorld)
 	// @@TODO: Look into replacing this mess with a template function!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (inWorld->entityArray[i] != NULL)
+		entity* entity = inWorld->entityArray[i];
+
+		if (entity != NULL)
 		{
-			//on_update(inWorld->entityArray[i]);
 			
-			
-			
+			if (entity->type == "maincube")
+			{
+				entity_maincube_data* mainCubeData = reinterpret_cast<entity_maincube_data*>(entity->data);
+
+				on_update(mainCubeData, entity);
+
+
+
+
+
+			}
+			if (entity->type == "camera")
+			{
+				entity_camera_data* cameraData = reinterpret_cast<entity_camera_data*>(entity->data);
+				on_update(cameraData, entity);
+
+			}
+
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube)) on_update(static_cast<entt_maincube*>(inWorld->entityArray[i]));
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube_static)) on_update(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_light)) on_update(static_cast<entt_light*>(inWorld->entityArray[i]));
 
 
-			if(inWorld->entityArray[i]->type == typeid(entt_maincube)) on_update(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->entity));
-			if(inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_update(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->entity));
-			if(inWorld->entityArray[i]->type == typeid(entt_light)) on_update(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->entity));
-			if(inWorld->entityArray[i]->type == typeid(entt_camera)) on_update(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->entity));
+			//if(inWorld->entityArray[i]->type == typeid(entt_maincube)) on_update(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->entity));
+			//if(inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_update(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->entity));
+			//if(inWorld->entityArray[i]->type == typeid(entt_light)) on_update(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->entity));
+			//if(inWorld->entityArray[i]->type == typeid(entt_camera)) on_update(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->entity));
 			//entityArray[i]->on_update();
 			
 		}
@@ -164,22 +181,42 @@ void world_draw_all(world* inWorld)
 {
 	BeginDrawing();
 
-	BeginMode3D(inWorld->currentlyRenderingCamera->rayCam);
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inWorld->currentlyRenderingCamera->data);
+	
+	BeginMode3D(camera->rayCam);
 	
 	ClearBackground(BLACK);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (inWorld->entityArray[i] != NULL)
+		entity* entity = inWorld->entityArray[i];
+
+		if (entity != NULL)
 		{
-			//on_draw_3d(inWorld->entityArray[i]);
 
-			
-			if (inWorld->entityArray[i]->type == typeid(entt_maincube)) on_draw_3d(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_draw_3d(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_light)) on_draw_3d(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_camera)) on_draw_3d(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->entity));
+			if (entity->type == "maincube")
+			{
+				entity_maincube_data* mainCubeData = reinterpret_cast<entity_maincube_data*>(entity->data);
+				on_draw_3d(mainCubeData, entity);
 
+
+				//rlDisableFrontfaceCulling();
+
+
+				//on_draw_3d(inWorld->entityArray[i]);
+
+
+				//if (inWorld->entityArray[i]->type == typeid(entt_maincube)) on_draw_3d(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->entity));
+				//if (inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_draw_3d(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->entity));
+				//if (inWorld->entityArray[i]->type == typeid(entt_light)) on_draw_3d(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->entity));
+				//if (inWorld->entityArray[i]->type == typeid(entt_camera)) on_draw_3d(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->entity));
+			}
+			if (entity->type == "camera")
+			{
+				entity_camera_data* cameraData = reinterpret_cast<entity_camera_data*>(entity->data);
+				on_draw_3d(cameraData, entity);
+
+			}
 		}
 	}
 
@@ -189,14 +226,23 @@ void world_draw_all(world* inWorld)
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (inWorld->entityArray[i] != NULL)
+		entity* entity = inWorld->entityArray[i];
+
+		if (entity != NULL)
 		{
-			//on_draw_2d(inWorld->entityArray[i]);
-			
-			if (inWorld->entityArray[i]->type == typeid(entt_maincube)) on_draw_2d(reinterpret_cast<entt_maincube*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_maincube_static)) on_draw_2d(reinterpret_cast<entt_maincube_static*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_light)) on_draw_2d(reinterpret_cast<entt_light*>(inWorld->entityArray[i]->entity));
-			if (inWorld->entityArray[i]->type == typeid(entt_camera)) on_draw_2d(reinterpret_cast<entt_camera*>(inWorld->entityArray[i]->entity));
+
+			if (entity->type == "maincube")
+			{
+				entity_maincube_data* mainCubeData = reinterpret_cast<entity_maincube_data*>(entity->data);
+				on_draw_2d(mainCubeData, entity);
+
+			}
+			if (entity->type == "camera")
+			{
+				entity_camera_data* cameraData = reinterpret_cast<entity_camera_data*>(entity->data);
+				on_draw_2d(cameraData, entity);
+
+			}
 
 		}
 	}

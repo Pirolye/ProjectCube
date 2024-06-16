@@ -7,10 +7,8 @@
 
 #define RLIGHTS_IMPLEMENTATION
 
-struct entt_maincube
+struct entity_maincube_data
 {
-	entity_info entityInfo;
-
 	Model cubeModel;
 	Texture2D cubeTexture;
 	Shader cubeShader;
@@ -19,19 +17,20 @@ struct entt_maincube
 
 };
 
-void on_make(entt_maincube* inEntt);
+void on_make(entity_maincube_data* inData, entity* inEntity);
 
-void on_update(entt_maincube* inEntt);
-void on_draw_2d(entt_maincube* inEntt);
-void on_draw_3d(entt_maincube* inEntt);
+void on_update(entity_maincube_data* inData, entity* inEntity);
+void on_draw_2d(entity_maincube_data* inData, entity* inEntity);
+void on_draw_3d(entity_maincube_data* inData, entity* inEntity);
 
-void update_spatial_props(entt_maincube* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
-void update_spatial_props(entt_maincube* inEntt, Vector3 inNewPos, Vector3 inNewScale);
+void update_spatial_props(entity_maincube_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entity_maincube_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale);
 
-void on_destroy(entt_maincube* inEntt);
+void on_destroy(entity_maincube_data* inData, entity* inEntity);
 
-entity_pointer* editor_try_select(entt_maincube* inEntt);
+entity* editor_try_select(entity_maincube_data* inData, entity* inEntity);
 
+/*
 struct entt_maincube_static
 {
 	entity_info entityInfo;
@@ -57,10 +56,9 @@ void on_destroy(entt_maincube_static* inEntt);
 
 entity_pointer* editor_try_select(entt_maincube_static* inEntt);
 
-struct entt_camera
+*/
+struct entity_camera_data
 {
-	entity_info entityInfo;
-
 	Camera3D rayCam;
 
 	int mode; // 0 = locked (standard gameplay camera for missing cube) 1 = editor_free (free movement camera, standard 3d editor controls)
@@ -75,27 +73,25 @@ struct entt_camera
 
 };
 
-void on_make(entt_camera* inEntt);
+void on_make(entity_camera_data* inData, entity* inEntity);
 
-void on_update(entt_camera* inEntt);
-void on_draw_2d(entt_camera* inEntt);
-void on_draw_3d(entt_camera* inEntt);
+void on_update(entity_camera_data* inData, entity* inEntity);
+void on_draw_2d(entity_camera_data* inData, entity* inEntity);
+void on_draw_3d(entity_camera_data* inData, entity* inEntity);
 
-void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
-void update_spatial_props(entt_camera* inEntt, Vector3 inNewPos, Vector3 inNewScale);
-void set_mode(entt_camera* inEntt, int inMode, bool isForEditorOnly);
-void transform_camera_by_delta(entt_camera* inEntt, Vector3 inPosition, Vector3 inRotation);
+void update_spatial_props(entity_camera_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entity_camera_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale);
+void set_camera_mode(entity* inEntity, int inMode, bool isForEditorOnly);
+void transform_camera_by_delta(entity_camera_data* inData, entity* inEntity, Vector3 inPosition, Vector3 inRotation);
 void editor_camera_update_model_rotation();
 
-void on_destroy(entt_camera* inEntt);
+void on_destroy(entity_camera_data* inData, entity* inEntity);
 
-entity_pointer* editor_try_select(entt_camera* inEntt);
+entity* editor_try_select(entity_camera_data* inData, entity* inEntity);
 
 
-struct entt_light
+struct entity_light_data
 {
-	entity_info entityInfo;
-
 	Light rayLight[360];
 
 	Model debugModel;
@@ -103,19 +99,19 @@ struct entt_light
 	
 };
 
-void on_make(entt_light* inEntt);
+void on_make(entity_light_data* inData, entity* inEntity);
 
-void on_update(entt_light* inEntt);
-void on_draw_2d(entt_light* inEntt);
-void on_draw_3d(entt_light* inEntt);
+void on_update(entity_light_data* inData, entity* inEntity);
+void on_draw_2d(entity_light_data* inData, entity* inEntity);
+void on_draw_3d(entity_light_data* inData, entity* inEntity);
 
-void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
-void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale);
-void update_light_props(entt_light* inEntt, int inType, Vector3 inPos, Vector3 inTarget, Color inColor);
+void update_spatial_props(entity_light_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
+void update_spatial_props(entity_light_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale);
+void update_light_props(entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor);
 
-void on_destroy(entt_light* inEntt);
+void on_destroy(entity_light_data* inData, entity* inEntity);
 
-entity_pointer* editor_try_select(entt_light* inEntt);
+entity* editor_try_select(entity_light_data* inData, entity* inEntity);
 
 
 

@@ -11,11 +11,11 @@ void world_run_script_on_init(world* inWorld)
 	if (inWorld->name == "debug")
 	{
 		
-		entt_maincube_static* mainCubeStatic1 = world_make_desired_entity<entt_maincube_static>(inWorld);
+		entity* mainCubeStatic1 = world_make_desired_entity("maincube", inWorld);
 		//entt* mainCube2 = world_make_desired_entt<entt_maincube_static>(inWorld);
 		
 
-		update_spatial_props(mainCubeStatic1, Vector3{ 5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		//update_spatial_props(mainCubeStatic1, Vector3{ 5.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		//static_cast<entt_maincube_static*>(mainCube2)->update_spatial_props(Vector3{ 10.0f, -1.0f, 10.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 		
 		/*
@@ -34,10 +34,10 @@ void world_run_script_on_init(world* inWorld)
 
 		*/
 		
-		entt_camera* gameplayCam = world_make_desired_entity<entt_camera>(inWorld);
-		set_mode(gameplayCam, 1, true);
+		entity* gameplayCam = world_make_desired_entity("camera", inWorld);
+		set_camera_mode(gameplayCam, 1, true);
 
-		entt_light* secondaryLight = world_make_desired_entity<entt_light>(inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
+		entity* secondaryLight = world_make_desired_entity("light", inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
 
 		update_light_props(secondaryLight, 1, Vector3{7.0f, 7.0f, 7.0f}, Vector3Zero(), WHITE);
 
@@ -97,43 +97,31 @@ void world_run_script_on_destroy(world *inWorld)
 
 };
 
-template <typename t> t* world_make_desired_entity(world* inWorld)
+entity* world_make_desired_entity(std::string inType, world* inWorld)
 {
-	t* newEntt = new t;
+	entity* newEntity = new entity;
 
-	std::string typeName = typeid(t).name();
+	newEntity->type = inType;
 
-	typeName.erase(0, 12);
+	//inType.erase(0, 12);
 
-	std::string id = "entity_" + typeName + std::to_string(inWorld->totalMadeEntts);
-	newEntt->entityInfo.containingWorld = inWorld;
-
-	entity_pointer newEntity = new entity_pointer{ newEntt, typeid(t), id };
-
-	/*
-	entity_pointer* newEntity = reinterpret_cast<entity_pointer*>(malloc(sizeof(entity_pointer)));
-	newEntity->entity = newEntt;
-	newEntity->type = typeid(t);
+	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntts);
+	newEntity->containingWorld = inWorld;
 	newEntity->id = id;
-	*/
-
-	newEntt->entityInfo.thisInArray = newEntity;
 
 	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
 
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
 
 
-	on_make(newEntt);
-
 	bool isThereAnotherCameraInTheWorld = false;
-	if (typeid(t) == typeid(entt_camera))
+	if (inType == "camera")
 	{
 		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 		{
 			if (inWorld->entityArray[i] != NULL)
 			{
-				if (inWorld->entityArray[i]->type == typeid(entt_camera))
+				if (inWorld->entityArray[i]->type == "camera")
 				{
 					isThereAnotherCameraInTheWorld = true;
 					break;
@@ -146,9 +134,16 @@ template <typename t> t* world_make_desired_entity(world* inWorld)
 			}
 		}
 
-		if (isThereAnotherCameraInTheWorld == false) inWorld->currentlyRenderingCamera = reinterpret_cast<entt_camera*>(newEntt);
+		if (isThereAnotherCameraInTheWorld == false) inWorld->currentlyRenderingCamera = newEntity;
 
 	}
+
+	if (inType == "maincube")
+	{
+		entity_maincube_data* mainCubeData = new entity_maincube_data;
+		on_make(mainCubeData, newEntity);
+	}
+
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
@@ -159,5 +154,5 @@ template <typename t> t* world_make_desired_entity(world* inWorld)
 		}
 	}
 
-	return newEntt;
+	return newEntity;
 }

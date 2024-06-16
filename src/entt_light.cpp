@@ -4,7 +4,7 @@
 #include "raylib.h"
 
 ;
-
+/*
 #define RLIGHTS_IMPLEMENTATION
 
 
@@ -135,7 +135,7 @@ void on_draw_3d(entt_light* inEntt)
 *
 *
 */
-
+/*
 #ifdef DEBUG
 
 entity_pointer* editor_try_select(entt_light* inEntt)

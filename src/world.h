@@ -21,7 +21,7 @@ struct world
 
 	std::string name;
 
-	entity_pointer* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
+	entity* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 
@@ -37,7 +37,7 @@ struct world
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Since the rcamera remake in raylib 4.5, we can have multiple cameras without issue!
-	entt_camera* currentlyRenderingCamera;
+	entity* currentlyRenderingCamera;
 
 	world_editor* worldEditor;
 
@@ -51,7 +51,7 @@ void world_deinit(world* inWorld);
 template <typename t> t* world_make_desired_entity(world* inWorld);
 
 Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader);
-void world_set_cam(world* inWorld, entt_camera* inCam);
+void world_set_cam(world* inWorld, entity* inCam);
 
 void world_update(world* inWorld);
 void world_draw_all(world* inWorld);

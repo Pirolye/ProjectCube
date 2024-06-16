@@ -3,6 +3,7 @@
 #include "rlgl.h"
 #include "raymath.h"
 #include "assert.h"
+/*
 
 ;
 void on_make(entt_maincube_static* inEntt)
@@ -113,7 +114,7 @@ void update_spatial_props(entt_maincube_static* inEntt, Vector3 inNewPos, Vector
 *
 *
 */
-
+/*
 #ifdef DEBUG
 
 entity_pointer* editor_try_select(entt_maincube_static* inEntt)

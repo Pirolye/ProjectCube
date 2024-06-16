@@ -19,24 +19,19 @@ struct entt_transform
 	graphene_quaternion_t* rot;
 };
 
-struct entity_pointer
-{
-	public: void* entity;
-	public: type_info type;
-	public: std::string id;
-
-};
-
-struct entity_info
+struct entity
 {
 	world* containingWorld;
 
+	void* data;
+	std::string id;
+	std::string type;
+
 	entt_transform transform; // WARNING: Do not set manually! Always use functions!
 
-	entity_pointer* thisInArray;
-
-
+	
 };
+
 
 
 
