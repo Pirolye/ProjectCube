@@ -197,30 +197,30 @@ void transform_camera_by_delta(entity_camera_data* inData, entity* inEntity, Vec
 {
 	//(Levente): We have to manually calculate the angle of the camera based on the inputs we receive.
 	// I originally wanted to clamp the value of the y axis rot to 360, but we lost so much precision with all that that I let it go. Now, we work with floats in the 0 - 10 000 range, usually. Hopefully won't cause any issues.
-	
-	UpdateCameraPro(&(inData->rayCam), Vector3Zero(), inNewRotDelta, 0.0f);
-	
-	inEntt->euler.x = inEntt->euler.x + inNewRotDelta.y;
-	inEntt->euler.y = inEntt->euler.y - inNewRotDelta.x;
 
-	if (inEntt->euler.x > 90.0f) inEntt->euler.x = 90.0f;
-	if (inEntt->euler.x < -90.0f) inEntt->euler.x = -90.0f;
+	UpdateCameraPro(&(inData->rayCam), Vector3Zero(), inNewRotDelta, 0.0f);
+
+	inData->euler.x = inData->euler.x + inNewRotDelta.y;
+	inData->euler.y = inData->euler.y - inNewRotDelta.x;
+
+	if (inData->euler.x > 90.0f) inData->euler.x = 90.0f;
+	if (inData->euler.x < -90.0f) inData->euler.x = -90.0f;
 
 	/*
 	if (euler.y > 359.5f) euler.y = 0.0f;
 	if (euler.y < 0.0f) euler.y = 359.5f;
 	*/
-/*
+
 	//printf("[game] currentlyRenderingCam euler: %f %f %f\n", inEntt->euler.x, inEntt->euler.y, inEntt->euler.z);
 
-	CameraMoveForward(&(inEntt->rayCam), inNewPosDelta.x, false);
-	CameraMoveRight(&(inEntt->rayCam), inNewPosDelta.z, false);
+	CameraMoveForward(&(inData->rayCam), inNewPosDelta.x, false);
+	CameraMoveRight(&(inData->rayCam), inNewPosDelta.z, false);
 
-	inEntt->rayCam.target = Vector3{ inEntt->rayCam.target.x, inEntt->rayCam.target.y + inNewPosDelta.y, inEntt->rayCam.target.z };
-	inEntt->rayCam.position = Vector3{ inEntt->rayCam.position.x, inEntt->rayCam.position.y + inNewPosDelta.y, inEntt->rayCam.position.z };
+	inData->rayCam.target = Vector3{ inData->rayCam.target.x, inData->rayCam.target.y + inNewPosDelta.y, inData->rayCam.target.z };
+	inData->rayCam.position = Vector3{ inData->rayCam.position.x, inData->rayCam.position.y + inNewPosDelta.y, inData->rayCam.position.z };
 
-	inEntity->transform.pos = inEntt->rayCam.position;
-	editor_camera_update_model_rotation(inEntt);
+	inEntity->transform.pos = inData->rayCam.position;
+	editor_camera_update_model_rotation(inData, inEntity);
 
 }
 
@@ -263,4 +263,4 @@ entt* editor_try_select(entt_camera* inEntt)
 	return nullptr;
 };
 
-#endif
+#endif*/

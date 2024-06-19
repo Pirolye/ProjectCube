@@ -107,7 +107,7 @@ void on_draw_3d(entity_light_data* inData, entity* inEntity);
 
 void update_spatial_props(entity_light_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
 void update_spatial_props(entity_light_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale);
-void update_light_props(entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor);
+void update_light_props(entity_light_data* inData, entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor);
 
 void on_destroy(entity_light_data* inData, entity* inEntity);
 

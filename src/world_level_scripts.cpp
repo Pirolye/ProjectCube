@@ -39,7 +39,7 @@ void world_run_script_on_init(world* inWorld)
 
 		entity* secondaryLight = world_make_desired_entity("light", inWorld);  // ALWAYS MAKE LIGHTS LAST BECAUSE OTHERWISE THEY WON'T WORK!!!
 
-		update_light_props(secondaryLight, 1, Vector3{7.0f, 7.0f, 7.0f}, Vector3Zero(), WHITE);
+		update_light_props(reinterpret_cast<entity_light_data*>(secondaryLight->data), secondaryLight, 1, Vector3{7.0f, 7.0f, 7.0f}, Vector3Zero(), WHITE);
 
 		/*
 		entt* gameplayCam1 = world_make_desired_entt<entt_camera>(inWorld);
@@ -142,6 +142,19 @@ entity* world_make_desired_entity(std::string inType, world* inWorld)
 	{
 		entity_maincube_data* mainCubeData = new entity_maincube_data;
 		on_make(mainCubeData, newEntity);
+		newEntity->data = mainCubeData;
+	}
+	if (inType == "camera")
+	{
+		entity_camera_data* mainCameraData = new entity_camera_data;
+		on_make(mainCameraData, newEntity);
+		newEntity->data = mainCameraData;
+	}
+	if (inType == "light")
+	{
+		entity_light_data* mainLightData = new entity_light_data;
+		on_make(mainLightData, newEntity);
+		newEntity->data = mainLightData;
 	}
 
 

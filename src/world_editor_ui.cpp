@@ -193,6 +193,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 	}
 
+	/*
 	if (typeid(entt_maincube) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
 	{
 		entt_maincube* a = static_cast<entt_maincube*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
@@ -217,7 +218,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 
 		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 	}
-
+	*/
 	
 
 

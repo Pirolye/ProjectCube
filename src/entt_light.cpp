@@ -1,31 +1,32 @@
 #include "world.h"
 ;
 #include "raymath.h"
+#define RLIGHTS_IMPLEMENTATION
+#include "rlights.h"
 #include "raylib.h"
 
 ;
-/*
-#define RLIGHTS_IMPLEMENTATION
+
 
 
 //(Levente): Each shader individually keeps track of light source information. When making a light, we go through each shader and manually update the 
 //information.
-void on_make(entt_light* inEntt)
+void on_make(entity_light_data* inData, entity* inEntity)
 {
 	for (int i = 0; i != 360; i++)
 	{
-		inEntt->rayLight[i] = { 0 };
+		inData->rayLight[i] = { 0 };
 	}
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
-		if (inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i].id != 0 && inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i].locs != 0)
+		if (inEntity->containingWorld->currentlyLoadedShaders[i].id != 0 && inEntity->containingWorld->currentlyLoadedShaders[i].locs != 0)
 		{
 			for (int i2 = 0; i2 != 360; i2++)
 			{
-				if (inEntt->rayLight[i2].enabled != true)
+				if (inData->rayLight[i2].enabled != true)
 				{
-					inEntt->rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3Zero(), WHITE, inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i]);
+					inData->rayLight[i2] = CreateLight(LIGHT_POINT, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3Zero(), WHITE, inEntity->containingWorld->currentlyLoadedShaders[i]);
 					break;
 				}
 				else
@@ -36,26 +37,26 @@ void on_make(entt_light* inEntt)
 		}
 	}
 
-	inEntt->entityInfo.transform.pos = Vector3Zero();
-	inEntt->entityInfo.transform.rot = graphene_quaternion_alloc();
-	graphene_quaternion_init_identity(inEntt->entityInfo.transform.rot);
-	inEntt->entityInfo.transform.scale = Vector3{1.0f, 1.0f, 1.0f};
+	inEntity->transform.pos = Vector3Zero();
+	inEntity->transform.rot = graphene_quaternion_alloc();
+	graphene_quaternion_init_identity(inEntity->transform.rot);
+	inEntity->transform.scale = Vector3{1.0f, 1.0f, 1.0f};
 
 #ifdef DEBUG
-	inEntt->debugModel = LoadModel("editor/point_light_model.obj");
+	inData->debugModel = LoadModel("editor/point_light_model.obj");
 #endif
 }
 
-void update_light_props(entt_light* inEntt, int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
+void update_light_props(entity_light_data* inData, entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
 {
 	for (int i2 = 0; i2 != 360; i2++)
 	{
-		if (inEntt->rayLight[i2].enabled == true)
+		if (inData->rayLight[i2].enabled == true)
 		{
-			inEntt->rayLight[i2].type = inType;
-			inEntt->rayLight[i2].position = inPos;
-			inEntt->rayLight[i2].target = inTarget;
-			inEntt->rayLight[i2].color = inColor;
+			inData->rayLight[i2].type = inType;
+			inData->rayLight[i2].position = inPos;
+			inData->rayLight[i2].target = inTarget;
+			inData->rayLight[i2].color = inColor;
 		}
 		else
 		{
@@ -67,11 +68,11 @@ void update_light_props(entt_light* inEntt, int inType, Vector3 inPos, Vector3 i
 	{
 		for (int i2 = 0; i2 != 360; i2++)
 		{
-			if (inEntt->rayLight[i2].enabled == true)
+			if (inData->rayLight[i2].enabled == true)
 			{
-				if (inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i].id != 0 && inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i].locs != 0)
+				if (inEntity->containingWorld->currentlyLoadedShaders[i].id != 0 && inEntity->containingWorld->currentlyLoadedShaders[i].locs != 0)
 				{
-					UpdateLightValues(inEntt->entityInfo.containingWorld->currentlyLoadedShaders[i], inEntt->rayLight[i2]);
+					UpdateLightValues(inEntity->containingWorld->currentlyLoadedShaders[i], inData->rayLight[i2]);
 				}
 
 			}
@@ -79,49 +80,49 @@ void update_light_props(entt_light* inEntt, int inType, Vector3 inPos, Vector3 i
 	}
 };
 
-void update_spatial_props(entt_light* inEntt, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
+void update_spatial_props(entity_light_data* inData, entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRot)
 {
-	inEntt->entityInfo.transform.pos = inNewPos;
-	inEntt->entityInfo.transform.scale = inNewScale;
-	inEntt->entityInfo.transform.rot = inNewRot;
+	inEntity->transform.pos = inNewPos;
+	inEntity->transform.scale = inNewScale;
+	inEntity->transform.rot = inNewRot;
 
 	Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
 	float x, y, z;
-	graphene_quaternion_to_radians(inEntt->entityInfo.transform.rot, &x, &y, &z);
+	graphene_quaternion_to_radians(inEntity->transform.rot, &x, &y, &z);
 	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 	Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
-	inEntt->debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+	inData->debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
-	update_light_props(inEntt, inEntt->rayLight->type, inEntt->entityInfo.transform.pos, Vector3Zero(), inEntt->rayLight->color);
+	update_light_props(inData, inEntity, inData->rayLight->type, inEntity->transform.pos, Vector3Zero(), inData->rayLight->color);
 
 }
 
-void on_destroy(entt_light* inEntt)
+void on_destroy(entity_light_data* inData, entity* inEntity)
 {
 #ifdef DEBUG
-	UnloadModel(inEntt->debugModel);
+	UnloadModel(inData->debugModel);
 #endif
 };
 
-void on_update(entt_light* inEntt)
+void on_update(entity_light_data* inData, entity* inEntity)
 {
 };
 
-void on_draw_2d(entt_light* inEntt)
+void on_draw_2d(entity_light_data* inData, entity* inEntity)
 {
 
 };
 
-void on_draw_3d(entt_light* inEntt)
+void on_draw_3d(entity_light_data* inData, entity* inEntity)
 {
-	if (inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
+	if (inEntity->containingWorld->worldEditor->isInEditorMode)
 	{
-		DrawModel(inEntt->debugModel, Vector3Zero(), 1.0f, YELLOW);
+		DrawModel(inData->debugModel, Vector3Zero(), 1.0f, YELLOW);
 
-		if (inEntt->entityInfo.containingWorld->worldEditor->currentlySelectedEntity->id == inEntt->entityInfo.thisInArray->id && inEntt->entityInfo.containingWorld->worldEditor->isInEditorMode)
+		if (inEntity->containingWorld->worldEditor->currentlySelectedEntity->id == inEntity->id && inEntity->containingWorld->worldEditor->isInEditorMode)
 		{
-			DrawModelWires(inEntt->debugModel, Vector3Zero(), 1.0f, RED);
+			DrawModelWires(inData->debugModel, Vector3Zero(), 1.0f, RED);
 		}
 
 	}
@@ -135,20 +136,21 @@ void on_draw_3d(entt_light* inEntt)
 *
 *
 */
-/*
+
 #ifdef DEBUG
 
-entity_pointer* editor_try_select(entt_light* inEntt)
+entity* editor_try_select(entity_light_data* inData, entity* inEntity)
 {
-	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->entityInfo.containingWorld->currentlyRenderingCamera->rayCam);
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEntity->containingWorld->currentlyRenderingCamera->data);
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
 	RayCollision meshHitInfo = { 0 };
-	for (int m = 0; m < inEntt->debugModel.meshCount; m++)
+	for (int m = 0; m < inData->debugModel.meshCount; m++)
 	{
-		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->debugModel.meshes[m], inEntt->debugModel.transform);
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inData->debugModel.meshes[m], inData->debugModel.transform);
 		if (meshHitInfo.hit)
 		{
-			return inEntt->entityInfo.thisInArray;
+			return inEntity;
 
 			break;  // Stop once one mesh collision is detected, the colliding mesh is m
 		}

@@ -136,10 +136,6 @@ void world_update(world* inWorld)
 
 				on_update(mainCubeData, entity);
 
-
-
-
-
 			}
 			if (entity->type == "camera")
 			{
@@ -147,7 +143,12 @@ void world_update(world* inWorld)
 				on_update(cameraData, entity);
 
 			}
+			if (entity->type == "light")
+			{
+				entity_light_data* lightData = reinterpret_cast<entity_light_data*>(entity->data);
+				on_update(lightData, entity);
 
+			}
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube)) on_update(static_cast<entt_maincube*>(inWorld->entityArray[i]));
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_maincube_static)) on_update(static_cast<entt_maincube_static*>(inWorld->entityArray[i]));
 			//if(typeid(inWorld->entityArray[i]->type) == typeid(entt_light)) on_update(static_cast<entt_light*>(inWorld->entityArray[i]));

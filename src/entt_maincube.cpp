@@ -48,7 +48,7 @@ void on_destroy(entity_maincube_data* inData, entity* inEntity)
 void on_draw_3d(entity_maincube_data* inData, entity* inEntity)
 {
 	//rlEnableFrontfaceCulling();
-	if (inEntity->containingWorld->worldEditor->currentlySelectedEntity->id == inEntity->id && inEntity->containingWorld->worldEditor->isInEditorMode)
+	if (inEntity->containingWorld->worldEditor->currentlySelectedEntity == inEntity&& inEntity->containingWorld->worldEditor->isInEditorMode)
 	{
 		DrawModel(inData->cubeModel, Vector3Zero(), 1.0f, WHITE);
 		DrawModelWires(inData->cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
@@ -105,12 +105,15 @@ void on_update(entity_maincube_data* inData, entity* inEntity)
 		inData->collisionBox->update();
 		update_spatial_props(inData, inEntity, inData->collisionBox->t.pos, inData->collisionBox->t.scale, inData->collisionBox->t.rot);
 	}
-	
-	if (inEntity->containingWorld->worldEditor->currentlySelectedEntity->id == inEntity->id && inEntity->containingWorld->worldEditor->isInEditorMode)
+	else
 	{
-		if (IsKeyPressed(KEY_X))
+		if (inEntity->containingWorld->worldEditor->currentlySelectedEntity == inEntity)
 		{
-			inData->collisionBox->enable();
+			if (IsKeyPressed(KEY_X))
+			{
+				inData->collisionBox->enable();
+			}
+
 		}
 
 	}

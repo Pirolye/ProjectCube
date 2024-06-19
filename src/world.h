@@ -48,7 +48,7 @@ void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhys
 void world_deinit(world* inWorld);
 
 //NOTE: Use reinterpret_cast to make it into the desired entt type!
-template <typename t> t* world_make_desired_entity(world* inWorld);
+entity* world_make_desired_entity(std::string inType, world* inWorld);
 
 Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader);
 void world_set_cam(world* inWorld, entity* inCam);
