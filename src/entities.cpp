@@ -1,7 +1,14 @@
 #include "world.h"
+
+
+#define RLIGHTS_IMPLEMENTATION
+
+
 #include "raylib.h"
+#include "rlights.h"
 #include "raymath.h"
 #include "rcamera.h"
+
 
 void on_make(entity* inEntity)
 {
@@ -93,6 +100,7 @@ void on_make(entity* inEntity)
 		//update_spatial_props(inEntt, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
 
 		update_spatial_properties(inEntity, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		inData->collisionBox->enable();
 
 	}
 }
