@@ -243,7 +243,7 @@ void update_world_editor(world_editor* inEditor)
 
 	}
 	
-	//if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && inEditor->canManipulateWorld) editor_try_select_entt(inEditor);
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && inEditor->canManipulateWorld) { inEditor->currentlySelectedEntity = editor_try_select_entity(inEditor); };
 
 	if (IsKeyPressed(KEY_TAB) && inEditor->canManipulateWorld) editor_next_camera(inEditor);
 	
@@ -333,49 +333,44 @@ void editor_rotate_entt(int axis, float val)
 
 */
 
-/*
-void editor_try_select_entt(world_editor* inEditor)
+
+entity* editor_try_select_entity(world_editor* inEditor)
 {
 	RayCollision collision = { 0 };
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
-	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEditor->currentWorld->currentlyRenderingCamera->rayCam);
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (inEditor->currentWorld->entityArray[i] != NULL)
+		if (inEditor->currentWorld->worldEditor->visibilityArray[i] != NULL)
 		{
-			/*
-			const type_info* enttType = &typeid(inEditor->currentWorld->entityArray[i]->type);
-			const char* typeName = enttType->name();
-			editor_try_select(reinterpret_cast<typeName>inEditor->currentWorld->entityArray[i]
-			*/
 
-/*
-			if (inEditor->currentWorld->entityArray[i]->type == "light")
+			RayCollision meshHitInfo = { 0 };
+			for (int m = 0; m < inEditor->currentWorld->worldEditor->visibilityArray[i]->model.meshCount; m++)
 			{
-				inEditor->currentlySelectedEntity = editor_try_select(reinterpret_cast<entt_light*>(inEditor->currentWorld->entityArray[i]->entity));
+				meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->currentWorld->worldEditor->visibilityArray[i]->model.meshes[m], inEditor->currentWorld->worldEditor->visibilityArray[i]->model.transform);
+				if (meshHitInfo.hit)
+				{
+					return inEditor->currentWorld->worldEditor->visibilityArray[i]->container;
+
+					break;  // Stop once one mesh collision is detected, the colliding mesh is m
+				}
+				else
+				{
+					return nullptr;
+				}
 			}
-			if (inEditor->currentWorld->entityArray[i]->type == "camera")
-			{
-				inEditor->currentlySelectedEntity = editor_try_select(reinterpret_cast<entt_camera*>(inEditor->currentWorld->entityArray[i]->entity));
-			}
-			if (inEditor->currentWorld->entityArray[i]->type == "maincube")
-			{
-				inEditor->currentlySelectedEntity = editor_try_select(reinterpret_cast<entt_maincube*>(inEditor->currentWorld->entityArray[i]->entity));
-			}
-			if (inEditor->currentWorld->entityArray[i]->type == "maincube_static")
-			{
-				inEditor->currentlySelectedEntity = editor_try_select(reinterpret_cast<entt_maincube_static*>(inEditor->currentWorld->entityArray[i]->entity));
-			}
+
 
 			if (inEditor->currentlySelectedEntity != nullptr) { break; inEditor->selectingEntt = true; }
 			else { inEditor->selectingEntt = false;  continue; }
 			
 		}
 	}
-};*/
+};
 
 // -------- UI --------
 

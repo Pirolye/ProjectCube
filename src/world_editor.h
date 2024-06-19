@@ -14,7 +14,7 @@ struct world_editor
 	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z; 3 = xy, 4 = yz. 5 = zx
 
 	entity* currentlySelectedEntity = nullptr;
-	type_info currentlySelectedEntityType;
+	model* visibilityArray[1024] = { NULL };
 	bool selectingEntt = false;
 
 	bool canManipulateWorld = true;
@@ -51,7 +51,7 @@ struct world_editor
 
 };
 
-void editor_try_select_entt(world_editor* inWorldEditor);
+entity* editor_try_select_entity(world_editor* inWorldEditor);
 
 void editor_move_entt(world_editor* inWorldEditor, int axis, float val);
 void editor_rotate_entt(world_editor* inWorldEditor, int axis, float val);

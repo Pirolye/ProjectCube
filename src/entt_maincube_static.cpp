@@ -122,21 +122,6 @@ entity_pointer* editor_try_select(entt_maincube_static* inEntt)
 	
 	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), inEntt->entityInfo.containingWorld->currentlyRenderingCamera->rayCam);
 
-	RayCollision meshHitInfo = { 0 };
-	for (int m = 0; m < inEntt->cubeModel.meshCount; m++)
-	{
-		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEntt->cubeModel.meshes[m], inEntt->cubeModel.transform);
-		if (meshHitInfo.hit)
-		{
-			return inEntt->entityInfo.thisInArray;
-
-			break;  // Stop once one mesh collision is detected, the colliding mesh is m
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
 
 };
 

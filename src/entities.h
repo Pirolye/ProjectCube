@@ -4,12 +4,13 @@
 
 #include "entity.h"
 #include "physics.h"
+#include "raylib_wrapper.h"
 
 #define RLIGHTS_IMPLEMENTATION
 
 struct entity_maincube_data
 {
-	Model cubeModel;
+	model* cubeModel;
 	Texture2D cubeTexture;
 	Shader cubeShader;
 

@@ -4,6 +4,7 @@
 #include "entities.h"
 #include "world_editor.h"
 #include "world_editor_ui.h"
+#include "raylib_wrapper.h"
 
 
 ;
@@ -21,7 +22,7 @@ struct world
 
 	std::string name;
 
-	entity* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL };
+	entity* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL }; //WARNING: This only works because we use new to allocate memory! Malloc doesn't fill this to NULL, breaking the program!!!!
 	int entityArrayCurrentSize = 0;
 	int totalMadeEntts = 0;
 
@@ -33,7 +34,7 @@ struct world
 
 	//(Levente): Lighting is done inside the shaders of course, but lights are also entites in their own term. This means we have to manually update all shaders
 	//to notify them of any changes that might happened in lighting data.
-	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64] = { NULL }; //Note: We have to do NULL initialization here because the compiler won't do it when defining! (Even though it accepts it as valid syntax...)
+	Shader currentlyLoadedShaders[MAX_ENTITIES_IN_WORLD * 64] = { NULL }; 
 	float defaultAmbientLightValue[4] = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	//(Levente): Since the rcamera remake in raylib 4.5, we can have multiple cameras without issue!
@@ -49,6 +50,7 @@ void world_deinit(world* inWorld);
 
 //NOTE: Use reinterpret_cast to make it into the desired entt type!
 entity* world_make_desired_entity(std::string inType, world* inWorld);
+void engine_add_model_to_visibility_array(world* inWorld, model* inModel);
 
 Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader);
 void world_set_cam(world* inWorld, entity* inCam);

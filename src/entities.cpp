@@ -9,7 +9,6 @@
 #include "raymath.h"
 #include "rcamera.h"
 
-
 void on_make(entity* inEntity)
 {
 	if (inEntity->type == "camera")
@@ -83,15 +82,15 @@ void on_make(entity* inEntity)
 		entity_maincube_data* inData = new entity_maincube_data;
 		inEntity->data = inData;
 
-		inData->cubeModel = LoadModel("content/model/smallCube/smallCube.obj");                 // Load model
+		inData->cubeModel = load_model("content/model/smallCube/smallCube.obj", inEntity);                 // Load model
 		inData->cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
-		inData->cubeModel.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inData->cubeTexture;
+		inData->cubeModel->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inData->cubeTexture;
 
 		inData->cubeShader = world_make_shader(inEntity->containingWorld, "content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
 		inData->cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(inData->cubeShader, "matModel");
 		int ambientLoc = GetShaderLocation(inData->cubeShader, "ambient");
 		SetShaderValue(inData->cubeShader, ambientLoc, inEntity->containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
-		inData->cubeModel.materials[0].shader = inData->cubeShader;
+		inData->cubeModel->model.materials[0].shader = inData->cubeShader;
 
 		inData->collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntity->containingWorld->gScene, inEntity->containingWorld);
 
@@ -265,16 +264,8 @@ void on_draw_3d(entity* inEntity)
 	{
 		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
 
-		//rlEnableFrontfaceCulling();
-		if (inEntity->containingWorld->worldEditor->currentlySelectedEntity == inEntity && inEntity->containingWorld->worldEditor->isInEditorMode)
-		{
-			DrawModel(inData->cubeModel, Vector3Zero(), 1.0f, WHITE);
-			DrawModelWires(inData->cubeModel, Vector3Zero(), 1.0f, RED); //ALWAYS DRAW MODEL WITH ZERO PROPS BECAUSE SPATIAL PROPS MANUALLY SET
-		}
-		else
-		{
-			DrawModel(inData->cubeModel, Vector3Zero(), 1.0f, WHITE);
-		}
+		draw_model(inData->cubeModel);
+
 	}
 }
 
@@ -325,8 +316,8 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 		graphene_quaternion_to_radians(inEntity->transform.rot, &x, &y, &z);
 		Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 
-		inData->cubeModel.transform = MatrixIdentity();
-		inData->cubeModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+		inData->cubeModel->model.transform = MatrixIdentity();
+		inData->cubeModel->model.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
 		inData->collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
 
@@ -344,8 +335,8 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 		Matrix matScale = MatrixScale(inEntity->transform.scale.x, inEntity->transform.scale.y, inEntity->transform.scale.z);
 		Matrix matTranslation = MatrixTranslate(inEntity->transform.pos.x, inEntity->transform.pos.y, inEntity->transform.pos.z);
-		inData->cubeModel.transform = MatrixIdentity();
-		inData->cubeModel.transform = MatrixMultiply(matScale, matTranslation);
+		inData->cubeModel->model.transform = MatrixIdentity();
+		inData->cubeModel->model.transform = MatrixMultiply(matScale, matTranslation);
 
 		inData->collisionBox->update_spatial_props(inNewPos, inNewScale);
 	}
@@ -469,7 +460,7 @@ void on_destroy(entity* inEntity)
 		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
 	
 		UnloadTexture(inData->cubeTexture);
-		UnloadModel(inData->cubeModel);
+		unload_model(inData->cubeModel);
 		UnloadShader(inData->cubeShader); // REVISIT!!!!
 
 		graphene_quaternion_free(inEntity->transform.rot);

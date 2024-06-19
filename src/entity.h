@@ -32,10 +32,6 @@ struct entity
 	
 };
 
-
-
-
-
 #else
 
 #endif

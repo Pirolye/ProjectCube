@@ -129,7 +129,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 
 	title = "viewing " + inEditorUI->worldEditor->currentlySelectedEntity->id;
 
-	//inEditorUI->localT = inEditorUI->worldEditor->currentlySelectedEntity->transform;
+	inEditorUI->localT = inEditorUI->worldEditor->currentlySelectedEntity->transform;
 
 	ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
 

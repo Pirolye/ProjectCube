@@ -37,7 +37,8 @@ void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhys
 	}
 
 #ifdef DEBUG
-	inWorld->worldEditor = reinterpret_cast<world_editor*>(malloc(sizeof(world_editor))); //This never had a default constructor, yet the compiler can't handle the empty new directive now for some reason...
+	inWorld->worldEditor = new world_editor;
+	//inWorld->worldEditor = reinterpret_cast<world_editor*>(malloc(sizeof(world_editor))); //This never had a default constructor, yet the compiler can't handle the empty new directive now for some reason...
 	init_world_editor(inWorld->worldEditor, inWorld);
 #endif
 
@@ -115,14 +116,15 @@ void world_update(world* inWorld)
 		
 		if (!inWorld->worldEditor->isInEditorMode) 
 		{
-			inWorld->gScene->simulate(1.0f / inWorld->gameInstance->targetFPS);
-			inWorld->gScene->fetchResults(true);
 		}
+
+		inWorld->gScene->simulate(1.0f / inWorld->gameInstance->targetFPS);
+		inWorld->gScene->fetchResults(true);
+
 		
 	}
 
 
-	// @@TODO: Look into replacing this mess with a template function!
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
 	{
 		entity* entity = inWorld->entityArray[i];
@@ -188,4 +190,16 @@ void world_draw_all(world* inWorld)
 
 	EndDrawing();
 
+}
+
+void engine_add_model_to_visibility_array(world* inWorld, model* inModel)
+{
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->worldEditor->visibilityArray[i] == NULL)
+		{
+			inWorld->worldEditor->visibilityArray[i] = inModel;
+			break;
+		}
+	}
 }
