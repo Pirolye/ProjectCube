@@ -1,0 +1,3 @@
+TODO:
+
+- we need to reset the moved entity's physics state after moving them using the gizmo (currently it keeps the momentum)

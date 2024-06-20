@@ -102,11 +102,21 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 			else
 			{
 
-				for (int i = 0; i < 6; i++)
+				if (inEditor->moveGizmo->currentlySelectedModel != nullptr)
 				{
-					inEditor->moveGizmo->model[i]->isSelected = false;
-					inEditor->moveGizmo->currentlySelectedModel = nullptr;
+					editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+					break; return;
 				}
+				else
+				{
+					for (int i = 0; i < 6; i++)
+					{
+						inEditor->moveGizmo->model[i]->isSelected = false;
+						inEditor->moveGizmo->currentlySelectedModel = nullptr;
+					}
+
+				}
+				
 
 				inEditor->canManipulateWorld = true;
 			}
