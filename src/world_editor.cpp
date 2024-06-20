@@ -172,22 +172,57 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 	inEditor->editorUI = new world_editor_ui;
 	editor_ui_init(inEditor->editorUI, inEditor);
 	inEditor->isInEditorMode = false;
-	
+	inEditor->moveGizmo = new gizmo;
+
 	rlImGuiSetup(true);
 	
-	inEditor->editorGizmoAxisMat = LoadTexture("editor/gizmo_move_axis_albedo.png");
+	for (int i = 0; i < 6; i++)
+	{
+		inEditor->moveGizmo->model[i] = new gizmo_model;
+		inEditor->moveGizmo->model[i]->isSelected = false;
+		
+		inEditor->moveGizmo->model[i]->texture = LoadTexture("editor/gizmo_move_axis_albedo.png");
+		
+		if (i == 0 || i == 1 || i == 2)
+		{
+			inEditor->moveGizmo->model[i]->model = LoadModel("editor/gizmo_move_axis.obj");
 
-	inEditor->editorGizmoMoveAxisX = LoadModel("editor/gizmo_move_axis.obj");
+		}
+		else
+		{
+			inEditor->moveGizmo->model[i]->model = LoadModel("editor/gizmo_move_axis_combined.obj");
+		}
+
+		inEditor->moveGizmo->model[i]->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->moveGizmo->model[i]->texture;
+
+		inEditor->moveGizmo->model[i]->axis = i;
+
+		if (i == 0)
+		{
+			inEditor->moveGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, DEG2RAD * 90.0f });
+		}
+		if (i == 1)
+		{
+			inEditor->moveGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, DEG2RAD * 90.0f });
+		}
+		if (i == 2)
+		{
+			inEditor->moveGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f, 0.0f });
+		}
+
+	}
+	
+
+	/*
+	inEditor->editorGizmoMoveAxisX = LoadModel();
 	inEditor->editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
 	inEditor->editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
-	inEditor->editorGizmoMoveAxisXY = LoadModel("editor/gizmo_move_axis_combined.obj");
 	inEditor->editorGizmoMoveAxisYZ = LoadModel("editor/gizmo_move_axis_combined.obj");
 	inEditor->editorGizmoMoveAxisZX = LoadModel("editor/gizmo_move_axis_combined.obj");
 			
 	inEditor->editorGizmoRotateAxisX = LoadModel("editor/gizmo_rotate_axis.obj");
 	inEditor->editorGizmoRotateAxisY = LoadModel("editor/gizmo_rotate_axis.obj");
 	inEditor->editorGizmoRotateAxisZ = LoadModel("editor/gizmo_rotate_axis.obj");
-	inEditor->editorGizmoRotateAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
 	inEditor->editorGizmoRotateAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
 	inEditor->editorGizmoRotateAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
 			
@@ -198,7 +233,8 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 	inEditor->editorGizmoMoveAxisXY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
 	inEditor->editorGizmoMoveAxisYZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
 	inEditor->editorGizmoMoveAxisZX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-			
+		*/
+
 	inEditor->editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
 	inEditor->editorGizmoHelperModel = LoadModelFromMesh(inEditor->editorGizmoHelperMesh);
 
@@ -238,12 +274,16 @@ void update_world_editor(world_editor* inEditor)
 	
 	if (inEditor->selectingEntt && inEditor->canManipulateWorld)
 	{
-		//if(inEditor->currentGizmoMode == 0) editor_check_against_move_gizmo(inEditor, inEditor->currentlySelectedEntity->entitytransform.pos);
+		editor_check_against_move_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 		//if(inEditor->currentGizmoMode == 1) editor_check_against_rotate_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 
 	}
 	
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && inEditor->canManipulateWorld) { inEditor->currentlySelectedEntity = editor_try_select_entity(inEditor); };
+
+	if (inEditor->currentlySelectedEntity != nullptr) { inEditor->selectingEntt = true; }
+	else { inEditor->selectingEntt = false; }
+
 
 	if (IsKeyPressed(KEY_TAB) && inEditor->canManipulateWorld) editor_next_camera(inEditor);
 	
@@ -275,7 +315,7 @@ void draw_world_editor_3d(world_editor* inEditor)
 	//DrawModel(inEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
 	
 	
-	//if(inEditor->selectingEntt) editor_draw_gizmo(inEditor, inEditor->currentlySelectedEntt->transform.pos);
+	if(inEditor->selectingEntt) editor_draw_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 
 }
 
@@ -365,8 +405,6 @@ entity* editor_try_select_entity(world_editor* inEditor)
 			}
 
 
-			if (inEditor->currentlySelectedEntity != nullptr) { break; inEditor->selectingEntt = true; }
-			else { inEditor->selectingEntt = false;  continue; }
 			
 		}
 	}

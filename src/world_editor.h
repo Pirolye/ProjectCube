@@ -5,6 +5,24 @@
 
 struct world_editor_ui;
 
+struct gizmo_model
+{
+	Model model;
+	int axis;
+	bool isSelected;
+	Texture texture;
+	Matrix helperModelRotation;
+	float prevPoint;
+	float currentPoint;
+};
+
+struct gizmo
+{
+	gizmo_model* model[6];
+	// 0 = X, 1 = Y, 2 = Z, 3 = XY, 4 = YZ, 5 = ZX
+	gizmo_model* currentlySelectedModel;
+};
+
 struct world_editor
 {
 	world* currentWorld;
@@ -17,6 +35,9 @@ struct world_editor
 	model* visibilityArray[1024] = { NULL };
 	bool selectingEntt = false;
 
+	gizmo* moveGizmo;
+	//gizmo_model* gizmoModel;
+	
 	bool canManipulateWorld = true;
 
 	bool selectingGizmoMoveAxisX = false;
@@ -70,7 +91,7 @@ void editor_draw_gizmo(world_editor* inWorldEditor, Vector3 inCenterPos);
 void editor_check_against_move_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 void editor_check_against_rotate_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 
-void editor_move_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, void* enttToMove);
+void editor_move_entity_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove);
 void editor_rotate_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, void* enttToRotate);
 
 bool editor_is_selecting_any_gizmo(world_editor* inWorldEditor);
