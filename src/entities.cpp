@@ -72,7 +72,7 @@ void on_make(entity* inEntity)
 		inEntity->transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
 
 		#ifdef DEBUG
-			inData->debugModel = LoadModel("editor/point_light_model.obj");
+			inData->debugModel = load_model("editor/point_light_model.obj");
 		#endif
 
 	}
@@ -250,13 +250,7 @@ void on_draw_3d(entity* inEntity)
 
 		if (inEntity->containingWorld->worldEditor->isInEditorMode)
 		{
-			DrawModel(inData->debugModel, Vector3Zero(), 1.0f, YELLOW);
-
-			if (inEntity->containingWorld->worldEditor->currentlySelectedEntity == inEntity&& inEntity->containingWorld->worldEditor->isInEditorMode)
-			{
-				DrawModelWires(inData->debugModel, Vector3Zero(), 1.0f, RED);
-			}
-
+			draw_model(inData->debugModel);
 		}
 	}
 

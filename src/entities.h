@@ -36,7 +36,7 @@ struct entity_light_data
 {
 	Light rayLight[360];
 
-	Model debugModel;
+	model* debugModel;
 
 
 };

@@ -116,11 +116,57 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 			}
 
 		}
-
 	}
 
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if (inEditor->currentGizmoMode == 2)
+	{
+		Matrix matScaleStandard = MatrixScale(1.0f, 1.0f, 1.0f);
+		Matrix matTranslationStandard; // = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
+		Matrix matRotation;
 
-	
+		for (int i = 0; i < 6; i++)
+		{
+			if (i == 0)
+			{
+				matRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * 180.0f, 0.0f });
+				matTranslationStandard = MatrixTranslate(inCenterPos.x, inCenterPos.y + 1.8f, inCenterPos.z - 0.5f);
+			}
+			if (i == 1)
+			{
+				matRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * -90.0f, DEG2RAD * 90.0f , 0.0f });
+				matTranslationStandard = MatrixTranslate(inCenterPos.x + 0.2f, inCenterPos.y - 0.4f, inCenterPos.z - 2.4f);
+			}
+			if (i == 2)
+			{
+				matRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * 90.0f , 0.0f });
+				matTranslationStandard = MatrixTranslate(inCenterPos.x + 0.2f, inCenterPos.y + 1.8f, inCenterPos.z);
+			}
+
+			inEditor->rotateGizmo->model[i]->model.transform = MatrixMultiply(MatrixMultiply(matScaleStandard, matRotation), matTranslationStandard);
+
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			if (i == 0)
+			{
+				if (inEditor->rotateGizmo->model[i]->isSelected) DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, WHITE);
+				else DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, RED);
+			}
+			if (i == 1)
+			{
+				if (inEditor->rotateGizmo->model[i]->isSelected) DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, WHITE);
+				else DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, GREEN);
+			}
+			if (i == 2)
+			{
+				if (inEditor->rotateGizmo->model[i]->isSelected) DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, WHITE);
+				else DrawModel(inEditor->rotateGizmo->model[i]->model, Vector3Zero(), 1.0f, BLUE);
+			}
+
+		}
+	}
 }
 
 
@@ -454,6 +500,220 @@ void editor_scale_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGiz
 
 
 			update_spatial_properties(entityToMove, entityToMove->transform.pos, newScale);
+
+			break;
+			return;
+		}
+	}
+
+}
+
+void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterPos)
+{
+	if (inEditor->currentlySelectedEntity && inEditor->currentlySelectedEntity->type == "camera") return;
+
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	{
+		RayCollision collision = { 0 };
+		collision.distance = FLT_MAX;
+		collision.hit = false;
+		RayCollision meshHitInfo = { 0 };
+		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
+
+		for (int i = 0; i < 6; i++)
+		{
+			for (int i2 = 0; i2 < inEditor->rotateGizmo->model[i]->model.meshCount; i2++)
+			{
+				meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->rotateGizmo->model[i]->model.meshes[i2], inEditor->rotateGizmo->model[i]->model.transform);
+
+				if (meshHitInfo.hit)
+				{
+					inEditor->rotateGizmo->model[i]->isSelected = true;
+					inEditor->rotateGizmo->currentlySelectedModel = inEditor->rotateGizmo->model[i];
+					inEditor->canManipulateWorld = false;
+					break; return;
+				}
+				else
+				{
+
+					if (inEditor->rotateGizmo->currentlySelectedModel != nullptr)
+					{
+						editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+						break; return;
+					}
+					else
+					{
+						for (int i = 0; i < 6; i++)
+						{
+							inEditor->rotateGizmo->model[i]->isSelected = false;
+							inEditor->rotateGizmo->currentlySelectedModel = nullptr;
+						}
+
+					}
+
+
+					inEditor->canManipulateWorld = true;
+				}
+
+			}
+			
+		}
+
+		editor_rotate_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+	}
+	else
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			inEditor->rotateGizmo->model[i]->isSelected = false;
+			inEditor->rotateGizmo->currentlySelectedModel = nullptr;
+		}
+
+	}
+
+
+}
+
+void editor_rotate_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove)
+{
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+
+	Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
+
+	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
+
+	Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, camera->rayCam);
+
+	Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+	Matrix matTranslation = MatrixTranslate(inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+	Matrix matRotation;
+
+
+	for (int i = 0; i < 6; i++)
+	{
+		if (inEditor->rotateGizmo->model[i]->isSelected)
+		{
+			matRotation = inEditor->rotateGizmo->model[i]->helperModelRotation;
+		}
+	}
+
+	inEditor->editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+
+	RayCollision collision = { 0 };
+	collision.distance = FLT_MAX;
+	collision.hit = false;
+	RayCollision meshHitInfo = { 0 };
+
+	// previous frame
+	for (int m = 0; m < inEditor->editorGizmoHelperModel.meshCount; m++)
+	{		
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, inEditor->editorGizmoHelperModel.meshes[m], inEditor->editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 0)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->prevPoint = meshHitInfo.point.x;
+			}
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 1)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->prevPoint = meshHitInfo.point.y;
+			}
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 2)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->prevPoint = meshHitInfo.point.z;
+			}
+
+			break;
+			return;
+		}
+	}
+
+	Vector3 newRot{ 0.0f, 0.0f, 0.0f };
+
+
+
+	// current frame
+	for (int m = 0; m < inEditor->editorGizmoHelperModel.meshCount; m++)
+	{
+		meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->editorGizmoHelperModel.meshes[m], inEditor->editorGizmoHelperModel.transform);
+		if (meshHitInfo.hit)
+		{
+
+			Vector3 currentFramePoint = meshHitInfo.point;
+
+			RayCollision meshHitInfoForPrevFrame = GetRayCollisionMesh(cursorSelectionRayForPrevFrame, inEditor->editorGizmoHelperModel.meshes[0], inEditor->editorGizmoHelperModel.transform);
+
+			if (!meshHitInfoForPrevFrame.hit) return; //THIS MIGHT NOT BE GOOD
+
+			double a; // This is between the first frame and the current frame
+			double b; // Between the center and the first frame
+			double c; // Between the center and the now frame
+
+			double cosAlpha; // Cosine at the vertex closest to the gizmo center
+			double alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
+
+
+
+			a = Vector2Distance(Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
+
+			//This should be constant
+			b = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z });
+
+			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
+
+			alpha = 0.0f;
+
+			cosAlpha = ((b * b) - (c * c) - (a * a)) / (2 * b * c);
+
+			alpha = RAD2DEG * acosf(cosAlpha);
+
+			if (IsKeyDown(KEY_LEFT_SHIFT))
+			{
+				alpha = alpha * -1.0f;
+			}
+
+			if (alpha < 0.001f) return;
+
+			graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
+			graphene_quaternion_init_from_angles(rotInQuat, alpha / 10.0f, 0.0f, 0.0f);
+			graphene_quaternion_t* finalQ = graphene_quaternion_alloc();
+			graphene_quaternion_multiply(rotInQuat, entityToMove->transform.rot, finalQ);
+
+
+
+			/*
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 0)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.x;
+				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
+
+				newRot = Vector3{ entityToMove->transform.scale.x - diff, entityToMove->transform.scale.y, entityToMove->transform.scale.z };
+
+			}
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 1)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.y;
+				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
+
+				newRot = Vector3{ entityToMove->transform.scale.x, entityToMove->transform.scale.y - diff, entityToMove->transform.scale.z };
+
+			}
+			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 2)
+			{
+				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.z;
+				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
+
+				newRot = Vector3{ entityToMove->transform.scale.x, entityToMove->transform.scale.y, entityToMove->transform.scale.z - diff };
+
+			}
+			*/
+
+
+
+			update_spatial_properties(entityToMove, entityToMove->transform.pos, entityToMove->transform.scale, finalQ);
 
 			break;
 			return;
