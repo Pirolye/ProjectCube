@@ -173,6 +173,7 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 	editor_ui_init(inEditor->editorUI, inEditor);
 	inEditor->isInEditorMode = false;
 	inEditor->moveGizmo = new gizmo;
+	inEditor->scaleGizmo = new gizmo;
 
 	rlImGuiSetup(true);
 	
@@ -212,6 +213,42 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 
 	}
 	
+	for (int i = 0; i < 6; i++)
+	{
+		inEditor->scaleGizmo->model[i] = new gizmo_model;
+		inEditor->scaleGizmo->model[i]->isSelected = false;
+
+		inEditor->scaleGizmo->model[i]->texture = LoadTexture("editor/gizmo_move_axis_albedo.png");
+
+		if (i == 0 || i == 1 || i == 2)
+		{
+			inEditor->scaleGizmo->model[i]->model = LoadModel("editor/gizmo_scale_axis.obj");
+
+		}
+		else
+		{
+			inEditor->scaleGizmo->model[i]->model = LoadModel("editor/gizmo_scale_axis_combined.obj");
+		}
+
+		inEditor->scaleGizmo->model[i]->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->scaleGizmo->model[i]->texture;
+
+		inEditor->scaleGizmo->model[i]->axis = i;
+
+		if (i == 0)
+		{
+			inEditor->scaleGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, DEG2RAD * 90.0f });
+		}
+		if (i == 1)
+		{
+			inEditor->scaleGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ 0.0f, DEG2RAD * -90.0f, DEG2RAD * 90.0f });
+		}
+		if (i == 2)
+		{
+			inEditor->scaleGizmo->model[i]->helperModelRotation = MatrixRotateXYZ(Vector3{ DEG2RAD * 180.0f, 0.0f, 0.0f });
+		}
+
+	}
+
 
 	/*
 	inEditor->editorGizmoMoveAxisX = LoadModel();
@@ -274,8 +311,8 @@ void update_world_editor(world_editor* inEditor)
 	
 	if (inEditor->selectingEntt && inEditor->canManipulateWorld)
 	{
-		editor_check_against_move_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
-		//if(inEditor->currentGizmoMode == 1) editor_check_against_rotate_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
+		if(inEditor->currentGizmoMode == 0) editor_check_against_move_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
+		if (inEditor->currentGizmoMode == 1) editor_check_against_scale_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 
 	}
 	

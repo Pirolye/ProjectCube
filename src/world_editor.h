@@ -36,6 +36,8 @@ struct world_editor
 	bool selectingEntt = false;
 
 	gizmo* moveGizmo;
+	gizmo* scaleGizmo;
+	gizmo* rotateGizmo;
 	//gizmo_model* gizmoModel;
 	
 	bool canManipulateWorld = true;
@@ -90,8 +92,10 @@ void editor_draw_gizmo(world_editor* inWorldEditor, Vector3 inCenterPos);
 
 void editor_check_against_move_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 void editor_check_against_rotate_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
+void editor_check_against_scale_gizmo(world_editor* inWorldEditor, Vector3 inGizmoCenterPos);
 
 void editor_move_entity_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove);
+void editor_scale_entity_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove);
 void editor_rotate_entt_gizmo(world_editor* inWorldEditor, int inAxis, Vector3 inGizmoCenterPos, void* enttToRotate);
 
 bool editor_is_selecting_any_gizmo(world_editor* inWorldEditor);
