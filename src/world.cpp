@@ -113,13 +113,14 @@ void world_update(world* inWorld)
 
 	if (GetFrameTime() > 0)
 	{
-		
-		if (!inWorld->worldEditor->isInEditorMode) 
+
+		if (!inWorld->worldEditor->isInEditorMode)
 		{
+			inWorld->gScene->simulate(1.0f / inWorld->gameInstance->targetFPS);
+			inWorld->gScene->fetchResults(true);
+
 		}
 
-		inWorld->gScene->simulate(1.0f / inWorld->gameInstance->targetFPS);
-		inWorld->gScene->fetchResults(true);
 
 		
 	}

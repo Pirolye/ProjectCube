@@ -253,8 +253,6 @@ void dynamic_body::enable()
 {
 	rigidDynamic->wakeUp();
 
-	/*body->SetToAwake();
-	shouldBeSleeping = false;*/
 }
 
 void dynamic_body::disable()
@@ -268,17 +266,14 @@ void dynamic_body::disable()
 void dynamic_body::update()
 {
 	//Get the PhysX results
-	if (containingWorld->worldEditor->isInEditorMode == false)
-	{
-		PxTransform physxReturns = rigidDynamic->getGlobalPose();
+	PxTransform physxReturns = rigidDynamic->getGlobalPose();
 
-		t.pos.x = physxReturns.p.x;
-		t.pos.y = physxReturns.p.y;
-		t.pos.z = physxReturns.p.z;
+	t.pos.x = physxReturns.p.x;
+	t.pos.y = physxReturns.p.y;
+	t.pos.z = physxReturns.p.z;
 
-		graphene_quaternion_init(t.rot, physxReturns.q.x, physxReturns.q.y, physxReturns.q.z, physxReturns.q.w);
+	graphene_quaternion_init(t.rot, physxReturns.q.x, physxReturns.q.y, physxReturns.q.z, physxReturns.q.w);
 
-	}
 }
 
 
