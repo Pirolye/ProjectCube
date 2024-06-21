@@ -346,7 +346,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 		inData->debugModel->model.transform = MatrixMultiply(matScale, matTranslation);
 
-		update_light_properties(inEntity, inData->rayLight->type, inEntity->transform.pos, Vector3Zero(), inData->rayLight->color);
+		update_light_properties(inEntity, inData->rayLight->type, inNewPos, Vector3Zero(), inData->rayLight->color);
 
 	}
 
@@ -385,15 +385,26 @@ void update_light_properties(entity* inEntity, int inType, Vector3 inPos, Vector
 
 	inData->debugModel->model.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
+	update_light_locations(inEntity);
+
+
+}
+
+void update_light_locations(entity* inLight)
+{
+	if (inLight->type != "light") return;
+
+	entity_light_data* inData = reinterpret_cast<entity_light_data*>(inLight->data);
+
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
 		for (int i2 = 0; i2 != 360; i2++)
 		{
 			if (inData->rayLight[i2].enabled == true)
 			{
-				if (inEntity->containingWorld->currentlyLoadedShaders[i].id != 0 && inEntity->containingWorld->currentlyLoadedShaders[i].locs != 0)
+				if (inLight->containingWorld->currentlyLoadedShaders[i].id != 0 && inLight->containingWorld->currentlyLoadedShaders[i].locs != 0)
 				{
-					UpdateLightValues(inEntity->containingWorld->currentlyLoadedShaders[i], inData->rayLight[i2]);
+					UpdateLightValues(inLight->containingWorld->currentlyLoadedShaders[i], inData->rayLight[i2]);
 				}
 
 			}

@@ -50,6 +50,7 @@ void on_draw_3d(entity* inEntity);
 void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation);
 void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNewScale);
 void update_light_properties(entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor);
+void update_light_locations(entity* inEntity);
 void set_camera_mode(entity* inEntity, int inMode, bool isForEditorOnly);
 void transform_camera_by_delta(entity* inEntity, Vector3 inPosition, Vector3 inRotation);
 void editor_camera_update_model_rotation(entity* inEntity);
