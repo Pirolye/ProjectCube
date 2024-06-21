@@ -286,29 +286,6 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 
 	}
 
-
-	/*
-	inEditor->editorGizmoMoveAxisX = LoadModel();
-	inEditor->editorGizmoMoveAxisY = LoadModel("editor/gizmo_move_axis.obj");
-	inEditor->editorGizmoMoveAxisZ = LoadModel("editor/gizmo_move_axis.obj");
-	inEditor->editorGizmoMoveAxisYZ = LoadModel("editor/gizmo_move_axis_combined.obj");
-	inEditor->editorGizmoMoveAxisZX = LoadModel("editor/gizmo_move_axis_combined.obj");
-			
-	inEditor->editorGizmoRotateAxisX = LoadModel("editor/gizmo_rotate_axis.obj");
-	inEditor->editorGizmoRotateAxisY = LoadModel("editor/gizmo_rotate_axis.obj");
-	inEditor->editorGizmoRotateAxisZ = LoadModel("editor/gizmo_rotate_axis.obj");
-	inEditor->editorGizmoRotateAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-	inEditor->editorGizmoRotateAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-			
-	inEditor->editorGizmoMoveAxisX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-	inEditor->editorGizmoMoveAxisY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-	inEditor->editorGizmoMoveAxisZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-			
-	inEditor->editorGizmoMoveAxisXY.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-	inEditor->editorGizmoMoveAxisYZ.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-	inEditor->editorGizmoMoveAxisZX.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->editorGizmoAxisMat;
-		*/
-
 	inEditor->editorGizmoHelperMesh = GenMeshPlane(99999.0f, 99999.0f, 10, 10);
 	inEditor->editorGizmoHelperModel = LoadModelFromMesh(inEditor->editorGizmoHelperMesh);
 
@@ -361,6 +338,8 @@ void update_world_editor(world_editor* inEditor)
 
 
 	if (IsKeyPressed(KEY_TAB) && inEditor->canManipulateWorld) editor_next_camera(inEditor);
+
+	if (IsKeyPressed(KEY_SPACE) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
 	
 	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && inEditor->selectingEntt && inEditor->canManipulateWorld)
 	{
@@ -415,39 +394,6 @@ void draw_world_editor_2d(world_editor* inEditor)
 	rlImGuiEnd();
 }
 
-// LEGACY
-/*
-void editor_move_entt(int axis, float val)
-{
-	if (worldEditor.currentlySelectedEntt == nullptr) return;
-
-	if (axis == 0)
-	{
-		entt_transform t = worldEditor.currentlySelectedEntt->transform;
-		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x + val, t.pos.y, t.pos.z }, t.scale, t.rot);
-
-	}
-	if (axis == 1)
-	{
-		entt_transform t = worldEditor.currentlySelectedEntt->transform;
-		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y + val, t.pos.z }, t.scale, t.rot);
-
-	}
-	if (axis == 2)
-	{
-		entt_transform t = worldEditor.currentlySelectedEntt->transform;
-		worldEditor.currentlySelectedEntt->update_spatial_props(Vector3{ t.pos.x, t.pos.y, t.pos.z + val }, t.scale, t.rot);
-
-	}
-
-}
-
-void editor_rotate_entt(int axis, float val)
-{
-}
-
-*/
-
 
 entity* editor_try_select_entity(world_editor* inEditor)
 {
@@ -480,9 +426,6 @@ entity* editor_try_select_entity(world_editor* inEditor)
 	
 	return nullptr;
 };
-
-// -------- UI --------
-
 
 #else
 

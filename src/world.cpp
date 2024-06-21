@@ -193,6 +193,119 @@ void world_draw_all(world* inWorld)
 
 }
 
+entity* world_make_desired_entity(std::string inType, world* inWorld)
+{
+	entity* newEntity = new entity;
+
+	newEntity->type = inType;
+
+	//inType.erase(0, 12);
+
+	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntts);
+	newEntity->containingWorld = inWorld;
+	newEntity->id = id;
+
+	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
+
+	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
+
+
+	bool isThereAnotherCameraInTheWorld = false;
+	if (inType == "camera")
+	{
+		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		{
+			if (inWorld->entityArray[i] != NULL)
+			{
+				if (inWorld->entityArray[i]->type == "camera")
+				{
+					isThereAnotherCameraInTheWorld = true;
+					break;
+				}
+				else
+				{
+					isThereAnotherCameraInTheWorld = false;
+					continue;
+				}
+			}
+		}
+
+		if (isThereAnotherCameraInTheWorld == false) inWorld->currentlyRenderingCamera = newEntity;
+
+	}
+
+	on_make(newEntity);
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->entityArray[i] == NULL)
+		{
+			inWorld->entityArray[i] = newEntity;
+			break;
+		}
+	}
+
+	return newEntity;
+}
+
+entity* world_make_desired_entity_runtime(std::string inType, world* inWorld)
+{
+	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inWorld->currentlyRenderingCamera->data);
+	
+	entity* newEntity = new entity;
+
+	newEntity->type = inType;
+
+	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntts);
+	newEntity->containingWorld = inWorld;
+	newEntity->id = id;
+
+	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
+
+	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
+
+	on_make(newEntity);
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->entityArray[i] == NULL)
+		{
+			inWorld->entityArray[i] = newEntity;
+			break;
+		}
+	}
+
+	RayCollision meshHitInfo = { 0 };
+	meshHitInfo.distance = FLT_MAX;
+	meshHitInfo.hit = false;
+	Ray mouseRay = GetMouseRay(GetMousePosition(), camera->rayCam);
+	
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (inWorld->worldEditor->visibilityArray[i] != NULL)
+		{
+			for (int m = 0; m < inWorld->worldEditor->visibilityArray[i]->model.meshCount; m++)
+			{
+				meshHitInfo = GetRayCollisionMesh(mouseRay, inWorld->worldEditor->visibilityArray[i]->model.meshes[m], inWorld->worldEditor->visibilityArray[i]->model.transform);
+
+				if (meshHitInfo.hit)
+				{
+					if (inWorld->worldEditor->visibilityArray[i]->container == newEntity) break;
+					{
+						update_spatial_properties(newEntity, meshHitInfo.point, Vector3{ 1.0f, 1.0f, 1.0f });
+						break;
+					}
+				}
+			}
+
+
+		}
+	}
+
+	return newEntity;
+}
+
+
 void engine_add_model_to_visibility_array(world* inWorld, model* inModel)
 {
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)

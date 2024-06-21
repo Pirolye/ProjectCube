@@ -50,6 +50,7 @@ void world_deinit(world* inWorld);
 
 //NOTE: Use reinterpret_cast to make it into the desired entt type!
 entity* world_make_desired_entity(std::string inType, world* inWorld);
+entity* world_make_desired_entity_runtime(std::string inType, world* inWorld);
 void engine_add_model_to_visibility_array(world* inWorld, model* inModel);
 
 Shader world_make_shader(world* inWorld, const char* vertexShader, const char* fragmentShader);
