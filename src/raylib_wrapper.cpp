@@ -27,3 +27,14 @@ void draw_model(model* inModel)
 
 	}
 }
+
+void draw_model(model* inModel, Color tint)
+{
+	DrawModel(inModel->model, Vector3Zero(), 1.0f, tint);
+
+	if (inModel->container->containingWorld->worldEditor->currentlySelectedEntity == inModel->container)
+	{
+		DrawModelWires(inModel->model, Vector3Zero(), 1.0f, RED);
+
+	}
+}

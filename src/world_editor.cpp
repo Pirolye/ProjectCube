@@ -471,18 +471,14 @@ entity* editor_try_select_entity(world_editor* inEditor)
 				{
 					return inEditor->currentWorld->worldEditor->visibilityArray[i]->container;
 
-					break;  // Stop once one mesh collision is detected, the colliding mesh is m
-				}
-				else
-				{
-					return nullptr;
 				}
 			}
-
 
 			
 		}
 	}
+	
+	return nullptr;
 };
 
 // -------- UI --------

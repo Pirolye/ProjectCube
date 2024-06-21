@@ -72,7 +72,7 @@ void on_make(entity* inEntity)
 		inEntity->transform.scale = Vector3{ 1.0f, 1.0f, 1.0f };
 
 		#ifdef DEBUG
-			inData->debugModel = load_model("editor/point_light_model.obj");
+			inData->debugModel = load_model("editor/point_light_model.obj", inEntity);
 		#endif
 
 	}
@@ -250,7 +250,7 @@ void on_draw_3d(entity* inEntity)
 
 		if (inEntity->containingWorld->worldEditor->isInEditorMode)
 		{
-			draw_model(inData->debugModel);
+			draw_model(inData->debugModel, YELLOW);
 		}
 	}
 
@@ -290,7 +290,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 		Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
 		Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
 
-		inData->debugModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+		inData->debugModel->model.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
 		update_light_properties(inEntity, inData->rayLight->type, inEntity->transform.pos, Vector3Zero(), inData->rayLight->color);
 
@@ -334,6 +334,22 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 		inData->collisionBox->update_spatial_props(inNewPos, inNewScale);
 	}
+	if (inEntity->type == "light")
+	{
+		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+
+		inEntity->transform.pos = inNewPos;
+		inEntity->transform.scale = inNewScale;
+
+		Matrix matScale = MatrixScale(inNewScale.x, inNewScale.y, inNewScale.z);
+		Matrix matTranslation = MatrixTranslate(inNewPos.x, inNewPos.y, inNewPos.z);
+
+		inData->debugModel->model.transform = MatrixMultiply(matScale, matTranslation);
+
+		update_light_properties(inEntity, inData->rayLight->type, inEntity->transform.pos, Vector3Zero(), inData->rayLight->color);
+
+	}
+
 }
 
 void update_light_properties(entity* inEntity, int inType, Vector3 inPos, Vector3 inTarget, Color inColor)
@@ -356,6 +372,18 @@ void update_light_properties(entity* inEntity, int inType, Vector3 inPos, Vector
 			continue;
 		}
 	}
+
+	inEntity->transform.pos = inPos;
+	//inEntity->transform.scale = inScale;
+	//inEntity->transform.rot = inNewRotation;
+
+	Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
+	float x, y, z;
+	graphene_quaternion_to_radians(inEntity->transform.rot, &x, &y, &z);
+	Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
+	Matrix matTranslation = MatrixTranslate(inPos.x, inPos.y, inPos.z);
+
+	inData->debugModel->model.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
@@ -460,6 +488,13 @@ void on_destroy(entity* inEntity)
 		graphene_quaternion_free(inEntity->transform.rot);
 
 		//delete body; WILL BE REVISITED
+	}
+	if (inEntity->type == "light")
+	{
+		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+
+		unload_model(inData->debugModel);
+
 	}
 }
 

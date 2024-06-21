@@ -15,6 +15,7 @@ model* load_model(char* path, entity* inEntity);
 void unload_model(model* inModel);
 
 void draw_model(model* inModel);
+void draw_model(model* inModel, Color tint);
 
 #else
 
