@@ -339,7 +339,8 @@ void update_world_editor(world_editor* inEditor)
 
 	if (IsKeyPressed(KEY_TAB) && inEditor->canManipulateWorld) editor_next_camera(inEditor);
 
-	if (IsKeyPressed(KEY_SPACE) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
+	if (IsKeyPressed(KEY_G) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
+	if (IsKeyPressed(KEY_H) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube_static", inEditor->currentWorld);
 	
 	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && inEditor->selectingEntt && inEditor->canManipulateWorld)
 	{

@@ -82,6 +82,8 @@ void on_make(entity* inEntity)
 		entity_maincube_data* inData = new entity_maincube_data;
 		inEntity->data = inData;
 
+		inData->noPhysics = false;
+
 		inData->cubeModel = load_model("content/model/smallCube/smallCube.obj", inEntity);                 // Load model
 		inData->cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
 		inData->cubeModel->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inData->cubeTexture;
@@ -93,6 +95,32 @@ void on_make(entity* inEntity)
 		inData->cubeModel->model.materials[0].shader = inData->cubeShader;
 
 		inData->collisionBox = new dynamic_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntity->containingWorld->gScene, inEntity->containingWorld);
+
+		inEntity->transform.rot = graphene_quaternion_alloc();
+		graphene_quaternion_init_identity(inEntity->transform.rot);
+		//update_spatial_props(inEntt, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+
+		update_spatial_properties(inEntity, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f });
+		inData->collisionBox->enable();
+
+	}
+
+	if (inEntity->type == "maincube_static")
+	{
+		entity_maincube_static_data* inData = new entity_maincube_static_data;
+		inEntity->data = inData;
+
+		inData->cubeModel = load_model("content/model/smallCube/smallCube.obj", inEntity);                 // Load model
+		inData->cubeTexture = LoadTexture("content/model/smallCube/smallCube_albedo.png"); // Load model texture
+		inData->cubeModel->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inData->cubeTexture;
+
+		inData->cubeShader = world_make_shader(inEntity->containingWorld, "content/model/smallCube/base_lighting.vs", "content/model/smallCube/smallCube_lighting.fs");
+		inData->cubeShader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocation(inData->cubeShader, "matModel");
+		int ambientLoc = GetShaderLocation(inData->cubeShader, "ambient");
+		SetShaderValue(inData->cubeShader, ambientLoc, inEntity->containingWorld->defaultAmbientLightValue, SHADER_UNIFORM_VEC4);
+		inData->cubeModel->model.materials[0].shader = inData->cubeShader;
+
+		inData->collisionBox = new static_body(Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, inEntity->containingWorld->gScene, inEntity->containingWorld);
 
 		inEntity->transform.rot = graphene_quaternion_alloc();
 		graphene_quaternion_init_identity(inEntity->transform.rot);
@@ -168,6 +196,8 @@ void on_update(entity* inEntity)
 	{
 		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
 
+		if (inData->noPhysics) inData->collisionBox->disable(); else inData->collisionBox->enable();
+
 		if (inEntity->containingWorld->worldEditor->isInEditorMode == false)
 		{
 			inData->collisionBox->update();
@@ -184,6 +214,19 @@ void on_update(entity* inEntity)
 
 			}
 
+		}
+
+
+	}
+
+	if (inEntity->type == "maincube_static")
+	{
+		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+
+		if (inEntity->containingWorld->worldEditor->isInEditorMode == false)
+		{
+			inData->collisionBox->update();
+			update_spatial_properties(inEntity, inData->collisionBox->t.pos, inData->collisionBox->t.scale, inData->collisionBox->t.rot);
 		}
 
 
@@ -221,10 +264,6 @@ void on_draw_3d(entity* inEntity)
 
 				if (inEntity->containingWorld->entityArray[i]->type != "camera") continue;
 
-				//if (dynamic_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]) == nullptr) continue;
-				//if (typeid(entt_camera) != typeid(inEntt->containingWorld->entityArray[i])) continue;
-
-				//entt_camera* currentCam = static_cast<entt_camera*>(inEntt->containingWorld->entityArray[i]);
 				entity* currentCam = inEntity->containingWorld->entityArray[i];
 
 				if (currentCam == inEntity) continue;
@@ -261,6 +300,15 @@ void on_draw_3d(entity* inEntity)
 		draw_model(inData->cubeModel);
 
 	}
+
+	if (inEntity->type == "maincube_static")
+	{
+		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+
+		draw_model(inData->cubeModel);
+
+	}
+
 }
 
 void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNewScale, graphene_quaternion_t* inNewRotation)
@@ -316,6 +364,28 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 		inData->collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
 
 	}
+
+	if (inEntity->type == "maincube_static")
+	{
+		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+
+		inEntity->transform.pos = inNewPos;
+		inEntity->transform.scale = inNewScale;
+		graphene_quaternion_init_from_quaternion(inEntity->transform.rot, inNewRotation);
+
+		Matrix matScale = MatrixScale(inEntity->transform.scale.x, inEntity->transform.scale.y, inEntity->transform.scale.z);
+		Matrix matTranslation = MatrixTranslate(inEntity->transform.pos.x, inEntity->transform.pos.y, inEntity->transform.pos.z);
+		float x, y, z;
+		graphene_quaternion_to_radians(inEntity->transform.rot, &x, &y, &z);
+		Matrix matRotation = MatrixRotateXYZ(Vector3{ x, y , z });
+
+		inData->cubeModel->model.transform = MatrixIdentity();
+		inData->cubeModel->model.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+
+		inData->collisionBox->update_spatial_props(inNewPos, inNewScale, inNewRotation);
+
+	}
+
 }
 
 void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNewScale)
@@ -348,6 +418,20 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 		update_light_properties(inEntity, inData->rayLight->type, inNewPos, Vector3Zero(), inData->rayLight->color);
 
+	}
+	if (inEntity->type == "maincube_static")
+	{
+		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+
+		inEntity->transform.pos = inNewPos;
+		inEntity->transform.scale = inNewScale;
+
+		Matrix matScale = MatrixScale(inEntity->transform.scale.x, inEntity->transform.scale.y, inEntity->transform.scale.z);
+		Matrix matTranslation = MatrixTranslate(inEntity->transform.pos.x, inEntity->transform.pos.y, inEntity->transform.pos.z);
+		inData->cubeModel->model.transform = MatrixIdentity();
+		inData->cubeModel->model.transform = MatrixMultiply(matScale, matTranslation);
+
+		inData->collisionBox->update_spatial_props(inNewPos, inNewScale);
 	}
 
 }
@@ -508,6 +592,3 @@ void on_destroy(entity* inEntity)
 
 	}
 }
-
-entity* editor_try_select(entity* inEntity);
-

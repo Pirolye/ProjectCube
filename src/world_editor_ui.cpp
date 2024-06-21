@@ -172,6 +172,27 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 	}
 
+	if (inEditorUI->worldEditor->currentlySelectedEntity->type == "maincube")
+	{
+		entity_maincube_data* data = reinterpret_cast<entity_maincube_data*>(inEditorUI->worldEditor->currentlySelectedEntity->data);
+		
+		if (ImGui::TreeNode("entity_maincube_data*"))
+		{
+			ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV);
+
+			ImGui::TableNextColumn();
+
+			ImGui::Text("noPhysics");
+			ImGui::TableNextColumn();
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			ImGui::Checkbox("noPhysics", &data->noPhysics);
+
+			ImGui::EndTable();
+			ImGui::TreePop();
+		}
+
+	}
+
 	update_spatial_properties(inEditorUI->worldEditor->currentlySelectedEntity, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 
 
