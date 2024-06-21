@@ -1,5 +1,6 @@
 #include "world.h"
 #include "imgui.h"
+
 ;
 
 void editor_ui_init(world_editor_ui* inEditorUI, world_editor* inWorldEditor)
@@ -47,10 +48,12 @@ void entt_panel_draw_vec3(world_editor_ui* inEditorUI, Vector3* inVec3, char* in
 
 };
 
-void entt_panel_draw_quat(world_editor_ui* inEditorUI, graphene_quaternion_t* inQuat, char* inName)
+void entt_panel_draw_quat_and_calculate_vec3(world_editor_ui* inEditorUI, graphene_quaternion_t* inQuat, Vector3 inVecToModify, char* inName)
 {
 	graphene_vec4_t* v4 = graphene_vec4_alloc(); graphene_quaternion_to_vec4(inQuat, v4);
-	
+
+	graphene_quaternion_to_angles(inQuat, &inVecToModify.x, &inVecToModify.y, &inVecToModify.z);
+
 	float x = graphene_vec4_get_x(v4);
 	float y = graphene_vec4_get_y(v4);
 	float z = graphene_vec4_get_z(v4);
@@ -98,14 +101,35 @@ void entt_panel_draw_quat(world_editor_ui* inEditorUI, graphene_quaternion_t* in
 		//ImGui::DragFloat("w", &(inVec3->z), 1.0f, FLT_MAX, -FLT_MAX);
 		ImGui::Text(w1.c_str());
 
+		ImGui::TableNextRow(); ImGui::TableNextColumn();
+		ImGui::Text("euler x");
+		ImGui::TableNextColumn();
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("Vec3.x", &(inVecToModify.x), 1.0f, FLT_MAX, -FLT_MAX);
+
+		ImGui::TableNextRow(); ImGui::TableNextColumn();
+		ImGui::Text("euler y");
+		ImGui::TableNextColumn();
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("Vec3.y", &(inVecToModify.y), 1.0f, FLT_MAX, -FLT_MAX);
+
+		ImGui::TableNextRow(); ImGui::TableNextColumn();
+		ImGui::Text("euler z");
+		ImGui::TableNextColumn();
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("Vec3.z", &(inVecToModify.z), 1.0f, FLT_MAX, -FLT_MAX);
+
+		graphene_quaternion_init_from_angles(inQuat, inVecToModify.x, inVecToModify.y, inVecToModify.z);
+
 		ImGui::EndTable();
 
 	}
 	else
 	{
-		ImGui::SameLine(); ImGui::TextDisabled("Vector3");
+		ImGui::SameLine(); ImGui::TextDisabled("graphene_quaternion_t*");
 
 	}
+
 
 	graphene_vec4_free(v4);
 
@@ -134,57 +158,12 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 	ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
 
 
-	/*
-	if (ImGui::CollapsingHeader("transform"))
-	{
-		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
-		if (ImGui::CollapsingHeader("transform.pos"))
-		{
-			ImGui::SameLine(); ImGui::TextDisabled("Vector3");
-			ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_BordersInnerV); //|/* ImGuiTableFlags_SizingStretchProp * / );
-
-			ImGui::TableNextColumn();
-
-			ImGui::Text("x");
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("x", &inEditorUI->worldEditor->localT.pos.x, 1.0f, FLT_MAX, -FLT_MAX);
-
-			ImGui::TableNextRow(); ImGui::TableNextColumn();
-			ImGui::Text("y");
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("y", &inEditorUI->worldEditor->localT.pos.y, 1.0f, FLT_MAX, -FLT_MAX);
-
-			ImGui::TableNextRow(); ImGui::TableNextColumn();
-			ImGui::Text("z");
-			ImGui::TableNextColumn();
-			ImGui::SetNextItemWidth(-FLT_MIN);
-			ImGui::DragFloat("z", &inEditorUI->worldEditor->localT.pos.z, 1.0f, FLT_MAX, -FLT_MAX);
-
-			ImGui::EndTable();
-
-		}
-		else
-		{
-			ImGui::SameLine(); ImGui::TextDisabled("Vector3");
-
-		}
-	}
-	else
-	{
-		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
-
-	}
-
-	*/
-
 	if (ImGui::TreeNode("transform"))
 	{
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.pos, "position");
 		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.scale, "scale");
-		entt_panel_draw_quat(inEditorUI, inEditorUI->localT.rot, "rotation");
+		entt_panel_draw_quat_and_calculate_vec3(inEditorUI, inEditorUI->localT.rot, inEditorUI->localT.euler, "rotation");
 		ImGui::TreePop();
 	}
 	else
@@ -193,33 +172,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
 	}
 
-	/*
-	if (typeid(entt_maincube) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
-	{
-		entt_maincube* a = static_cast<entt_maincube*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
-		
-		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
-	}
-	if (typeid(entt_maincube_static) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
-	{
-		entt_maincube_static* a = static_cast<entt_maincube_static*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
-
-		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
-	}
-	if (typeid(entt_light) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
-	{
-		entt_light* a = static_cast<entt_light*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
-
-		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
-	}
-	if (typeid(entt_camera) == typeid(inEditorUI->worldEditor->currentlySelectedEntity))
-	{
-		entt_camera* a = static_cast<entt_camera*>(inEditorUI->worldEditor->currentlySelectedEntity->entity);
-
-		update_spatial_props(a, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
-	}
-	*/
-	
+	update_spatial_properties(inEditorUI->worldEditor->currentlySelectedEntity, inEditorUI->localT.pos, inEditorUI->localT.scale, inEditorUI->localT.rot);
 
 
 	ImGui::End();

@@ -648,77 +648,24 @@ void editor_rotate_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGi
 
 			if (!meshHitInfoForPrevFrame.hit) return; //THIS MIGHT NOT BE GOOD
 
-			double a; // This is between the first frame and the current frame
-			double b; // Between the center and the first frame
-			double c; // Between the center and the now frame
-
-			double cosAlpha; // Cosine at the vertex closest to the gizmo center
-			double alpha; // Angle in deg at the vertex closest to the gizmo center (final applied rotation)
-
-
-
-			a = Vector2Distance(Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
-
-			//This should be constant
-			b = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfoForPrevFrame.point.y, meshHitInfoForPrevFrame.point.z });
-
-			c = Vector2Distance(Vector2{ inGizmoCenterPos.y, inGizmoCenterPos.z }, Vector2{ meshHitInfo.point.y, meshHitInfo.point.z });
-
-			alpha = 0.0f;
-
-			cosAlpha = ((b * b) - (c * c) - (a * a)) / (2 * b * c);
-
-			alpha = RAD2DEG * acosf(cosAlpha);
-
-			if (IsKeyDown(KEY_LEFT_SHIFT))
-			{
-				alpha = alpha * -1.0f;
-			}
-
-			if (alpha < 0.001f) return;
+			double angle = Vector3Angle(meshHitInfo.point, meshHitInfoForPrevFrame.point);
 
 			graphene_quaternion_t* rotInQuat = graphene_quaternion_alloc();
-			graphene_quaternion_init_from_angles(rotInQuat, alpha / 10.0f, 0.0f, 0.0f);
+			graphene_quaternion_init_from_angles(rotInQuat, angle, 0.0f, 0.0f);
 			graphene_quaternion_t* finalQ = graphene_quaternion_alloc();
 			graphene_quaternion_multiply(rotInQuat, entityToMove->transform.rot, finalQ);
 
-
-
-			/*
-			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 0)
-			{
-				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.x;
-				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
-
-				newRot = Vector3{ entityToMove->transform.scale.x - diff, entityToMove->transform.scale.y, entityToMove->transform.scale.z };
-
-			}
-			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 1)
-			{
-				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.y;
-				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
-
-				newRot = Vector3{ entityToMove->transform.scale.x, entityToMove->transform.scale.y - diff, entityToMove->transform.scale.z };
-
-			}
-			if (inEditor->rotateGizmo->currentlySelectedModel->axis == 2)
-			{
-				inEditor->rotateGizmo->currentlySelectedModel->currentPoint = meshHitInfo.point.z;
-				float diff = inEditor->rotateGizmo->currentlySelectedModel->currentPoint - inEditor->rotateGizmo->currentlySelectedModel->prevPoint;
-
-				newRot = Vector3{ entityToMove->transform.scale.x, entityToMove->transform.scale.y, entityToMove->transform.scale.z - diff };
-
-			}
-			*/
-
-
-
-			update_spatial_properties(entityToMove, entityToMove->transform.pos, entityToMove->transform.scale, finalQ);
-
 			break;
 			return;
+
+			//newRot = Vector3{ entityToMove->transform.scale.x, entityToMove->transform.scale.y, entityToMove->transform.scale.z - diff };
+
 		}
 	}
+
+
+			//update_spatial_properties(entityToMove, entityToMove->transform.pos, entityToMove->transform.scale, finalQ);
+
 
 }
 

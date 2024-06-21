@@ -312,7 +312,7 @@ entity* world_make_desired_entity_runtime(std::string inType, world* inWorld)
 
 	for (int i = 0; i < MAX_ENTITIES_IN_WORLD; i++)
 	{
-		if (inWorld->entityArray[i]->type == "light")
+		if (inWorld->entityArray[i] && inWorld->entityArray[i]->type == "light")
 		{
 			update_light_locations(inWorld->entityArray[i]);
 		}

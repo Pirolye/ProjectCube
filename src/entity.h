@@ -15,7 +15,7 @@ struct world;
 ;
 struct entt_transform
 {
-	Vector3 pos, scale;
+	Vector3 pos, scale, euler;
 	graphene_quaternion_t* rot;
 };
 
