@@ -497,7 +497,11 @@ void editor_scale_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGiz
 			}
 
 
-
+			if (newScale.x <= 0.01f || newScale.y <= 0.01f || newScale.z <= 0.01f)
+			{
+				break;
+				return;
+			}
 
 			update_spatial_properties(entityToMove, entityToMove->transform.pos, newScale);
 
