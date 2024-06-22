@@ -341,7 +341,13 @@ void update_world_editor(world_editor* inEditor)
 
 	if (IsKeyPressed(KEY_G) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
 	if (IsKeyPressed(KEY_H) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube_static", inEditor->currentWorld);
-	
+
+
+	if (!ImGui::IsAnyItemFocused())
+	{
+		if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C)) editor_copy_entity(inEditor->currentlySelectedEntity, inEditor);
+		if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V)) editor_paste_entity(inEditor);
+	}
 	if (!IsMouseButtonDown(MOUSE_BUTTON_RIGHT) && inEditor->selectingEntt && inEditor->canManipulateWorld)
 	{
 		// Set gizmo modes
@@ -427,6 +433,25 @@ entity* editor_try_select_entity(world_editor* inEditor)
 	
 	return nullptr;
 };
+
+void editor_copy_entity(entity* entityToCopy, world_editor* inEditor)
+{
+	if (entityToCopy == nullptr) return;
+
+	inEditor->currentlyCopiedEntity = entityToCopy;
+}
+
+void editor_paste_entity(world_editor* inEditor)
+{
+	entity* entityToPaste = inEditor->currentlyCopiedEntity;
+
+	if (entityToPaste == nullptr) return;
+
+	entity* newEntity = world_make_desired_entity_runtime(entityToPaste->type, inEditor->currentWorld);
+	update_spatial_properties(newEntity, entityToPaste->transform.pos, entityToPaste->transform.scale, entityToPaste->transform.rot);
+
+	inEditor->currentlySelectedEntity = newEntity;
+}
 
 #else
 

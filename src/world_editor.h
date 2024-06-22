@@ -32,6 +32,7 @@ struct world_editor
 	int currentlyEditingAxis = 0; // 0 = x, 1 = y, 2 = z; 3 = xy, 4 = yz. 5 = zx
 
 	entity* currentlySelectedEntity = nullptr;
+	entity* currentlyCopiedEntity = nullptr;
 	model* visibilityArray[1024] = { NULL };
 	bool selectingEntt = false;
 
@@ -74,9 +75,8 @@ struct world_editor
 };
 
 entity* editor_try_select_entity(world_editor* inWorldEditor);
-
-void editor_move_entt(world_editor* inWorldEditor, int axis, float val);
-void editor_rotate_entt(world_editor* inWorldEditor, int axis, float val);
+void editor_copy_entity(entity* entityToCopy, world_editor* inEditor);
+void editor_paste_entity(world_editor* inEditor);
 
 void init_world_editor(world_editor* inWorldEditor, world* inCurrentWorld);
 void shutdown_world_editor(world_editor* inWorldEditor);
