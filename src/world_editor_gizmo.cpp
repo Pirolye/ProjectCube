@@ -179,6 +179,14 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
+
+		if (inEditor->moveGizmo->currentlySelectedModel != nullptr)
+		{
+			editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+			return;
+		}
+
+
 		RayCollision collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
@@ -199,21 +207,11 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 			else
 			{
 
-				if (inEditor->moveGizmo->currentlySelectedModel != nullptr)
+				for (int i = 0; i < 6; i++)
 				{
-					editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
-					break; return;
+					inEditor->moveGizmo->model[i]->isSelected = false;
+					inEditor->moveGizmo->currentlySelectedModel = nullptr;
 				}
-				else
-				{
-					for (int i = 0; i < 6; i++)
-					{
-						inEditor->moveGizmo->model[i]->isSelected = false;
-						inEditor->moveGizmo->currentlySelectedModel = nullptr;
-					}
-
-				}
-				
 
 				inEditor->canManipulateWorld = true;
 			}
@@ -352,6 +350,13 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
+
+		if (inEditor->scaleGizmo->currentlySelectedModel != nullptr)
+		{
+			editor_scale_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+			return;
+		}
+
 		RayCollision collision = { 0 };
 		collision.distance = FLT_MAX;
 		collision.hit = false;
@@ -360,6 +365,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 
 		for (int i = 0; i < 6; i++)
 		{
+
 			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->scaleGizmo->model[i]->model.meshes[0], inEditor->scaleGizmo->model[i]->model.transform);
 
 			if (meshHitInfo.hit)
@@ -372,19 +378,10 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 			else
 			{
 
-				if (inEditor->scaleGizmo->currentlySelectedModel != nullptr)
+				for (int i = 0; i < 6; i++)
 				{
-					editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
-					break; return;
-				}
-				else
-				{
-					for (int i = 0; i < 6; i++)
-					{
-						inEditor->scaleGizmo->model[i]->isSelected = false;
-						inEditor->scaleGizmo->currentlySelectedModel = nullptr;
-					}
-
+					inEditor->scaleGizmo->model[i]->isSelected = false;
+					inEditor->scaleGizmo->currentlySelectedModel = nullptr;
 				}
 
 

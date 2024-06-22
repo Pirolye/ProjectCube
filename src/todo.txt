@@ -5,4 +5,3 @@ TODO:
 - bug: we can grab gizmo on the frame we select the entity
 - bug: we can grab gizmos while already grabbing one
 - default physx values are way too moon like
-- copy/paste entity in world
