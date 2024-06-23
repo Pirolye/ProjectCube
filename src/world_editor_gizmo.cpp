@@ -175,7 +175,7 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 	//(Levente): NOTE: For now, editing a camera's properties using the gizmo handles is disabled. Fix: when I implement global/local transform into the gizmo system!
 	if (inEditor->currentlySelectedEntity && inEditor->currentlySelectedEntity->type == "camera") return;
 	
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
@@ -242,7 +242,7 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 	//
 	//			 For each axis, we do 2 casts, to get starting pos and ending pos = small increments = smooth.
 
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
@@ -343,7 +343,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 {
 	if (inEditor->currentlySelectedEntity && inEditor->currentlySelectedEntity->type == "camera") return;
 
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
@@ -403,7 +403,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 
 void editor_scale_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove)
 {
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 
@@ -510,7 +510,7 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 {
 	if (inEditor->currentlySelectedEntity && inEditor->currentlySelectedEntity->type == "camera") return;
 
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
@@ -578,7 +578,7 @@ void editor_rotate_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGi
 {
 	return;
 	
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
 

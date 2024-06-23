@@ -38,7 +38,7 @@ void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhys
 
 #ifdef DEBUG
 	inWorld->worldEditor = new world_editor;
-	//inWorld->worldEditor = reinterpret_cast<world_editor*>(malloc(sizeof(world_editor))); //This never had a default constructor, yet the compiler can't handle the empty new directive now for some reason...
+
 	init_world_editor(inWorld->worldEditor, inWorld);
 #endif
 
@@ -156,7 +156,7 @@ void world_draw_all(world* inWorld)
 {
 	BeginDrawing();
 
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inWorld->currentlyRenderingCamera->data);
 	
 	BeginMode3D(camera->rayCam);
 	
@@ -258,7 +258,7 @@ entity* world_make_desired_entity(std::string inType, world* inWorld)
 
 entity* world_make_desired_entity_runtime(std::string inType, world* inWorld)
 {
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inWorld->currentlyRenderingCamera->data);
 	
 	entity* newEntity = new entity;
 

@@ -180,7 +180,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 
 	if (inEditorUI->worldEditor->currentlySelectedEntity->type == "maincube")
 	{
-		entity_maincube_data* data = reinterpret_cast<entity_maincube_data*>(inEditorUI->worldEditor->currentlySelectedEntity->data);
+		entity_maincube_data* data = (entity_maincube_data*)(inEditorUI->worldEditor->currentlySelectedEntity->data);
 		
 		if (ImGui::TreeNode("entity_maincube_data*"))
 		{
@@ -227,7 +227,7 @@ void editor_draw_entity_maker_panel(world_editor_ui* inEditorUI)
 {
 	bool t = true;
 
-	ImGui::Begin("Make entity", &t);
+	ImGui::Begin("Make entity", &t, 2 | 64 | 32);
 	
 	if (ImGui::ArrowButton("b", 0))
 	{

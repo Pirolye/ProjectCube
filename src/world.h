@@ -48,7 +48,6 @@ struct world
 void world_init(world* inWorld, game_instance* inGameInstance, PxPhysics* inPhysicsMemAddress); // Alias init
 void world_deinit(world* inWorld);
 
-//NOTE: Use reinterpret_cast to make it into the desired entt type!
 entity* world_make_desired_entity(std::string inType, world* inWorld);
 entity* world_make_desired_entity_runtime(std::string inType, world* inWorld);
 void engine_add_model_to_visibility_array(world* inWorld, model* inModel);

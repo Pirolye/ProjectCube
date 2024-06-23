@@ -136,7 +136,7 @@ void on_update(entity* inEntity)
 {
 	if (inEntity->type == "camera")
 	{
-		entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+		entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 		
 		if (inEntity != inEntity->containingWorld->currentlyRenderingCamera) return;
 
@@ -194,7 +194,7 @@ void on_update(entity* inEntity)
 
 	if (inEntity->type == "maincube")
 	{
-		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
+		entity_maincube_data* inData = (entity_maincube_data*)(inEntity->data);
 
 		if (inData->noPhysics) inData->collisionBox->disable(); else inData->collisionBox->enable();
 
@@ -221,7 +221,7 @@ void on_update(entity* inEntity)
 
 	if (inEntity->type == "maincube_static")
 	{
-		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+		entity_maincube_static_data* inData = (entity_maincube_static_data*)(inEntity->data);
 
 		if (inEntity->containingWorld->worldEditor->isInEditorMode == false)
 		{
@@ -238,7 +238,7 @@ void on_draw_2d(entity* inEntity)
 {
 	if (inEntity->type == "camera")
 	{
-		entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+		entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 		if (inEntity != inEntity->containingWorld->currentlyRenderingCamera) return;
 		DrawFPS(10, 20);
 
@@ -250,7 +250,7 @@ void on_draw_3d(entity* inEntity)
 {
 	if (inEntity->type == "camera")
 	{
-		entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+		entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 
 		if (inEntity != inEntity->containingWorld->currentlyRenderingCamera) return;
 
@@ -268,7 +268,7 @@ void on_draw_3d(entity* inEntity)
 
 				if (currentCam == inEntity) continue;
 
-				entity_camera_data* cameraData = reinterpret_cast<entity_camera_data*>(currentCam->data);
+				entity_camera_data* cameraData = (entity_camera_data*)(currentCam->data);
 
 				if (cameraData->isForEditorOnly) DrawModel(cameraData->cameraEditorModel, Vector3Zero(), 1.0f, BLUE);
 				else DrawModel(cameraData->cameraEditorModel, Vector3Zero(), 1.0f, GREEN);
@@ -285,7 +285,7 @@ void on_draw_3d(entity* inEntity)
 	
 	if (inEntity->type == "light")
 	{
-		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+		entity_light_data* inData = (entity_light_data*)(inEntity->data);
 
 		if (inEntity->containingWorld->worldEditor->isInEditorMode)
 		{
@@ -295,7 +295,7 @@ void on_draw_3d(entity* inEntity)
 
 	if (inEntity->type == "maincube")
 	{
-		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
+		entity_maincube_data* inData = (entity_maincube_data*)(inEntity->data);
 
 		draw_model(inData->cubeModel);
 
@@ -303,7 +303,7 @@ void on_draw_3d(entity* inEntity)
 
 	if (inEntity->type == "maincube_static")
 	{
-		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+		entity_maincube_static_data* inData = (entity_maincube_static_data*)(inEntity->data);
 
 		draw_model(inData->cubeModel);
 
@@ -315,7 +315,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 {
 	if (inEntity->type == "camera")
 	{
-		entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+		entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 		float x, y, z;
 
 		graphene_quaternion_to_angles(inNewRotation, &x, &y, &z);
@@ -326,7 +326,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 	
 	if (inEntity->type == "light")
 	{
-		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+		entity_light_data* inData = (entity_light_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -346,7 +346,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 	if (inEntity->type == "maincube")
 	{
-		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
+		entity_maincube_data* inData = (entity_maincube_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -367,7 +367,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 
 	if (inEntity->type == "maincube_static")
 	{
-		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+		entity_maincube_static_data* inData = (entity_maincube_static_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -392,7 +392,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 {
 	if (inEntity->type == "maincube")
 	{
-		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
+		entity_maincube_data* inData = (entity_maincube_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -406,7 +406,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 	}
 	if (inEntity->type == "light")
 	{
-		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+		entity_light_data* inData = (entity_light_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -421,7 +421,7 @@ void update_spatial_properties(entity* inEntity, Vector3 inNewPos, Vector3 inNew
 	}
 	if (inEntity->type == "maincube_static")
 	{
-		entity_maincube_static_data* inData = reinterpret_cast<entity_maincube_static_data*>(inEntity->data);
+		entity_maincube_static_data* inData = (entity_maincube_static_data*)(inEntity->data);
 
 		inEntity->transform.pos = inNewPos;
 		inEntity->transform.scale = inNewScale;
@@ -440,7 +440,7 @@ void update_light_properties(entity* inEntity, int inType, Vector3 inPos, Vector
 {
 	if (inEntity->type != "light") return;
 
-	entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+	entity_light_data* inData = (entity_light_data*)(inEntity->data);
 
 	for (int i2 = 0; i2 != 360; i2++)
 	{
@@ -478,7 +478,7 @@ void update_light_locations(entity* inLight)
 {
 	if (inLight->type != "light") return;
 
-	entity_light_data* inData = reinterpret_cast<entity_light_data*>(inLight->data);
+	entity_light_data* inData = (entity_light_data*)(inLight->data);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD * 2; i++)
 	{
@@ -501,7 +501,7 @@ void set_camera_mode(entity* inEntity, int inMode, bool isForEditorOnly)
 {
 	if (inEntity->type != "camera") return;
 
-	entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+	entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 
 
 	if (inMode != 1 && inMode != 0)
@@ -519,7 +519,7 @@ void transform_camera_by_delta(entity* inEntity, Vector3 inNewPosDelta, Vector3 
 {
 	if (inEntity->type != "camera") return;
 
-	entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+	entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 	
 	UpdateCameraPro(&(inData->rayCam), Vector3Zero(), inNewRotDelta, 0.0f);
 
@@ -551,7 +551,7 @@ void editor_camera_update_model_rotation(entity* inEntity)
 {
 	if (inEntity->type != "camera") return;
 
-	entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+	entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 
 
 	Matrix matScale = MatrixScale(inEntity->transform.scale.x, inEntity->transform.scale.y, inEntity->transform.scale.z);
@@ -568,13 +568,13 @@ void on_destroy(entity* inEntity)
 {
 	if (inEntity->type == "camera")
 	{
-		entity_camera_data* inData = reinterpret_cast<entity_camera_data*>(inEntity->data);
+		entity_camera_data* inData = (entity_camera_data*)(inEntity->data);
 		UnloadModel(inData->cameraEditorModel);
 
 	}
 	if (inEntity->type == "maincube")
 	{
-		entity_maincube_data* inData = reinterpret_cast<entity_maincube_data*>(inEntity->data);
+		entity_maincube_data* inData = (entity_maincube_data*)(inEntity->data);
 	
 		UnloadTexture(inData->cubeTexture);
 		unload_model(inData->cubeModel);
@@ -586,7 +586,7 @@ void on_destroy(entity* inEntity)
 	}
 	if (inEntity->type == "light")
 	{
-		entity_light_data* inData = reinterpret_cast<entity_light_data*>(inEntity->data);
+		entity_light_data* inData = (entity_light_data*)(inEntity->data);
 
 		unload_model(inData->debugModel);
 

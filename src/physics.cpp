@@ -63,7 +63,7 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, gr
 	
 	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
 
-	PxShape** currentShape = reinterpret_cast<PxShape**>(malloc(sizeof(PxShape)));
+	PxShape** currentShape = (PxShape**)(malloc(sizeof(PxShape)));
 
 	rigidDynamic->getShapes(currentShape, sizeof(PxShape));
 
@@ -88,7 +88,7 @@ void dynamic_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
 
 	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
 
-	PxShape** currentShape = reinterpret_cast<PxShape**>(malloc(sizeof(PxShape)));
+	PxShape** currentShape = (PxShape**)(malloc(sizeof(PxShape)));
 
 	rigidDynamic->getShapes(currentShape, sizeof(PxShape));
 
@@ -190,7 +190,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale, gra
 
 	PxTransform phsyxTransformNew(t.pos.x, t.pos.y, t.pos.z, (q));
 
-	PxShape** currentShape = reinterpret_cast<PxShape**>(malloc(sizeof(PxShape)));
+	PxShape** currentShape = (PxShape**)(malloc(sizeof(PxShape)));
 
 	rigidStatic->getShapes(currentShape, sizeof(PxShape));
 
@@ -213,7 +213,7 @@ void static_body::update_spatial_props(Vector3 inNewPos, Vector3 inNewScale)
 	
 	PxTransform phsyxTransformNew(x);
 
-	PxShape** currentShape = reinterpret_cast<PxShape**>(malloc(sizeof(PxShape)));
+	PxShape** currentShape = (PxShape**)(malloc(sizeof(PxShape)));
 
 	rigidStatic->getShapes(currentShape, sizeof(PxShape));
 

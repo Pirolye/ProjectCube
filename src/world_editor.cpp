@@ -59,7 +59,7 @@ void enter_editor_mode(world_editor* inEditor)
 		{
 			if ("camera" == inEditor->currentWorld->entityArray[i]->type)
 			{
-				nextCam = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->entityArray[i]->data);
+				nextCam = (entity_camera_data*)(inEditor->currentWorld->entityArray[i]->data);
 				if (nextCam->isForEditorOnly == true) 
 				{ 
 					inEditor->currentWorld->currentlyRenderingCamera = inEditor->currentWorld->entityArray[i];
@@ -96,7 +96,7 @@ void exit_editor_mode(world_editor* inEditor)
 		{
 			if ("camera" == inEditor->currentWorld->entityArray[i]->type)
 			{
-				nextCam = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->entityArray[i]->data);
+				nextCam = (entity_camera_data*)(inEditor->currentWorld->entityArray[i]->data);
 				if (nextCam->isForEditorOnly == false) { inEditor->currentWorld->currentlyRenderingCamera = inEditor->currentWorld->entityArray[i]; break; }
 				else
 				{
@@ -129,7 +129,7 @@ void editor_next_camera(world_editor* inEditor)
 		{
 			if ("camera" == inEditor->currentWorld->entityArray[i]->type)
 			{
-				entity_camera_data* camData = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->entityArray[i]->data);
+				entity_camera_data* camData = (entity_camera_data*)(inEditor->currentWorld->entityArray[i]->data);
 
 				if (camData->isForEditorOnly)
 				{
@@ -421,7 +421,7 @@ entity* editor_try_select_entity(world_editor* inEditor)
 	Vector3* hitPoints[MAX_ENTITIES_IN_WORLD] = { 0 };
 
 
-	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
+	entity_camera_data* camera = (entity_camera_data*)(inEditor->currentWorld->currentlyRenderingCamera->data);
 	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
 	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
