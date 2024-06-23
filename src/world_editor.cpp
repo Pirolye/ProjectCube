@@ -10,7 +10,7 @@
 #include "rlimgui.h"
 
 #include "game_instance.h"
-
+#include "rlgl.h"
 
 
 #ifdef DEBUG
@@ -379,8 +379,9 @@ void update_world_editor(world_editor* inEditor)
 void draw_world_editor_3d(world_editor* inEditor)
 {
 	//(Levente): This will draw the model used to calculate the new position of the actor based on the raycasts. 
-	//DrawModel(inEditor.editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
-	
+	rlDisableBackfaceCulling();
+	DrawModel(inEditor->editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
+	rlEnableBackfaceCulling();
 	
 	if(inEditor->selectingEntt) editor_draw_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 

@@ -2,10 +2,9 @@
 #define _WORLD_H_
 
 #include "entities.h"
-#include "world_editor.h"
-#include "world_editor_ui.h"
 #include "raylib_wrapper.h"
-
+#include "world_editor_ui.h"
+#include "world_editor.h"
 
 ;
 #include "PxPhysicsAPI.h"
@@ -24,7 +23,7 @@ struct world
 
 	entity* entityArray[MAX_ENTITIES_IN_WORLD] = { NULL }; //WARNING: This only works because we use new to allocate memory! Malloc doesn't fill this to NULL, breaking the program!!!!
 	int entityArrayCurrentSize = 0;
-	int totalMadeEntts = 0;
+	int totalMadeEntities = 0;
 
 	// Physics
 	PxScene* gScene;

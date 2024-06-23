@@ -152,7 +152,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 		title = "viewing nullptr";
 
 		ImGui::Begin(title.c_str(), &inEditorUI->enttPanelOpen, 0);
-		ImGui::Text("No entt selected :(");
+		ImGui::Text("No entity selected :(");
 		ImGui::End();
 		return;
 	}
@@ -166,7 +166,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 
 	if (ImGui::TreeNode("transform"))
 	{
-		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
+		ImGui::SameLine(); ImGui::TextDisabled("transform");
 		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.pos, "position");
 		entt_panel_draw_vec3(inEditorUI, &inEditorUI->localT.scale, "scale");
 		entt_panel_draw_quat_and_calculate_vec3(inEditorUI, inEditorUI->localT.rot, inEditorUI->localT.euler, "rotation");
@@ -175,7 +175,7 @@ void editor_draw_entt_panel(world_editor_ui* inEditorUI)
 	else
 	{
 
-		ImGui::SameLine(); ImGui::TextDisabled("entt_transform");
+		ImGui::SameLine(); ImGui::TextDisabled("transform");
 	}
 
 	if (inEditorUI->worldEditor->currentlySelectedEntity->type == "maincube")
@@ -213,7 +213,7 @@ void editor_draw_main_menu(world_editor_ui* inEditorUI)
 	{
 		if (ImGui::BeginMenu("Tools"))
 		{
-			ImGui::MenuItem("View and edit entt properties", NULL, &inEditorUI->enttPanelOpen);
+			ImGui::MenuItem("Entity properties", NULL, &inEditorUI->enttPanelOpen);
 			ImGui::MenuItem("ImGui styler", NULL, &inEditorUI->ImGuiStylerOpen);
 
 			ImGui::EndMenu();

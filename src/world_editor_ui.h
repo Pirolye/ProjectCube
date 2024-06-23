@@ -1,17 +1,20 @@
 #ifndef _H_WORLD_EDITOR_UI_
 #define _H_WORLD_EDITOR_UI_
 
-#include "world.h"
-#include "world_editor.h"
+#include <string>
 
-;
+//#include "world_editor.h"
+
+struct world_editor;
+
+
 struct world_editor_ui
 {
 	world_editor* worldEditor;
 	
 	bool enttPanelOpen = false;
 	bool ImGuiStylerOpen = false;
-	entt_transform localT = {};
+	transform localT = {};
 
 	std::string currentEntityType;
 	std::string entityTypes[3];

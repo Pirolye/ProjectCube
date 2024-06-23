@@ -102,7 +102,6 @@ bool editor_is_selecting_any_gizmo(world_editor* inWorldEditor);
 void editor_do_not_select_any_gizmo(world_editor* inWorldEditor);
 
 void editor_next_camera(world_editor* inWorldEditor);
-//void editor_scale_entt_gizmo(int inAxis, Vector3 inGizmoCenterPos, entt* enttToRotate); // We need entt transform overhaul for this!
 
 
 #else

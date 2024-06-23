@@ -1,6 +1,3 @@
-#include "entt_camera.h"
-#include "entt_maincube.h"
-
 #include "world_editor.h"
 
 #include "game_instance.h"
@@ -201,11 +198,11 @@ entity* world_make_desired_entity(std::string inType, world* inWorld)
 
 	//inType.erase(0, 12);
 
-	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntts);
+	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntities);
 	newEntity->containingWorld = inWorld;
 	newEntity->id = id;
 
-	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
+	inWorld->totalMadeEntities = inWorld->totalMadeEntities + 1;
 
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
 
@@ -264,11 +261,11 @@ entity* world_make_desired_entity_runtime(std::string inType, world* inWorld)
 
 	newEntity->type = inType;
 
-	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntts);
+	std::string id = "entity_" + inType + std::to_string(inWorld->totalMadeEntities);
 	newEntity->containingWorld = inWorld;
 	newEntity->id = id;
 
-	inWorld->totalMadeEntts = inWorld->totalMadeEntts + 1;
+	inWorld->totalMadeEntities = inWorld->totalMadeEntities + 1;
 
 	inWorld->entityArrayCurrentSize = inWorld->entityArrayCurrentSize + 1;
 

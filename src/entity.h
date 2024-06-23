@@ -13,7 +13,7 @@ struct world;
 #define MAX_ENTITIES_IN_WORLD 1024
 
 ;
-struct entt_transform
+struct transform
 {
 	Vector3 pos, scale, euler;
 	graphene_quaternion_t* rot;
@@ -27,7 +27,7 @@ struct entity
 	std::string id;
 	std::string type;
 
-	entt_transform transform; // WARNING: Do not set manually! Always use functions!
+	transform transform; // WARNING: Do not set manually! Always use functions!
 
 	
 };

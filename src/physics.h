@@ -19,7 +19,7 @@ struct dynamic_body
 	PxScene* containingPhysicsSpace;
 	world* containingWorld;
 
-	entt_transform t;
+	transform t;
 
 	void enable();
 	void disable();
@@ -45,7 +45,7 @@ struct static_body
 
 	bool everEnable;
 
-	entt_transform t;
+	transform t;
 
 	void enable();
 	void disable();

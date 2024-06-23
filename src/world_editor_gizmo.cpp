@@ -1,6 +1,7 @@
 #include <typeinfo>
 #include "world.h"
 #include "raymath.h"
+#include "rlgl.h"
 
 /*
 
@@ -18,6 +19,8 @@
 
 void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 {
+	rlDisableDepthTest(); // So we can see the gizmo behind objects!
+	
 	//(Levente): NOTE: For now, editing a camera's properties using the gizmo handles is disabled. Fix: when I implement global/local transform into the gizmo system!
 	if (inEditor->currentlySelectedEntity && inEditor->currentlySelectedEntity->type == "camera") return;
 
@@ -167,6 +170,8 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 
 		}
 	}
+
+	rlEnableDepthTest();
 }
 
 
@@ -263,8 +268,36 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 		}
 	}
 
-	inEditor->editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
+	//(Levente): I'm currently working on transforming the editor helper mesh perpendicular to the camera's position, and have it always look at the camera.
+	/*
+	graphene_vec3_t* gEye, *gPosition, *gUp;
+	graphene_vec3_init(gEye, camera->rayCam.position.x, camera->rayCam.position.y, camera->rayCam.position.z);
+	graphene_vec3_init(gPosition, inGizmoCenterPos.x, inGizmoCenterPos.y, inGizmoCenterPos.z);
+	graphene_vec3_init(gUp, camera->rayCam.up.x, camera->rayCam.up.y, camera->rayCam.up.z);
+	graphene_matrix_t* gMat; graphene_matrix_init_look_at(gMat, gEye, gPosition, gUp);
 
+	
+	for (int i = 0; i < 5; i++)
+	{
+		for (int i2 = 0; i2 < 5; i2++)
+		{
+			float f = graphene_matrix_get_value(gMat, i, i2);
+			
+
+		}
+
+
+	}
+	
+
+	Matrix mat = MatrixLookAt(inGizmoCenterPos, inEditor->currentWorld->currentlyRenderingCamera->transform.pos, camera->rayCam.up);
+	Matrix mat2 = MatrixRotate(camera->rayCam.up, 90.0f);
+	Matrix matF = MatrixMultiply(mat2, mat);
+
+	matF = MatrixTranslate(0.0f, 0.0f, -3.0f);
+	*/
+
+	inEditor->editorGizmoHelperModel.transform = MatrixMultiply(MatrixMultiply(matScale, matRotation), matTranslation);
 
 	RayCollision collision = { 0 };
 	collision.distance = FLT_MAX;
