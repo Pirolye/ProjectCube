@@ -343,8 +343,10 @@ void update_world_editor(world_editor* inEditor)
 
 	if (IsKeyPressed(KEY_TAB) && inEditor->canManipulateWorld) editor_next_camera(inEditor);
 
-	if (IsKeyPressed(KEY_G) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
-	if (IsKeyPressed(KEY_H) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube_static", inEditor->currentWorld);
+	if (IsKeyPressed(KEY_SPACE) && inEditor->canManipulateWorld) world_make_desired_entity_runtime(inEditor->editorUI->currentEntityType, inEditor->currentWorld);
+
+	//if (IsKeyPressed(KEY_G) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube", inEditor->currentWorld);
+	//if (IsKeyPressed(KEY_H) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube_static", inEditor->currentWorld);
 
 
 	if (!ImGui::IsAnyItemFocused())
@@ -393,6 +395,8 @@ void draw_world_editor_2d(world_editor* inEditor)
 	editor_draw_main_menu(inEditor->editorUI);
 
 	editor_draw_entt_panel(inEditor->editorUI);
+
+	editor_draw_entity_maker_panel(inEditor->editorUI);
 
 	if (inEditor->editorUI->ImGuiStylerOpen)
 	{

@@ -1,5 +1,4 @@
 TODO:
 
 - we need to reset the moved entity's physics state after moving them using the gizmo (currently it keeps the momentum)
-- bug: sometimes entity coordinates reset to 0 when selecting them
 - default physx values are way too moon like

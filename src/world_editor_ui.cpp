@@ -7,6 +7,12 @@ void editor_ui_init(world_editor_ui* inEditorUI, world_editor* inWorldEditor)
 {
 	inEditorUI->worldEditor = inWorldEditor;
 	inEditorUI->worldEditor->currentlySelectedEntity = nullptr;
+	inEditorUI->currentEntityType = "maincube";
+
+	inEditorUI->entityTypes[0] = "maincube";
+	inEditorUI->entityTypes[1] = "maincube_static";
+	inEditorUI->entityTypes[2] = "light";
+
 }
 
 
@@ -215,6 +221,53 @@ void editor_draw_main_menu(world_editor_ui* inEditorUI)
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+void editor_draw_entity_maker_panel(world_editor_ui* inEditorUI)
+{
+	bool t = true;
+
+	ImGui::Begin("Make entity", &t);
+	
+	if (ImGui::ArrowButton("b", 0))
+	{
+		if (inEditorUI->currentEntitySelectorIndex == 0)
+		{
+			inEditorUI->currentEntityType = inEditorUI->entityTypes[2];
+			inEditorUI->currentEntitySelectorIndex = 2;
+		}
+		else
+		{
+			inEditorUI->currentEntitySelectorIndex = inEditorUI->currentEntitySelectorIndex - 1;
+			inEditorUI->currentEntityType = inEditorUI->entityTypes[inEditorUI->currentEntitySelectorIndex];
+
+		}
+		
+	}
+
+	ImGui::SameLine();
+	ImGui::Text(inEditorUI->currentEntityType.c_str());
+	
+	ImGui::SameLine();
+	if (ImGui::ArrowButton("a", 1))
+	{
+		if (inEditorUI->currentEntitySelectorIndex == 2)
+		{
+			inEditorUI->currentEntityType = inEditorUI->entityTypes[0];
+			inEditorUI->currentEntitySelectorIndex = 0;
+
+		}
+
+		else
+		{
+			inEditorUI->currentEntitySelectorIndex = inEditorUI->currentEntitySelectorIndex + 1;
+			inEditorUI->currentEntityType = inEditorUI->entityTypes[inEditorUI->currentEntitySelectorIndex];
+
+		}
+
+	}
+	
+	ImGui::End();
 }
 
 void editor_setup_colors(world_editor_ui* inEditorUI)

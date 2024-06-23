@@ -143,7 +143,7 @@ static_body::static_body(Vector3 inInitialPos, Vector3 inInitialDimensions, Vect
 	containingPhysicsSpace = inContainingPhysicsSpace;
 	containingWorld = inContainingWorld;
 
-	testMaterial = containingWorld->globalPhysics->createMaterial(1.0f, 1.0f, 1.0f);
+	testMaterial = containingWorld->globalPhysics->createMaterial(0.1f, 0.1f, 0.1f);
 	rigidStatic = containingWorld->globalPhysics->createRigidStatic(PxTransform(PxVec3(inInitialPos.x, inInitialPos.y, inInitialPos.z)));
 	PxRigidActorExt::createExclusiveShape(*rigidStatic, PxBoxGeometry(inInitialDimensions.x, inInitialDimensions.y, inInitialDimensions.z), *testMaterial);
 
