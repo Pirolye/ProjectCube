@@ -1,7 +1,5 @@
 TODO:
 
 - we need to reset the moved entity's physics state after moving them using the gizmo (currently it keeps the momentum)
-- bug: entity creation order interferes with selection
-- bug: we can grab gizmo on the frame we select the entity
-- bug: we can grab gizmos while already grabbing one
+- bug: sometimes entity coordinates reset to 0 when selecting them
 - default physx values are way too moon like

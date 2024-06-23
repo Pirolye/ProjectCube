@@ -30,7 +30,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 		Matrix matTranslationStandard = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
 		Matrix matRotation;
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -49,7 +49,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 
 		}
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -78,7 +78,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 		Matrix matTranslationStandard = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
 		Matrix matRotation;
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -97,7 +97,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 
 		}
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -125,7 +125,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 		Matrix matTranslationStandard; // = MatrixTranslate(inCenterPos.x, inCenterPos.y, inCenterPos.z);
 		Matrix matRotation;
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -147,7 +147,7 @@ void editor_draw_gizmo(world_editor* inEditor, Vector3 inCenterPos)
 
 		}
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			if (i == 0)
 			{
@@ -180,7 +180,7 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 
-		if (inEditor->moveGizmo->currentlySelectedModel != nullptr)
+		if (inEditor->moveGizmo->currentlySelectedModel)
 		{
 			editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
 			return;
@@ -193,7 +193,7 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 		RayCollision meshHitInfo = { 0 };
 		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->moveGizmo->model[i]->model.meshes[0], inEditor->moveGizmo->model[i]->model.transform);
 
@@ -202,12 +202,13 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 				inEditor->moveGizmo->model[i]->isSelected = true;
 				inEditor->moveGizmo->currentlySelectedModel = inEditor->moveGizmo->model[i];
 				inEditor->canManipulateWorld = false;
+				editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
 				break; return;
 			}
 			else
 			{
 
-				for (int i = 0; i < 6; i++)
+				for (int i = 0; i < 3; i++)
 				{
 					inEditor->moveGizmo->model[i]->isSelected = false;
 					inEditor->moveGizmo->currentlySelectedModel = nullptr;
@@ -217,11 +218,10 @@ void editor_check_against_move_gizmo(world_editor* inEditor, Vector3 inCenterPos
 			}
 		}
 
-		editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
 	}
 	else
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			inEditor->moveGizmo->model[i]->isSelected = false;
 			inEditor->moveGizmo->currentlySelectedModel = nullptr;
@@ -255,7 +255,7 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 	Matrix matRotation;
 
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (inEditor->moveGizmo->model[i]->isSelected)
 		{
@@ -295,7 +295,7 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 		}
 	}
 
-	Vector3 newPos{ 0.0f, 0.0f, 0.0f };
+	Vector3 newPos{ 99.0f, 99.0f, 99.0f };
 
 
 	// current frame
@@ -329,10 +329,7 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 
 			}
 
-
-
-
-			update_spatial_properties(entityToMove, newPos, entityToMove->transform.scale);
+			update_spatial_properties(entityToMove, newPos, entityToMove->transform.scale, entityToMove->transform.rot);
 
 			break;
 			return;
@@ -351,7 +348,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 
-		if (inEditor->scaleGizmo->currentlySelectedModel != nullptr)
+		if (inEditor->scaleGizmo->currentlySelectedModel)
 		{
 			editor_scale_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
 			return;
@@ -363,7 +360,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 		RayCollision meshHitInfo = { 0 };
 		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 
 			meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->scaleGizmo->model[i]->model.meshes[0], inEditor->scaleGizmo->model[i]->model.transform);
@@ -378,7 +375,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 			else
 			{
 
-				for (int i = 0; i < 6; i++)
+				for (int i = 0; i < 3; i++)
 				{
 					inEditor->scaleGizmo->model[i]->isSelected = false;
 					inEditor->scaleGizmo->currentlySelectedModel = nullptr;
@@ -393,7 +390,7 @@ void editor_check_against_scale_gizmo(world_editor* inEditor, Vector3 inCenterPo
 	}
 	else
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			inEditor->scaleGizmo->model[i]->isSelected = false;
 			inEditor->scaleGizmo->currentlySelectedModel = nullptr;
@@ -419,7 +416,7 @@ void editor_scale_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGiz
 	Matrix matRotation;
 
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (inEditor->scaleGizmo->model[i]->isSelected)
 		{
@@ -500,7 +497,7 @@ void editor_scale_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGiz
 				return;
 			}
 
-			update_spatial_properties(entityToMove, entityToMove->transform.pos, newScale);
+			update_spatial_properties(entityToMove, entityToMove->transform.pos, newScale, entityToMove->transform.rot);
 
 			break;
 			return;
@@ -523,7 +520,7 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 		RayCollision meshHitInfo = { 0 };
 		Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			for (int i2 = 0; i2 < inEditor->rotateGizmo->model[i]->model.meshCount; i2++)
 			{
@@ -541,12 +538,12 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 
 					if (inEditor->rotateGizmo->currentlySelectedModel != nullptr)
 					{
-						editor_move_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
+						editor_rotate_entity_gizmo(inEditor, 0, inCenterPos, inEditor->currentlySelectedEntity);
 						break; return;
 					}
 					else
 					{
-						for (int i = 0; i < 6; i++)
+						for (int i = 0; i < 3; i++)
 						{
 							inEditor->rotateGizmo->model[i]->isSelected = false;
 							inEditor->rotateGizmo->currentlySelectedModel = nullptr;
@@ -566,7 +563,7 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 	}
 	else
 	{
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			inEditor->rotateGizmo->model[i]->isSelected = false;
 			inEditor->rotateGizmo->currentlySelectedModel = nullptr;
@@ -579,6 +576,8 @@ void editor_check_against_rotate_gizmo(world_editor* inEditor, Vector3 inCenterP
 
 void editor_rotate_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizmoCenterPos, entity* entityToMove)
 {
+	return;
+	
 	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
 
 	Vector2 previousFrameMousePos = Vector2{ GetMousePosition().x + GetMouseDelta().x, GetMousePosition().y + GetMouseDelta().y };
@@ -592,7 +591,7 @@ void editor_rotate_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGi
 	Matrix matRotation;
 
 
-	for (int i = 0; i < 6; i++)
+	for (int i = 0; i < 3; i++)
 	{
 		if (inEditor->rotateGizmo->model[i]->isSelected)
 		{

@@ -182,6 +182,8 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 	{
 		inEditor->moveGizmo->model[i] = new gizmo_model;
 		inEditor->moveGizmo->model[i]->isSelected = false;
+
+		if (i > 2) break;
 		
 		inEditor->moveGizmo->model[i]->texture = LoadTexture("editor/gizmo_move_axis_albedo.png");
 		
@@ -192,7 +194,7 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 		}
 		else
 		{
-			inEditor->moveGizmo->model[i]->model = LoadModel("editor/gizmo_move_axis_combined.obj");
+			inEditor->moveGizmo->model[i]->model = { 0 }; // LoadModel("editor/gizmo_move_axis_combined.obj");
 		}
 
 		inEditor->moveGizmo->model[i]->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->moveGizmo->model[i]->texture;
@@ -219,6 +221,8 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 		inEditor->scaleGizmo->model[i] = new gizmo_model;
 		inEditor->scaleGizmo->model[i]->isSelected = false;
 
+		if (i > 2) break;
+
 		inEditor->scaleGizmo->model[i]->texture = LoadTexture("editor/gizmo_move_axis_albedo.png");
 
 		if (i == 0 || i == 1 || i == 2)
@@ -228,7 +232,7 @@ void init_world_editor(world_editor* inEditor, world* inCurrentWorld)
 		}
 		else
 		{
-			inEditor->scaleGizmo->model[i]->model = LoadModel("editor/gizmo_scale_axis_combined.obj");
+			inEditor->scaleGizmo->model[i]->model = { 0 };// LoadModel("editor/gizmo_scale_axis_combined.obj");
 		}
 
 		inEditor->scaleGizmo->model[i]->model.materials[0].maps[MATERIAL_MAP_ALBEDO].texture = inEditor->scaleGizmo->model[i]->texture;
@@ -408,6 +412,11 @@ entity* editor_try_select_entity(world_editor* inEditor)
 	collision.distance = FLT_MAX;
 	collision.hit = false;
 
+	model* hitArray[MAX_ENTITIES_IN_WORLD] = { 0 };
+	float* distances[MAX_ENTITIES_IN_WORLD] = { 0 };
+	Vector3* hitPoints[MAX_ENTITIES_IN_WORLD] = { 0 };
+
+
 	entity_camera_data* camera = reinterpret_cast<entity_camera_data*>(inEditor->currentWorld->currentlyRenderingCamera->data);
 	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
@@ -422,7 +431,10 @@ entity* editor_try_select_entity(world_editor* inEditor)
 				meshHitInfo = GetRayCollisionMesh(cursorSelectionRay, inEditor->currentWorld->worldEditor->visibilityArray[i]->model.meshes[m], inEditor->currentWorld->worldEditor->visibilityArray[i]->model.transform);
 				if (meshHitInfo.hit)
 				{
-					return inEditor->currentWorld->worldEditor->visibilityArray[i]->container;
+					//return inEditor->currentWorld->worldEditor->visibilityArray[i]->container;
+
+					hitArray[i] = inEditor->currentWorld->worldEditor->visibilityArray[i];
+					hitPoints[i] = new Vector3(meshHitInfo.point);
 
 				}
 			}
@@ -430,8 +442,56 @@ entity* editor_try_select_entity(world_editor* inEditor)
 			
 		}
 	}
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (hitArray[i] == nullptr) continue;
+
+		distances[i] = new float(Vector3Distance(camera->rayCam.position, *hitPoints[i]));
+	}
+
+	float lowest = -FLT_MIN;
+	int index = -1;
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		if (distances[i] == NULL) continue;		
+		
+		if (lowest == -FLT_MIN)
+		{
+			lowest = *distances[i];
+			index = i;
+			continue;
+		}
+
+		if (*distances[i] < lowest)
+		{
+			lowest = *distances[i];
+			index = i;
+		}
+	}
+
+
+	if (index >= 0)
+	{
+		for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+		{
+			delete distances[i];
+			delete hitPoints[i];
+		}
+
+		return hitArray[index]->container;
+	}
+
+	for (int i = 0; i != MAX_ENTITIES_IN_WORLD; i++)
+	{
+		delete distances[i];
+		delete hitPoints[i];
+	}
+
 	
 	return nullptr;
+
 };
 
 void editor_copy_entity(entity* entityToCopy, world_editor* inEditor)

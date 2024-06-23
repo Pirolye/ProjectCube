@@ -20,7 +20,7 @@ struct gizmo
 {
 	gizmo_model* model[6];
 	// 0 = X, 1 = Y, 2 = Z, 3 = XY, 4 = YZ, 5 = ZX
-	gizmo_model* currentlySelectedModel;
+	gizmo_model* currentlySelectedModel = nullptr;
 };
 
 struct world_editor
