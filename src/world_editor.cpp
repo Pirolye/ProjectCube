@@ -349,7 +349,7 @@ void update_world_editor(world_editor* inEditor)
 	//if (IsKeyPressed(KEY_H) && inEditor->canManipulateWorld) world_make_desired_entity_runtime("maincube_static", inEditor->currentWorld);
 
 
-	if (!ImGui::IsAnyItemFocused())
+	if (!(ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) || ImGui::GetIO().WantCaptureKeyboard || ImGui::GetIO().NavVisible))
 	{
 		if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_C)) editor_copy_entity(inEditor->currentlySelectedEntity, inEditor);
 		if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_V)) editor_paste_entity(inEditor);
@@ -379,9 +379,9 @@ void update_world_editor(world_editor* inEditor)
 void draw_world_editor_3d(world_editor* inEditor)
 {
 	//(Levente): This will draw the model used to calculate the new position of the actor based on the raycasts. 
-	rlDisableBackfaceCulling();
-	DrawModel(inEditor->editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
-	rlEnableBackfaceCulling();
+	//rlDisableBackfaceCulling();
+	//DrawModel(inEditor->editorGizmoHelperModel, Vector3Zero(), 1.0f, RED);
+	//rlEnableBackfaceCulling();
 	
 	if(inEditor->selectingEntt) editor_draw_gizmo(inEditor, inEditor->currentlySelectedEntity->transform.pos);
 
