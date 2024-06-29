@@ -253,6 +253,21 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 
 	Ray cursorSelectionRay = GetMouseRay(GetMousePosition(), camera->rayCam);
 
+	float diffX = previousFrameMousePos.x - GetMousePosition().x;
+	float diffY = previousFrameMousePos.y - GetMousePosition().y;
+
+	Vector3 cameraPos = camera->rayCam.position;
+
+	Vector3 normal = Vector3{ inGizmoCenterPos.x - cameraPos.x, inGizmoCenterPos.y - cameraPos.y, inGizmoCenterPos.z - cameraPos.z };
+	Vector3 unit = Vector3Normalize(normal);
+	
+	float Y = atan2(unit.x, unit.z);
+	float X = asin(-(unit.y));
+	float Z = 0.0f;
+
+
+	//float diff = Vector2Distance(previousFrameMousePos, GetMousePosition()) / 10.0f;
+
 	Ray cursorSelectionRayForPrevFrame = GetMouseRay(previousFrameMousePos, camera->rayCam);
 
 	Matrix matScale = MatrixScale(1.0f, 1.0f, 1.0f);
@@ -267,6 +282,8 @@ void editor_move_entity_gizmo(world_editor* inEditor, int inAxis, Vector3 inGizm
 			matRotation = inEditor->moveGizmo->model[i]->helperModelRotation;
 		}
 	}
+
+	matRotation = MatrixRotateXYZ(Vector3{ X, Y, Z });
 
 	//(Levente): I'm currently working on transforming the editor helper mesh perpendicular to the camera's position, and have it always look at the camera.
 	/*
